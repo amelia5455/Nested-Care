@@ -1665,58 +1665,58 @@ em { font: inherit; }
   .hiw-left { display: none; }
   .hiw-right { display: block; position: static; width: auto; transform: none; }
 
-  /* One step at a time. The active step and its description are the only
-     two elements in flow, so the flex container centres them as a single
-     group. Inactive ones go absolute, which takes them out of flow while
-     still allowing the crossfade. Pinning the description to the bottom
-     instead left ~190px of dead space above the step. */
+  /* One step at a time, stacked in a two-row grid: every step shares row 1
+     and every description shares row 2, so all six occupy fixed cells and
+     only opacity changes between them.
+
+     The previous version swapped the active item to position:static while
+     the inactive ones stayed absolute. That meant each transition moved
+     between two different boxes, so a step appeared to fly in from a
+     corner rather than fading in place. */
   .hiw-inner {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 22px;
-    /* Bias the group above centre. Centred in the full pinned viewport it
-       sits ~190px below the intro heading during the hand-off, which reads
-       as a hole in the page. */
-    padding-bottom: 24vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    align-content: center;
+    row-gap: 20px;
+    padding-bottom: 8vh;
   }
   .hiw-right { display: contents; }
 
-  .step-layer,
-  .step-desc-layer {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    width: auto !important;
-    transform: translateY(-50%);
-    margin: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .step-layer.active,
-  .step-desc-layer.active {
-    position: static;
+  /* The desktop layout positions these absolutely with top:50%/left:50%.
+     Switching to relative without clearing those offsets turns them into a
+     displacement, which shoved every step 187px right and 373px down - the
+     "flying in from a corner" effect. They have to be reset explicitly. */
+  .step-layer, .step-layer.active, .step-layer.past {
+    grid-area: 1 / 1;
+    position: relative;
+    inset: auto;
+    width: 100%;
     transform: none;
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .step-layer.past,
-  .step-desc-layer.past { opacity: 0; }
-
-  .step-layer {
+    margin: 0;
     padding: 0 18px;
     gap: 18px;
     align-items: center;
-    order: 1;
+    pointer-events: none;
   }
-  .step-desc-layer {
+  .step-desc-layer, .step-desc-layer.active, .step-desc-layer.past {
+    grid-area: 2 / 1;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    transform: none;
+    margin: 0;
     padding: 0 24px;
     text-align: center;
     max-width: none;
-    order: 2;
+    pointer-events: none;
   }
+
+  .step-layer, .step-desc-layer { opacity: 0; }
+  .step-layer.active, .step-desc-layer.active { opacity: 1; pointer-events: auto; }
+  .step-layer.past, .step-desc-layer.past { opacity: 0; }
+
   .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
 
   .step-heading { font-size: 30px; }
