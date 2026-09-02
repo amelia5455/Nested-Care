@@ -1678,3 +1678,37 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .faq-grid h2 { font-size: 26px !important; }
   .footer-nav-b { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   NAV CTA HOVER
+   The original hover darkened #025355 to #013F40 — two near-identical
+   teals on a translucent bar, so it read as no feedback at all. It
+   brightens and lifts instead.
+
+   The selector has to out-specify .navbar.nav-expanded .btn-nav-primary,
+   which pins transform and carries a 0.72s entrance delay; without that
+   the lift is either ignored or arrives three-quarters of a second late.
+   ============================================================ */
+.navbar .btn-nav-primary:hover,
+.navbar.nav-expanded .btn-nav-primary:hover,
+.navbar .btn-nav-primary:focus-visible,
+.navbar.nav-expanded .btn-nav-primary:focus-visible {
+  background: #03696B;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition-delay: 0s;
+}
+.navbar .btn-nav-primary:active,
+.navbar.nav-expanded .btn-nav-primary:active {
+  background: #013F40;
+  transform: translateY(0);
+  box-shadow: none;
+  transition-delay: 0s;
+}
+
+/* Over the cream sections the bar is solid, so a lighter fill reads best. */
+.navbar.scrolled .btn-nav-primary:hover,
+.navbar.scrolled .btn-nav-primary:focus-visible {
+  background: #05807F;
+}
