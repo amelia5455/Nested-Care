@@ -11,7 +11,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 .intro-overlay.gone { display:none; }
 
 /* NAVBAR */
-.navbar { position:fixed; top:20px; left:50%; transform:translateX(-50%); width:0; max-width:1340px; height:68px; background:rgba(26,26,26,0.10); backdrop-filter:blur(40px) saturate(160%) brightness(1.08); -webkit-backdrop-filter:blur(40px) saturate(160%) brightness(1.08); border-radius:48px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 2px 32px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:space-between; padding:0 24px; z-index:100; overflow:hidden; transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+.navbar { position:fixed; top:20px; left:50%; transform:translateX(-50%); width:0; max-width:1340px; height:68px; background:rgba(26,26,26,0.10); --navbar-blur:blur(40px) saturate(160%) brightness(1.08); -webkit-backdrop-filter:var(--navbar-blur); backdrop-filter:var(--navbar-blur); border-radius:48px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 2px 32px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:space-between; padding:0 24px; z-index:100; overflow:hidden; transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
 .navbar.nav-expanded { width: calc(100vw - 80px); }
 .navbar.nav-ready { overflow: visible; }
 
@@ -67,13 +67,13 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   transition-delay: 0.88s;
 }
 .btn-nav-ghost:hover { background:rgba(255,255,255,0.12); color:#FAFAFA; }
-.btn-nav-primary { height:40px; padding:0 20px; border-radius:100px; border:none; background:#025355; color:white; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-nav-primary { display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 20px; border-radius:100px; border:none; background:#025355; color:white; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; }
 .btn-nav-primary:hover { background:#013F40; }
 .nav-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
 .nav-logo-mark { width:26px; height:28px; color:#025355; }
 .nav-logo-text { font-family:'Clash Display',sans-serif; font-size:18px; font-weight:500; color:#FAFAFA; letter-spacing:-0.02em; }
 .nav-links { display:flex; align-items:center; gap:32px; list-style:none; }
-.nav-links a { font-size:14px; font-weight:500; color:rgba(250,250,250,0.75); text-decoration:none; transition:color 0.15s; }
+.nav-links a { font-size:14px; font-weight:500; color:rgba(250,250,250,0.92); text-decoration:none; transition:color 0.15s; }
 .nav-links a:hover { color:#FAFAFA; }
 .nav-actions { display:flex; align-items:center; gap:12px; }
 
@@ -233,7 +233,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.45) 60%,rgba(0,0,0,0.65) 100%); }
 .hero-content { position:relative; z-index:2; padding:0 80px; max-width:1100px; width:100%; }
 .hero-heading { font-family:'Clash Display',sans-serif; font-size:80px; font-weight:500; color:white; letter-spacing:-0.035em; line-height:1.02; margin-bottom:40px; max-width:920px; }
-.hero-heading em { font-family:'Zodiak',serif; font-style:italic; font-weight:400; }
+.hero-heading em { font-family: inherit; font-style: normal; font-weight: inherit; }
 .hero-ctas { display:flex; align-items:center; gap:12px; }
 .btn-primary { height:52px; padding:0 28px; border-radius:100px; border:none; background:#025355; color:white; font-family:'Figtree',sans-serif; font-size:15px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background 0.15s; text-decoration:none; }
 .btn-primary:hover { background:#013F40; }
@@ -243,7 +243,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 /* MISSION */
 .mission { background:white; padding:100px 80px; display:flex; flex-direction:column; align-items:center; text-align:center; }
 .mission-heading { font-family:'Clash Display',sans-serif; font-size:52px; font-weight:500; color:#1A1A1A; letter-spacing:-0.025em; line-height:1.15; max-width:1100px; margin-bottom:40px; }
-.mission-heading em { font-family:'Zodiak',serif; font-style:italic; font-weight:400; color:#6B6860; }
+.mission-heading em { font-family: inherit; font-style: normal; font-weight: inherit; color:#6B6860; }
 .btn-mission { height:52px; padding:0 28px; border-radius:100px; border:none; background:#025355; color:white; font-family:'Figtree',sans-serif; font-size:15px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background 0.15s; }
 .btn-mission:hover { background:#013F40; }
 
@@ -283,11 +283,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   margin-bottom: 56px;
 }
 
-.section-heading em {
-  font-family: 'Zodiak', serif;
-  font-style: italic;
-  font-weight: 400;
-}
+.section-heading em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 .cards-grid {
   display: grid;
@@ -459,11 +455,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   line-height: 1.08;
 }
 
-.why-heading em {
-  font-family: 'Zodiak', serif;
-  font-style: italic;
-  font-weight: 400;
-}
+.why-heading em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 .why-right {
   display: flex;
@@ -489,18 +481,18 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #C8603A;
+  background: #F5F3EE;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #033D3F;
   transition: background 0.15s, transform 0.15s;
   flex-shrink: 0;
 }
 
-.why-arrow:hover { background: #B0522E; transform: scale(1.05); }
+.why-arrow:hover { background: #FFFFFF; transform: scale(1.05); }
 .why-arrow svg { width: 16px; height: 16px; }
 
 /* Scroll track */
@@ -524,10 +516,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 18px;
   padding: 28px 28px 32px;
-  min-width: 340px;
-  max-width: 340px;
-  scroll-snap-align: start;
-  flex-shrink: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -713,11 +702,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   text-align: center;
 }
 
-.step-heading em {
-  font-family: 'Zodiak', serif;
-  font-style: italic;
-  font-weight: 400;
-}
+.step-heading em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 /* Right col */
 .hiw-right {
@@ -873,9 +858,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   color: #1A1A1A; letter-spacing: -0.01em; line-height: 1.3;
 }
 
-.mock-question em {
-  font-family: 'Zodiak', serif; font-style: italic; font-weight: 400;
-}
+.mock-question em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 .mock-options { display: flex; flex-direction: column; gap: 8px; }
 
@@ -1002,7 +985,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   color: #1A1A1A;
 }
 em .mw.lit {
-  color: #C8603A;
+  color: #025355;
 }
 
 /* HOW IT WORKS INTRO BLUR WORDS */
@@ -1026,7 +1009,7 @@ em .mw.lit {
 .faq-item--last { border-bottom: 1px solid rgba(245,243,238,0.2); }
 .faq-q { width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; cursor:pointer; padding:24px 0; font-family:'Figtree',sans-serif; font-size:16px; font-weight:600; color:#F5F3EE; text-align:left; gap:16px; transition:color 0.2s; }
 .faq-q:hover { color:rgba(245,243,238,0.75); }
-.faq-icon { font-size:22px; font-weight:300; color:#C8603A; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
+.faq-icon { font-size:22px; font-weight:300; color:#B0CFCF; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
 .faq-a { font-family:'Figtree',sans-serif; font-size:15px; line-height:1.75; color:rgba(245,243,238,0.65); max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding-bottom 0.35s ease; padding-bottom:0; }
 .faq-item.open .faq-a { max-height:200px; padding-bottom:24px; }
 .faq-item.open .faq-icon { transform:rotate(45deg); }
@@ -1057,7 +1040,7 @@ em .mw.lit {
 .footer-top { display:grid; grid-template-columns:1fr auto; gap:80px; padding:56px 56px 48px; align-items:start; }
 .footer-left { display:flex; flex-direction:column; gap:20px; }
 .footer-tagline { font-family:'Clash Display',sans-serif; font-size:48px; font-weight:500; letter-spacing:-0.03em; line-height:1.05; color:#F5F3EE; }
-.footer-tagline em { font-family:'Zodiak',serif; font-style:italic; font-weight:400; color:#C8603A; }
+.footer-tagline em { font-family: inherit; font-style: normal; font-weight: inherit; color:#B0CFCF; }
 .footer-link-b { display:inline-flex; align-items:center; gap:8px; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:rgba(245,243,238,0.55); text-decoration:none; transition:gap 0.2s ease, color 0.2s; }
 .footer-link-b:hover { gap:12px; color:#F5F3EE; }
 .footer-link-b svg { width:14px; height:14px; transition:transform 0.2s ease; }
@@ -1073,3 +1056,447 @@ em .mw.lit {
 .footer-legal-b { display:flex; align-items:center; gap:24px; }
 .footer-legal-b a { font-family:'Figtree',sans-serif; font-size:12px; color:rgba(245,243,238,0.25); text-decoration:none; transition:color 0.15s; }
 .footer-legal-b a:hover { color:rgba(245,243,238,0.7); }
+
+/* ============================================================
+   JS FAILSAFE
+   The intro overlay is torn down by JavaScript, and every reveal on
+   this page starts at opacity:0 and is switched on the same way. So
+   any failure to run that script — a hydration error, a chunk that
+   never arrives, scripting disabled — leaves the visitor staring at
+   the logo with the whole site hidden behind it.
+
+   These rules open the page on a timer and are switched off the moment
+   JS claims it by putting .js-ready on <html>. When scripting works the
+   failsafe never fires; when it doesn't, the site still opens.
+   ============================================================ */
+@keyframes nested-failsafe-show  { to { opacity: 1; filter: none; transform: none; } }
+@keyframes nested-failsafe-intro { to { transform: translateY(-100%); visibility: hidden; } }
+@keyframes nested-failsafe-nav   { to { width: calc(100vw - 80px); } }
+
+html:not(.js-ready) .intro-overlay {
+  animation: nested-failsafe-intro 0.9s cubic-bezier(0.76,0,0.24,1) 2s forwards;
+}
+html:not(.js-ready) .navbar {
+  animation: nested-failsafe-nav 0.9s cubic-bezier(0.16,1,0.3,1) 1.9s forwards;
+}
+html:not(.js-ready) .nav-left,
+html:not(.js-ready) .nav-center,
+html:not(.js-ready) .btn-nav-ghost,
+html:not(.js-ready) .btn-nav-primary,
+html:not(.js-ready) .blur-word,
+html:not(.js-ready) .blur-ctas,
+html:not(.js-ready) .hiw-blur-word,
+html:not(.js-ready) .hiw-inner,
+html:not(.js-ready) .care-card,
+html:not(.js-ready) .care-cards-heading,
+html:not(.js-ready) #cta-left,
+html:not(.js-ready) #cta-right,
+html:not(.js-ready) #hiw-eyebrow,
+html:not(.js-ready) #hiw-sub {
+  animation: nested-failsafe-show 0.7s ease 2.4s forwards;
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   Nested's audience is largely older adults and their families,
+   so these are first-class features, not an afterthought.
+   Preferences live on <html> and are set before first paint by
+   the bootstrap script in _document.js.
+   ============================================================ */
+
+/* ---- 1. Text size -------------------------------------------------
+   Page zoom was the obvious approach and the wrong one: it inflates the
+   72px display headings until they overflow, while the body copy that
+   actually needs help only grows in proportion. The scaling is done in
+   JS instead (see applyTextScale in pages/index.js) so reading sizes
+   grow properly and display type is left nearly alone.
+
+   All that is needed here is to stop fixed-height controls from
+   clipping their own label once the text inside them grows. */
+html[data-text-scale]:not([data-text-scale="1"]) .btn-primary,
+html[data-text-scale]:not([data-text-scale="1"]) .btn-outline,
+html[data-text-scale]:not([data-text-scale="1"]) .btn-nav-primary,
+html[data-text-scale]:not([data-text-scale="1"]) .btn-mission,
+html[data-text-scale]:not([data-text-scale="1"]) .hiw-cta-btn,
+html[data-text-scale]:not([data-text-scale="1"]) .faq-q {
+  height: auto;
+  min-height: 48px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+html[data-text-scale]:not([data-text-scale="1"]) .navbar {
+  height: auto;
+  min-height: 68px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+html[data-text-scale]:not([data-text-scale="1"]) .nav-links {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+/* ---- 2. Skip link ------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 10000;
+  background: #033D3F;
+  color: #F5F3EE;
+  font-family: 'Figtree', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 26px;
+  border-radius: 0 0 12px 12px;
+  text-decoration: none;
+  transition: transform 0.18s ease;
+}
+.skip-link:focus { transform: translate(-50%, 0); }
+
+/* ---- 3. Focus visibility ------------------------------------------
+   A single, unmissable focus style. The site had none at all, which
+   makes keyboard navigation impossible to follow. */
+:focus-visible {
+  outline: 3px solid #C8603A;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.hero :focus-visible,
+.navbar :focus-visible,
+footer :focus-visible,
+.footer-wrap :focus-visible,
+[style*="033D3F"] :focus-visible {
+  outline-color: #FFB088;
+}
+
+/* ---- 4. Comfortable hit targets ----------------------------------- */
+.nav-links a,
+.nav-dropdown-trigger,
+.btn-nav-ghost,
+.btn-nav-primary,
+.footer-nav-b a,
+.footer-legal-b a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.faq-q { min-height: 56px; }
+
+/* ---- 5. Legibility floors ----------------------------------------
+   Nothing on a site read by older eyes should sit at 10-13px. */
+.eyebrow, .why-card-badge + *, .dd-item-desc, .dd-section-label,
+.footer-disclaimer-b, .footer-copy-b, .footer-legal-b a,
+.mock-results-lbl, .step-desc, .why-subtext { font-size: 15px; }
+.dd-item-name { font-size: 16px; }
+
+/* ---- 6. Contrast repairs (always on) ------------------------------
+   These were below the WCAG AA 4.5:1 floor at their original values. */
+.why-subtext            { color: rgba(245,243,238,0.88); }
+.footer-disclaimer-b    { color: rgba(245,243,238,0.75); }
+.footer-copy-b          { color: rgba(245,243,238,0.75); }
+.footer-legal-b a       { color: rgba(245,243,238,0.85); }
+.faq-a                  { color: rgba(245,243,238,0.88); }
+.dd-item-desc           { color: #5B564F; }
+.mw                     { color: rgba(26,26,26,0.38); }
+
+/* ---- 7. Underline links ------------------------------------------- */
+html[data-underline-links="on"] a:not(.btn-primary):not(.btn-outline):not(.nav-logo):not(.skip-link) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- 8. High contrast --------------------------------------------- */
+html[data-contrast="high"] body { background: #FFFFFF; }
+html[data-contrast="high"] {
+  --hc-ink: #101010;
+}
+html[data-contrast="high"] .mw,
+html[data-contrast="high"] .mw.lit { color: #101010; }
+html[data-contrast="high"] .why-subtext,
+html[data-contrast="high"] .faq-a,
+html[data-contrast="high"] .footer-disclaimer-b,
+html[data-contrast="high"] .footer-copy-b,
+html[data-contrast="high"] .footer-legal-b a { color: #FFFFFF; }
+html[data-contrast="high"] .step-desc,
+html[data-contrast="high"] .dd-item-desc,
+html[data-contrast="high"] .hiw-sub,
+html[data-contrast="high"] .averages-sub { color: #2A2A2A; }
+html[data-contrast="high"] .hero-overlay { background: rgba(0,0,0,0.62) !important; }
+html[data-contrast="high"] .navbar {
+  background: rgba(0,0,0,0.72);
+  border-color: rgba(255,255,255,0.5);
+}
+html[data-contrast="high"] .care-card,
+html[data-contrast="high"] .why-card,
+html[data-contrast="high"] .faq-item {
+  border-width: 2px;
+}
+html[data-contrast="high"] a:not(.btn-primary):not(.btn-outline):not(.nav-logo) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- 9. Reduced motion --------------------------------------------
+   Everything on this page starts at opacity:0 and is revealed by JS.
+   Turning motion off therefore has to *show* that content, not just
+   stop the transition — otherwise the page reads as blank. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) { scroll-behavior: auto; }
+}
+html[data-motion="reduced"] { scroll-behavior: auto; }
+
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion="reduced"] .intro-overlay { display: none !important; }
+
+html[data-motion="reduced"] .navbar { width: calc(100vw - 80px); }
+
+html[data-motion="reduced"] .blur-word,
+html[data-motion="reduced"] .hiw-blur-word,
+html[data-motion="reduced"] .blur-ctas,
+html[data-motion="reduced"] .nav-left,
+html[data-motion="reduced"] .nav-center,
+html[data-motion="reduced"] .btn-nav-ghost,
+html[data-motion="reduced"] .btn-nav-primary,
+html[data-motion="reduced"] .care-card,
+html[data-motion="reduced"] .care-cards-heading,
+html[data-motion="reduced"] .hiw-inner,
+html[data-motion="reduced"] .why-card,
+html[data-motion="reduced"] #cta-left,
+html[data-motion="reduced"] #cta-right,
+html[data-motion="reduced"] #hiw-eyebrow,
+html[data-motion="reduced"] #hiw-sub,
+html[data-motion="reduced"] #cta-el-0,
+html[data-motion="reduced"] #cta-el-1,
+html[data-motion="reduced"] #cta-el-2,
+html[data-motion="reduced"] #cta-el-3 {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+html[data-motion="reduced"] .mw { color: #1A1A1A !important; }
+html[data-motion="reduced"] .hero-bg video { display: none; }
+html[data-motion="reduced"] .hero-bg {
+  background: #2B3A34 url('/monika-kubala-EyBX95WQxXI-unsplash.jpg') center/cover no-repeat;
+}
+
+/* ---- 10. The accessibility panel ---------------------------------- */
+.a11y-wrap { position: relative; display: flex; align-items: center; }
+
+.btn-a11y {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.12);
+  color: #FAFAFA;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1), background 0.15s;
+}
+.navbar.nav-expanded .btn-a11y {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.8s;
+}
+.btn-a11y:hover { background: rgba(255,255,255,0.24); }
+.btn-a11y[aria-expanded="true"] { background: #F5F3EE; color: #033D3F; border-color: #F5F3EE; }
+.btn-a11y svg { width: 22px; height: 22px; }
+
+.a11y-panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 340px;
+  background: #033D3F;
+  border: 1px solid rgba(245,243,238,0.22);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+  z-index: 200;
+  color: #F5F3EE;
+  font-family: 'Figtree', sans-serif;
+}
+.a11y-panel h2 {
+  font-family: 'Figtree', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.a11y-panel .a11y-intro {
+  font-size: 14px;
+  color: rgba(245,243,238,0.8);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+.a11y-row { border-top: 1px solid rgba(245,243,238,0.16); padding: 15px 0; }
+.a11y-row:last-of-type { padding-bottom: 6px; }
+.a11y-label { font-size: 15px; font-weight: 600; margin-bottom: 10px; display: block; }
+.a11y-hint { font-size: 13px; color: rgba(245,243,238,0.7); margin-top: 7px; line-height: 1.45; }
+
+.a11y-sizes { display: flex; gap: 8px; }
+.a11y-size {
+  flex: 1;
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(245,243,238,0.35);
+  background: transparent;
+  color: #F5F3EE;
+  font-family: 'Figtree', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.a11y-size:hover { background: rgba(245,243,238,0.12); }
+.a11y-size[aria-pressed="true"] {
+  background: #F5F3EE;
+  color: #033D3F;
+  border-color: #F5F3EE;
+}
+.a11y-size.s1 { font-size: 14px; }
+.a11y-size.s2 { font-size: 17px; }
+.a11y-size.s3 { font-size: 20px; }
+.a11y-size.s4 { font-size: 23px; }
+
+.a11y-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: transparent;
+  border: none;
+  color: #F5F3EE;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  min-height: 44px;
+  text-align: left;
+}
+.a11y-switch {
+  width: 50px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(245,243,238,0.28);
+  border: 1px solid rgba(245,243,238,0.4);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s;
+}
+.a11y-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #F5F3EE;
+  transition: transform 0.15s ease;
+}
+.a11y-toggle[aria-pressed="true"] .a11y-switch { background: #C8603A; border-color: #C8603A; }
+.a11y-toggle[aria-pressed="true"] .a11y-switch::after { transform: translateX(22px); }
+
+.a11y-reset {
+  margin-top: 14px;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(245,243,238,0.35);
+  background: transparent;
+  color: #F5F3EE;
+  font-family: 'Figtree', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.a11y-reset:hover { background: rgba(245,243,238,0.12); }
+
+@media (max-width: 900px) {
+  .a11y-panel { position: fixed; top: 96px; right: 16px; left: 16px; width: auto; }
+}
+
+/* ============================================================
+   12. NAVBAR AT NARROWER WIDTHS
+   .nav-center is absolutely positioned at left:50%, so it sits on top
+   of .nav-right as soon as the bar is not wide enough for both. That
+   is reachable on an ordinary display now that the accessibility panel
+   can scale the page to 1.5x, so the bar has to degrade in order.
+   ============================================================ */
+@media (max-width: 1180px) {
+  .navbar { padding: 0 18px; }
+  .navbar.nav-expanded,
+  html:not(.js-ready) .navbar { width: calc(100vw - 48px); }
+  /* back into normal flow so the three groups share the width */
+  .nav-center {
+    position: static;
+    left: auto;
+    transform: none;
+    min-width: 0;
+  }
+  .nav-links { gap: 20px; }
+  .nav-links a,
+  .nav-dropdown-trigger { font-size: 13px; }
+  .nav-right { gap: 8px; }
+}
+
+@media (max-width: 940px) {
+  /* Sign in is the least load-bearing control; drop it before the links. */
+  .btn-nav-ghost { display: none; }
+  .nav-links { gap: 14px; }
+}
+
+@media (max-width: 780px) {
+  /* No mobile menu exists, so keep the logo, the accessibility panel and
+     the one action that matters, rather than letting the bar collide. */
+  .nav-center { display: none; }
+  .navbar { height: 62px; padding: 0 14px; }
+  .navbar.nav-expanded,
+  html:not(.js-ready) .navbar { width: calc(100vw - 28px); }
+}
+
+/* A bare <em> still picks up the browser's italic default, which is how
+   "actually ask" stayed slanted after the styled italics were removed.
+   Headings read in one voice. */
+em { font-family: inherit; font-style: normal; font-weight: inherit; }
+
+
+/* ============================================================
+   NAVBAR OVER LIGHT SECTIONS
+   The bar is translucent with a backdrop blur, which reads beautifully
+   over the dark hero video and then turns near-white over the cream
+   sections below it, taking the white wordmark and links with it.
+   Past the hero it gets a solid ground so the same light text keeps
+   its contrast.
+   ============================================================ */
+.navbar.scrolled {
+  background: rgba(3, 61, 63, 0.94);
+  border-color: rgba(245, 243, 238, 0.22);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.24);
+}
+.navbar.scrolled .nav-logo-mark { color: #F5F3EE; }
+.navbar.scrolled .nav-links a,
+.navbar.scrolled .nav-dropdown-trigger { color: rgba(245, 243, 238, 0.92); }
+.navbar.scrolled .nav-links a:hover,
+.navbar.scrolled .nav-dropdown-trigger:hover { color: #FFFFFF; }
+.navbar.scrolled .btn-a11y {
+  border-color: rgba(245, 243, 238, 0.45);
+  color: #F5F3EE;
+}

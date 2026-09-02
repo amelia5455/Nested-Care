@@ -1,10 +1,105 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
+  // ── Accessibility preferences ───────────────────────────────────
+  // Stored on <html> as data-* attributes; _document.js replays them
+  // before first paint so a saved preference never flashes.
+  const DEFAULT_PREFS = { textScale: 1, contrast: false, motion: false, links: false };
+  const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+  const [a11yOpen, setA11yOpen] = useState(false);
+  const a11yRef = useRef(null);
+
+  // Page zoom scales the 72px display headings until they overflow, while the
+  // body copy that actually needs help only grows in proportion. So scale the
+  // reading sizes properly and leave display type nearly alone. Each element's
+  // original size is captured once, before anything has been touched.
+  const DISPLAY_FLOOR = 34;   // px: at or above this, treat it as display type
+  const applyTextScale = (factor) => {
+    const nodes = document.querySelectorAll('#main-content *, .navbar *, .footer-wrap *');
+    nodes.forEach((el) => {
+      if (el.closest('#a11y-panel') || el.closest('.btn-a11y')) return;
+      if (el.dataset.baseFs === undefined) {
+        el.dataset.baseFs = String(parseFloat(getComputedStyle(el).fontSize) || 0);
+      }
+      const px = parseFloat(el.dataset.baseFs);
+      if (!px) return;
+      if (factor === 1) { el.style.fontSize = ''; return; }
+      const f = px >= DISPLAY_FLOOR ? 1 + (factor - 1) * 0.15 : factor;
+      el.style.fontSize = (px * f).toFixed(2) + 'px';
+    });
+  };
+
+  const writePrefs = (next) => {
+    setPrefs(next);
+    const d = document.documentElement;
+    if (next.textScale && next.textScale !== 1) d.setAttribute('data-text-scale', String(next.textScale));
+    else d.removeAttribute('data-text-scale');
+    if (next.contrast) d.setAttribute('data-contrast', 'high'); else d.removeAttribute('data-contrast');
+    if (next.motion) d.setAttribute('data-motion', 'reduced'); else d.removeAttribute('data-motion');
+    if (next.links) d.setAttribute('data-underline-links', 'on'); else d.removeAttribute('data-underline-links');
+    applyTextScale(next.textScale || 1);
+    try { localStorage.setItem('nested-a11y', JSON.stringify(next)); } catch (e) {}
+  };
+
+  const setPref = (key, value) => writePrefs({ ...prefs, [key]: value });
+
+  // Replay a saved preference on load, or honour the OS motion setting.
   useEffect(() => {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('nested-a11y') || 'null'); } catch (e) {}
+    if (saved) {
+      const merged = { ...DEFAULT_PREFS, ...saved };
+      setPrefs(merged);
+      if (merged.textScale && merged.textScale !== 1) applyTextScale(merged.textScale);
+      return;
+    }
+    const os = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (os) writePrefs({ ...DEFAULT_PREFS, motion: true });
+  }, []);
+
+  // Close the panel on Escape, or on a click anywhere outside it.
+  useEffect(() => {
+    if (!a11yOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setA11yOpen(false);
+      document.getElementById('a11y-trigger')?.focus();
+    };
+    const onPointer = (e) => {
+      if (a11yRef.current && !a11yRef.current.contains(e.target)) setA11yOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('touchstart', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('touchstart', onPointer);
+    };
+  }, [a11yOpen]);
+
+  useEffect(() => {
+    // Tells the stylesheet that scripting is alive, which switches off the
+    // CSS failsafe that would otherwise reveal the page on a timer.
+    document.documentElement.classList.add('js-ready');
+
+    // Every reveal below is driven by setTimeout, and browsers throttle
+    // timers in background tabs, so a page opened in an unfocused tab would
+    // otherwise sit on the intro logo indefinitely. Hold the sequence until
+    // the tab is actually being looked at.
+    const whenVisible = (start) => {
+      if (!document.hidden) { start(); return; }
+      const onVisible = () => {
+        if (document.hidden) return;
+        document.removeEventListener('visibilitychange', onVisible);
+        start();
+      };
+      document.addEventListener('visibilitychange', onVisible);
+    };
+
     // ── Intro overlay + navbar expand ──
-    (function() {
+    whenVisible(function() {
       const o = document.getElementById('intro-overlay');
       setTimeout(() => o.classList.add('slide-up'), 1500);
 
@@ -18,21 +113,34 @@ export default function Home() {
       }, 2500);
 
       setTimeout(() => o.classList.add('gone'), 2600);
-    })();
+    });
 
     // ── Dropdown toggle ──
     window.toggleDropdown = function(btn) {
       const m = document.getElementById('resources-dropdown');
-      btn.classList.toggle('open');
-      m.classList.toggle('open');
+      const open = !btn.classList.contains('open');
+      btn.classList.toggle('open', open);
+      m.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
     };
+
+    function closeDropdown() {
+      const t = document.querySelector('.nav-dropdown-trigger');
+      t?.classList.remove('open');
+      t?.setAttribute('aria-expanded', 'false');
+      document.getElementById('resources-dropdown')?.classList.remove('open');
+    }
 
     document.addEventListener('click', function(e) {
       const w = document.querySelector('.nav-dropdown-wrap');
-      if (w && !w.contains(e.target)) {
-        document.querySelector('.nav-dropdown-trigger')?.classList.remove('open');
-        document.getElementById('resources-dropdown')?.classList.remove('open');
-      }
+      if (w && !w.contains(e.target)) closeDropdown();
+    });
+
+    // Escape closes the menu and hands focus back to the trigger.
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      const t = document.querySelector('.nav-dropdown-trigger');
+      if (t && t.classList.contains('open')) { closeDropdown(); t.focus(); }
     });
 
     // ── Hero blur-word reveal ──
@@ -66,15 +174,9 @@ export default function Home() {
             ctaRight.style.transform = 'translateY(0)';
           }
         }, Math.floor(words.length * 0.55) * 120);
-
-        // Microcopy fades in after last word
-        setTimeout(() => {
-          const micro = document.getElementById('hero-microcopy');
-          if (micro) micro.style.opacity = '1';
-        }, lastWordDelay + 300);
       }
 
-      setTimeout(startReveal, 1600);
+      whenVisible(() => setTimeout(startReveal, 1600));
     })();
 
     // ── Mission heading word reveal ──
@@ -141,6 +243,7 @@ export default function Home() {
 
       if (intro) observer.observe(intro);
     })();
+
 
     // ── HIW scroll steps ──
     const STEPS = 3;
@@ -285,79 +388,18 @@ export default function Home() {
       if (scrollContainer) observer.observe(scrollContainer);
     })();
 
-    // ── Why Nested scroll-driven horizontal scroll ──
+
+    // ── Navbar ground once it leaves the hero ──
+    // Translucent over the video, solid over the cream sections, so the
+    // light wordmark and links never sit on a near-white bar.
     (function() {
-      const outer = document.getElementById('why-scroll-outer');
-      const track = document.getElementById('why-track');
-      if (!outer || !track) return;
-
-      const CARD_WIDTH = 340 + 14;
-      const TOTAL_CARDS = 6;
-      const CARDS_VISIBLE = 3;
-      const MAX_OFFSET = CARD_WIDTH * (TOTAL_CARDS - CARDS_VISIBLE);
-
-      const SCROLL_DISTANCE = CARD_WIDTH * (TOTAL_CARDS - CARDS_VISIBLE) * 1.0;
-      outer.style.height = (window.innerHeight + SCROLL_DISTANCE) + 'px';
-
-      let currentOffset = 0;
-      let targetOffset = 0;
-      let manualOffset = null;
-      let rafId = null;
-
-      function clamp(val, min, max) { return Math.min(max, Math.max(min, val)); }
-
-      function getScrollOffset() {
-        const rect = outer.getBoundingClientRect();
-        const scrolled = -rect.top;
-        const progress = clamp(scrolled / SCROLL_DISTANCE, 0, 1);
-        return progress * MAX_OFFSET;
-      }
-
-      function render() {
-        const dest = manualOffset !== null ? manualOffset : targetOffset;
-        if (manualOffset !== null) {
-          currentOffset += (dest - currentOffset) * 0.1;
-          if (Math.abs(dest - currentOffset) < 0.5) {
-            currentOffset = dest;
-            manualOffset = null;
-          }
-        } else {
-          currentOffset = dest;
-        }
-
-        track.style.transition = 'none';
-        track.style.transform = `translateX(${-currentOffset}px)`;
-
-        const rect = outer.getBoundingClientRect();
-        const scrolled = -rect.top;
-        if (scrolled >= -window.innerHeight && scrolled <= SCROLL_DISTANCE + window.innerHeight) {
-          rafId = requestAnimationFrame(render);
-        } else {
-          rafId = null;
-        }
-      }
-
-      function onScroll() {
-        targetOffset = getScrollOffset();
-        if (manualOffset !== null) {
-          const rect = outer.getBoundingClientRect();
-          const scrolled = -rect.top;
-          if (scrolled > 0 && scrolled < SCROLL_DISTANCE) {
-            manualOffset = null;
-          }
-        }
-        if (!rafId) render();
-      }
-
-      window.addEventListener('scroll', onScroll, { passive: true });
-      render();
-
-      window.whyNav = function(dir) {
-        const base = manualOffset !== null ? manualOffset : currentOffset;
-        const curr = Math.round(base / CARD_WIDTH);
-        const next = clamp(curr + dir, 0, TOTAL_CARDS - CARDS_VISIBLE);
-        manualOffset = next * CARD_WIDTH;
-      };
+      const hero = document.querySelector('.hero');
+      const nav = document.querySelector('.navbar');
+      if (!hero || !nav) return;
+      const observer = new IntersectionObserver(([entry]) => {
+        nav.classList.toggle('scrolled', !entry.isIntersecting);
+      }, { rootMargin: '-90px 0px 0px 0px', threshold: 0 });
+      observer.observe(hero);
     })();
 
     // ── Care cards scroll reveal ──
@@ -421,7 +463,8 @@ export default function Home() {
       const item = btn.closest('.faq-item');
       const isOpen = item.classList.contains('open');
       document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+      document.querySelectorAll('.faq-q').forEach(q => q.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) { item.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
     };
 
     // ── CTA section reveal ──
@@ -454,6 +497,7 @@ export default function Home() {
       if (firstEl) observer.observe(firstEl);
     })();
 
+
     // Cleanup
     return () => {
       window.removeEventListener('scroll', hiwScrollHandler);
@@ -463,10 +507,12 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Nested — Find Care. Get Clarity.</title>
+        <title>Nested · Find Care. Get Clarity.</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta charSet="UTF-8" />
       </Head>
+
+      <a className="skip-link" href="#main-content">Skip to main content</a>
 
       {/* INTRO */}
       <div className="intro-overlay" id="intro-overlay">
@@ -490,7 +536,7 @@ export default function Home() {
             <li><a href="#">How it works</a></li>
             <li><a href="#">Care types</a></li>
             <li className="nav-dropdown-wrap">
-              <button className="nav-dropdown-trigger" onClick={(e) => window.toggleDropdown && window.toggleDropdown(e.currentTarget)}>Resources
+              <button className="nav-dropdown-trigger" aria-expanded="false" aria-controls="resources-dropdown" aria-haspopup="true" onClick={(e) => window.toggleDropdown && window.toggleDropdown(e.currentTarget)}>Resources
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 4L6.35 7.62C6.26 7.71 6.15 7.76 6.03 7.76C5.91 7.76 5.8 7.71 5.71 7.62L2 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
               <div className="nav-dropdown-menu" id="resources-dropdown">
@@ -533,42 +579,139 @@ export default function Home() {
         </div>
 
         <div className="nav-right" id="nav-right">
-          <button className="btn-nav-ghost">Sign in</button>
-          <button className="btn-nav-primary" id="nav-cta">Start Now</button>
+          <div className="a11y-wrap" ref={a11yRef}>
+            <button
+              type="button"
+              className="btn-a11y"
+              id="a11y-trigger"
+              aria-expanded={a11yOpen}
+              aria-controls="a11y-panel"
+              aria-label="Accessibility settings"
+              onClick={() => setA11yOpen((o) => !o)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="7.4" r="1.5" fill="currentColor" stroke="none" />
+                <path d="M6.8 10.2c3.4.9 6.99.9 10.4 0" />
+                <path d="M12 10.6v4.1" />
+                <path d="m12 14.7-1.9 4.1M12 14.7l1.9 4.1" />
+              </svg>
+            </button>
+
+            {a11yOpen && (
+              <div className="a11y-panel" id="a11y-panel" role="dialog" aria-labelledby="a11y-title">
+                <h2 id="a11y-title">
+                  <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="7.4" r="1.5" fill="currentColor" stroke="none" />
+                    <path d="M6.8 10.2c3.4.9 6.99.9 10.4 0" />
+                    <path d="M12 10.6v4.1" />
+                    <path d="m12 14.7-1.9 4.1M12 14.7l1.9 4.1" />
+                  </svg>
+                  Accessibility
+                </h2>
+                <p className="a11y-intro">Adjust how this site looks and moves. Your choices are remembered on this device.</p>
+
+                <div className="a11y-row">
+                  <span className="a11y-label" id="a11y-textsize">Text size</span>
+                  <div className="a11y-sizes" role="group" aria-labelledby="a11y-textsize">
+                    {[[1, 'Default', 's1'], [1.15, 'Large', 's2'], [1.3, 'Larger', 's3'], [1.5, 'Largest', 's4']].map(
+                      ([value, label, cls]) => (
+                        <button
+                          key={label}
+                          type="button"
+                          className={'a11y-size ' + cls}
+                          aria-pressed={prefs.textScale === value}
+                          aria-label={label + ' text'}
+                          onClick={() => setPref('textScale', value)}
+                        >
+                          A
+                        </button>
+                      )
+                    )}
+                  </div>
+                  <p className="a11y-hint">Makes everything on the page bigger, not just the words.</p>
+                </div>
+
+                <div className="a11y-row">
+                  <button
+                    type="button"
+                    className="a11y-toggle"
+                    aria-pressed={prefs.contrast}
+                    onClick={() => setPref('contrast', !prefs.contrast)}
+                  >
+                    Higher contrast
+                    <span className="a11y-switch" aria-hidden="true" />
+                  </button>
+                  <p className="a11y-hint">Darkens text and strengthens outlines.</p>
+                </div>
+
+                <div className="a11y-row">
+                  <button
+                    type="button"
+                    className="a11y-toggle"
+                    aria-pressed={prefs.motion}
+                    onClick={() => setPref('motion', !prefs.motion)}
+                  >
+                    Reduce motion
+                    <span className="a11y-switch" aria-hidden="true" />
+                  </button>
+                  <p className="a11y-hint">Stops the background video and fade-in effects.</p>
+                </div>
+
+                <div className="a11y-row">
+                  <button
+                    type="button"
+                    className="a11y-toggle"
+                    aria-pressed={prefs.links}
+                    onClick={() => setPref('links', !prefs.links)}
+                  >
+                    Underline links
+                    <span className="a11y-switch" aria-hidden="true" />
+                  </button>
+                  <p className="a11y-hint">Makes links easy to spot within text.</p>
+                </div>
+
+                <button type="button" className="a11y-reset" onClick={() => writePrefs(DEFAULT_PREFS)}>
+                  Reset to default
+                </button>
+              </div>
+            )}
+          </div>
+          <a href="/nested-calculator_25.html" className="btn-nav-primary" id="nav-cta">Start Now</a>
         </div>
       </nav>
 
       {/* HERO */}
+      <main id="main-content">
       <section className="hero">
         <div className="hero-bg">
-          <video autoPlay muted loop playsInline preload="auto">
+          <video autoPlay muted loop playsInline preload="auto" aria-hidden="true" tabIndex={-1}>
             <source src="/hero-bg.mp4" type="video/mp4" />
           </video>
         </div>
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1 className="hero-heading" id="hero-heading">
-            <span className="blur-word">Navigate</span>
-            <span className="blur-word">senior</span>
-            <span className="blur-word">care</span>
-            <span className="blur-word">costs</span>
-            <span className="blur-word">with</span>
-            <em className="blur-word"><span>confidence</span></em>—<span className="blur-word">from</span>
-            <span className="blur-word">the</span>
-            <span className="blur-word">first</span>
-            <span className="blur-word">question</span>
-            <span className="blur-word">to</span>
-            <span className="blur-word">the</span>
-            <span className="blur-word">final</span>
+            <span className="blur-word">Navigate</span>{' '}
+            <span className="blur-word">senior</span>{' '}
+            <span className="blur-word">care</span>{' '}
+            <span className="blur-word">costs</span>{' '}
+            <span className="blur-word">with</span>{' '}
+            <em className="blur-word"><span>confidence</span></em>{' '}<span className="blur-word">from</span>{' '}
+            <span className="blur-word">the</span>{' '}
+            <span className="blur-word">first</span>{' '}
+            <span className="blur-word">question</span>{' '}
+            <span className="blur-word">to</span>{' '}
+            <span className="blur-word">the</span>{' '}
+            <span className="blur-word">final</span>{' '}
             <span className="blur-word">decision</span>
           </h1>
           <div style={{display:'flex',gap:'12px',alignItems:'center'}}>
-            <a href="#" className="btn-primary" id="cta-left" style={{opacity:0,transform:'translateX(100%)',transition:'opacity 0.5s ease, transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)'}}>Start Comparison</a>
+            <a href="/nested-calculator_25.html" className="btn-primary" id="cta-left" style={{opacity:0,transform:'translateX(100%)',transition:'opacity 0.5s ease, transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)'}}>Start Comparison</a>
             <a href="#" className="btn-outline" id="cta-right" style={{opacity:0,transform:'translateY(6px)',transition:'opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',fontSize:'14px',fontWeight:500,borderColor:'rgba(255,255,255,0.35)',color:'rgba(255,255,255,0.7)'}}>How it works</a>
           </div>
         </div>
-        {/* Bottom-right trust anchor */}
-        <p id="hero-microcopy" style={{position:'absolute',bottom:'80px',right:'80px',zIndex:2,opacity:0,fontFamily:"'Figtree',sans-serif",fontSize:'13px',fontWeight:500,color:'rgba(255,255,255,0.85)',letterSpacing:'0.01em',transition:'opacity 0.8s ease',margin:0,background:'rgba(0,0,0,0.28)',backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)',padding:'10px 20px',borderRadius:'100px',border:'1px solid rgba(255,255,255,0.1)'}}>No account needed · 3 minutes</p>
       </section>
 
       {/* MISSION */}
@@ -583,12 +726,12 @@ export default function Home() {
       <div id="hiw-intro" style={{background:'#F5F3EE',padding:'80px 80px 0',textAlign:'center'}}>
         <p id="hiw-eyebrow" style={{fontFamily:"'Figtree',sans-serif",fontSize:'12px',fontWeight:600,letterSpacing:'0.12em',textTransform:'uppercase',color:'#A89E90',marginBottom:'20px',opacity:0,filter:'blur(10px)',transform:'translateY(8px)',transition:'opacity 0.8s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.8s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)'}}>How it works</p>
         <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'52px',fontWeight:500,color:'#1C1C1A',lineHeight:1.08,letterSpacing:'-0.025em',margin:'0 0 20px 0'}}>
-          <span className="hiw-blur-word">Three</span>
-          <span className="hiw-blur-word">steps</span>
-          <span className="hiw-blur-word">to</span>
-          <em className="hiw-blur-word" style={{fontFamily:"'Zodiak',serif",fontStyle:'italic',fontWeight:400}}>clarity.</em>
+          <span className="hiw-blur-word">Three</span>{' '}
+          <span className="hiw-blur-word">steps</span>{' '}
+          <span className="hiw-blur-word">to</span>{' '}
+          <em className="hiw-blur-word">clarity.</em>
         </h2>
-        <p id="hiw-sub" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6560',lineHeight:1.75,maxWidth:'420px',margin:'0 auto',opacity:0,filter:'blur(10px)',transform:'translateY(8px)',transition:'opacity 0.8s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.8s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)'}}>No forms, no sales calls, no fluff — just real numbers for your situation.</p>
+        <p id="hiw-sub" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6560',lineHeight:1.75,maxWidth:'420px',margin:'0 auto',opacity:0,filter:'blur(10px)',transform:'translateY(8px)',transition:'opacity 0.8s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.8s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)'}}>No forms, no sales calls, no fluff. Just real numbers for your situation.</p>
       </div>
 
       {/* HOW IT WORKS */}
@@ -661,7 +804,7 @@ export default function Home() {
               <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'11px',fontWeight:600,letterSpacing:'0.14em',textTransform:'uppercase',color:'#A89E90',marginBottom:'-20px'}}>Step 2 of 3</p>
               <h2 className="step-heading">See <em>real cost ranges</em><br />for your area.</h2>
               <div className="step-mockup">
-                <div className="mock-results-lbl">Your cost estimates — Seattle, WA</div>
+                <div className="mock-results-lbl">Your cost estimates, Seattle, WA</div>
                 <div style={{display:'flex',flexDirection:'column',gap:'7px'}}>
                   <div className="mock-result-card hi">
                     <div className="mock-result-left">
@@ -717,7 +860,7 @@ export default function Home() {
             {/* RIGHT: descriptions */}
             <div className="hiw-right">
               <div className="step-desc-layer active" id="desc-0">
-                <div className="step-desc"><span className="word">Tell</span> <span className="word">us</span> <span className="word">about</span> <span className="word">your</span> <span className="word">loved</span> <span className="word">one</span> <span className="word">—</span> <span className="word">location,</span> <span className="word">care</span> <span className="word">needs,</span> <span className="word">and</span> <span className="word">budget</span> <span className="word">range.</span> <span className="word">Takes</span> <span className="word">about</span> <span className="word">3</span> <span className="word">minutes.</span></div>
+                <div className="step-desc"><span className="word">Tell</span> <span className="word">us</span> <span className="word">about</span> <span className="word">your</span> <span className="word">loved</span> <span className="word">one:</span> <span className="word">location,</span> <span className="word">care</span> <span className="word">needs,</span> <span className="word">and</span> <span className="word">budget</span> <span className="word">range.</span> <span className="word">Takes</span> <span className="word">about</span> <span className="word">3</span> <span className="word">minutes.</span></div>
               </div>
               <div className="step-desc-layer" id="desc-1">
                 <div className="step-desc"><span className="word">Accurate,</span> <span className="word">location-specific</span> <span className="word">estimates</span> <span className="word">for</span> <span className="word">each</span> <span className="word">care</span> <span className="word">type.</span> <span className="word">No</span> <span className="word">guessing,</span> <span className="word">no</span> <span className="word">pressure.</span></div>
@@ -733,56 +876,44 @@ export default function Home() {
 
       {/* HIW CTA */}
       <div className="hiw-cta">
-        <a href="#" className="btn-primary">Start the calculator <span className="btn-arrow">→</span></a>
+        <a href="/nested-calculator_25.html" className="btn-primary">Start the calculator <span className="btn-arrow">→</span></a>
       </div>
 
       {/* WHY NESTED */}
-      <div id="why-scroll-outer" style={{position:'relative'}}>
-        <section id="why-sticky" style={{position:'sticky',top:0,height:'100vh',background:'#033D3F',overflow:'hidden',display:'flex',flexDirection:'column',justifyContent:'center',padding:0,gap:0}}>
-          {/* Right edge fade mask */}
-          <div style={{position:'absolute',top:0,right:0,width:'200px',height:'100%',background:'linear-gradient(to right,transparent,#033D3F)',zIndex:10,pointerEvents:'none'}}></div>
-          {/* Left edge fade mask */}
-          <div style={{position:'absolute',top:0,left:0,width:'80px',height:'100%',background:'linear-gradient(to left,transparent,#033D3F)',zIndex:10,pointerEvents:'none'}}></div>
+      <div id="why-scroll-outer">
+        <section id="why-sticky" style={{background:'#033D3F',display:'flex',flexDirection:'column',justifyContent:'center',padding:'110px 0'}}>
 
           <div style={{padding:'0 80px',marginBottom:'28px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'32px',alignItems:'start'}}>
             <div>
               <h2 className="why-heading">Everything you need<br />in <em>one place.</em></h2>
             </div>
             <div className="why-right">
-              <p className="why-subtext">Nested gives you the tools to understand, compare, and plan senior care costs — without the runaround.</p>
-              <div className="why-arrows">
-                <button className="why-arrow" onClick={() => window.whyNav && window.whyNav(-1)} aria-label="Previous">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                </button>
-                <button className="why-arrow" onClick={() => window.whyNav && window.whyNav(1)} aria-label="Next">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-              </div>
+              <p className="why-subtext">Nested gives you the tools to understand, compare, and plan senior care costs, without the runaround.</p>
             </div>
           </div>
 
-          <div style={{overflow:'hidden',padding:'0 80px 0 80px',position:'relative'}}>
-            <div id="why-track" style={{display:'flex',gap:'14px',willChange:'transform',transition:'transform 0s linear'}}>
+          <div style={{padding:'0 80px'}}>
+            <div id="why-track" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:'18px'}}>
 
               <div className="why-card">
                 <div className="why-card-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
                 </div>
-                <div className="why-card-inline"><strong>Side-by-side comparison.</strong> See In-Home Care, Assisted Living, and Memory Care costs laid out together — so you can weigh real numbers, not guesses.</div>
+                <div className="why-card-inline"><strong>Side-by-side comparison.</strong> See In-Home Care, Assisted Living, and Memory Care costs laid out together, so you can weigh real numbers, not guesses.</div>
               </div>
 
               <div className="why-card">
                 <div className="why-card-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
-                <div className="why-card-inline"><strong>Break-even analysis.</strong> Find the exact point where staying home becomes more expensive than a facility — so timing your decision doesn't cost you more than it should.</div>
+                <div className="why-card-inline"><strong>Break-even analysis.</strong> Find the exact point where staying home becomes more expensive than a facility, so timing your decision doesn't cost you more than it should.</div>
               </div>
 
               <div className="why-card">
                 <div className="why-card-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
-                <div className="why-card-inline"><strong>Local cost data.</strong> National averages don't tell the full story. Nested surfaces what care actually costs in your zip code — because location changes everything.</div>
+                <div className="why-card-inline"><strong>Local cost data.</strong> National averages don't tell the full story. Nested surfaces what care actually costs in your zip code, because location changes everything.</div>
               </div>
 
               <div className="why-card">
@@ -796,14 +927,14 @@ export default function Home() {
                 <div className="why-card-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
-                <div className="why-card-inline"><strong>Results in under 3 minutes.</strong> Answer a few focused questions and get a full cost estimate immediately — no lengthy intake forms, no waiting.</div>
+                <div className="why-card-inline"><strong>Results in under 3 minutes.</strong> Answer a few focused questions and get a full cost estimate immediately. No lengthy intake forms, no waiting.</div>
               </div>
 
               <div className="why-card">
                 <div className="why-card-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </div>
-                <div className="why-card-inline"><strong>Covers 6 care types.</strong> From In-Home Care to Skilled Nursing to Adult Day Programs — Nested maps out every realistic path so nothing gets overlooked.</div>
+                <div className="why-card-inline"><strong>Covers 6 care types.</strong> From In-Home Care to Skilled Nursing to Adult Day Programs. Nested maps out every realistic path so nothing gets overlooked.</div>
               </div>
 
             </div>
@@ -833,7 +964,7 @@ export default function Home() {
                 </svg>
                 <div className="card-text-default">
                   <div className="card-title-default">In-Home Care</div>
-                  <div className="card-desc-default">A caregiver comes to you — help with daily tasks, medication reminders, and companionship on your own schedule.</div>
+                  <div className="card-desc-default">A caregiver comes to you, helping with daily tasks, medication reminders, and companionship on your own schedule.</div>
                 </div>
               </div>
               <div className="card-hover">
@@ -841,7 +972,7 @@ export default function Home() {
                 <img src="/in-home-care.jpg" alt="In-home care caregiver with senior" />
                 <div className="card-hover-text">
                   <div className="card-title-hover">In-Home Care</div>
-                  <div className="card-desc-hover">A caregiver comes to you — help with daily tasks, medication reminders, and companionship on your own schedule.</div>
+                  <div className="card-desc-hover">A caregiver comes to you, helping with daily tasks, medication reminders, and companionship on your own schedule.</div>
                 </div>
               </div>
             </div>
@@ -860,14 +991,14 @@ export default function Home() {
                 </svg>
                 <div className="card-text-default">
                   <div className="card-title-default">Assisted Living</div>
-                  <div className="card-desc-default">A private apartment with on-site staff, meals, and social programming — independence with backup care nearby.</div>
+                  <div className="card-desc-default">A private apartment with on-site staff, meals, and social programming. Independence with backup care nearby.</div>
                 </div>
               </div>
               <div className="card-hover">
                 <img src="/pexels-kampus-7551667.jpg" alt="Assisted living caregiver with senior" />
                 <div className="card-hover-text">
                   <div className="card-title-hover">Assisted Living</div>
-                  <div className="card-desc-hover">A private apartment with on-site staff, meals, and social programming — independence with backup care nearby.</div>
+                  <div className="card-desc-hover">A private apartment with on-site staff, meals, and social programming. Independence with backup care nearby.</div>
                 </div>
               </div>
             </div>
@@ -906,21 +1037,23 @@ export default function Home() {
           <div style={{position:'absolute',inset:0,background:'rgba(8,28,22,0.88)'}}></div>
 
           {/* 2-col content */}
-          <div style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'320px 1fr',gap:'80px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
+          <div style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'440px 1fr',gap:'120px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
 
             {/* Left: label + heading + subtext */}
             <div style={{position:'sticky',top:'120px'}}>
               <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'12px',fontWeight:600,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(245,243,238,0.5)',marginBottom:'20px'}}>FAQ</p>
-              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'48px',fontWeight:500,color:'#F5F3EE',lineHeight:1.08,letterSpacing:'-0.025em',marginBottom:'24px'}}>Questions<br />families<br /><em style={{fontFamily:"'Zodiak',serif",fontStyle:'italic',fontWeight:400}}>actually ask</em></h2>
-              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'15px',color:'rgba(245,243,238,0.55)',lineHeight:1.75,maxWidth:'280px'}}>Clear, honest answers — no jargon, no pressure, no agenda.</p>
+              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'66px',fontWeight:500,color:'#F5F3EE',lineHeight:1.06,letterSpacing:'-0.03em',marginBottom:'28px'}}>Questions<br />families<br /><em>actually ask</em></h2>
+              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'18px',color:'rgba(245,243,238,0.62)',lineHeight:1.7,maxWidth:'340px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
             </div>
 
             {/* Right: accordion */}
             <div style={{display:'flex',flexDirection:'column'}}>
-              <div style={{display:'flex',flexDirection:'column',maxWidth:'640px'}}>
+              {/* pushed to the right of its column so the accordion sits clear
+                  of the heading instead of floating in the middle */}
+              <div style={{display:'flex',flexDirection:'column',maxWidth:'640px',width:'100%',marginLeft:'auto'}}>
 
                 <div className="faq-item">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>Is Nested really free?</span>
                     <span className="faq-icon">+</span>
                   </button>
@@ -928,31 +1061,31 @@ export default function Home() {
                 </div>
 
                 <div className="faq-item">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>How accurate are the cost estimates?</span>
                     <span className="faq-icon">+</span>
                   </button>
-                  <div className="faq-a">Our estimates are based on 2024 national median data across hundreds of cities. Because costs vary significantly by location, we localize results to your zip code whenever possible. They're a strong planning baseline — not a guaranteed quote.</div>
+                  <div className="faq-a">Our estimates are based on 2024 national median data across hundreds of cities. Because costs vary significantly by location, we localize results to your zip code whenever possible. They're a strong planning baseline, not a guaranteed quote.</div>
                 </div>
 
                 <div className="faq-item">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>Do I need to create an account?</span>
                     <span className="faq-icon">+</span>
                   </button>
-                  <div className="faq-a">No account, no email, no password required. Just answer a few questions and you'll get your results immediately. If you want to save or share your estimate, you can download a summary — no sign-up needed.</div>
+                  <div className="faq-a">No account, no email, no password required. Just answer a few questions and you'll get your results immediately. If you want to save or share your estimate, you can download a summary with no sign-up needed.</div>
                 </div>
 
                 <div className="faq-item">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>Does Nested recommend specific facilities?</span>
                     <span className="faq-icon">+</span>
                   </button>
-                  <div className="faq-a">No. Nested doesn't partner with, endorse, or receive fees from any care facilities or agencies. We're a cost comparison tool, not a referral service. Our job is to help you understand your options — the decision is entirely yours.</div>
+                  <div className="faq-a">No. Nested doesn't partner with, endorse, or receive fees from any care facilities or agencies. We're a cost comparison tool, not a referral service. Our job is to help you understand your options. The decision is entirely yours.</div>
                 </div>
 
                 <div className="faq-item">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>Can I share the results with my family?</span>
                     <span className="faq-icon">+</span>
                   </button>
@@ -960,11 +1093,11 @@ export default function Home() {
                 </div>
 
                 <div className="faq-item faq-item--last">
-                  <button className="faq-q" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
+                  <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>
                     <span>What care types does Nested cover?</span>
                     <span className="faq-icon">+</span>
                   </button>
-                  <div className="faq-a">We currently cover In-Home Care, Assisted Living, and Memory Care — the three most common paths families navigate. We're working on expanding to include Skilled Nursing, Adult Day Programs, and more.</div>
+                  <div className="faq-a">We currently cover In-Home Care, Assisted Living, and Memory Care: the three most common paths families navigate. We're working on expanding to include Skilled Nursing, Adult Day Programs, and more.</div>
                 </div>
 
               </div>
@@ -978,18 +1111,18 @@ export default function Home() {
         <section style={{background:'#EDE9E1',width:'100%',borderRadius:'28px',padding:'120px 80px',display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',position:'relative',overflow:'hidden'}}>
 
           {/* Floating orbs */}
-          <div style={{position:'absolute',width:'480px',height:'480px',borderRadius:'50%',background:'radial-gradient(circle,rgba(200,96,58,0.18) 0%,transparent 70%)',top:'-120px',left:'-100px',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift1 14s ease-in-out infinite'}}></div>
+          <div style={{position:'absolute',width:'480px',height:'480px',borderRadius:'50%',background:'radial-gradient(circle,rgba(2,83,85,0.14) 0%,transparent 70%)',top:'-120px',left:'-100px',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift1 14s ease-in-out infinite'}}></div>
           <div style={{position:'absolute',width:'560px',height:'560px',borderRadius:'50%',background:'radial-gradient(circle,rgba(2,83,85,0.14) 0%,transparent 70%)',bottom:'-160px',right:'-120px',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift2 18s ease-in-out infinite'}}></div>
-          <div style={{position:'absolute',width:'320px',height:'320px',borderRadius:'50%',background:'radial-gradient(circle,rgba(200,96,58,0.10) 0%,transparent 70%)',top:'40%',right:'10%',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift3 22s ease-in-out infinite'}}></div>
+          <div style={{position:'absolute',width:'320px',height:'320px',borderRadius:'50%',background:'radial-gradient(circle,rgba(2,83,85,0.09) 0%,transparent 70%)',top:'40%',right:'10%',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift3 22s ease-in-out infinite'}}></div>
           <div style={{position:'absolute',width:'240px',height:'240px',borderRadius:'50%',background:'radial-gradient(circle,rgba(2,83,85,0.10) 0%,transparent 70%)',bottom:'20%',left:'8%',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift4 16s ease-in-out infinite'}}></div>
 
           {/* Content */}
           <div id="cta-content" style={{position:'relative',zIndex:2,display:'flex',flexDirection:'column',alignItems:'center',gap:'28px',maxWidth:'680px'}}>
-            <p id="cta-el-0" style={{fontFamily:"'Figtree',sans-serif",fontSize:'11px',fontWeight:600,letterSpacing:'0.16em',textTransform:'uppercase',color:'#6B6860',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>Get started — it&apos;s free</p>
-            <h2 id="cta-el-1" style={{fontFamily:"'Clash Display',sans-serif",fontSize:'72px',fontWeight:500,color:'#1A1A1A',letterSpacing:'-0.035em',lineHeight:1.04,margin:0,opacity:0,filter:'blur(14px)',transform:'translateY(24px)',transition:'opacity 1s cubic-bezier(0.16,1,0.3,1),filter 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)'}}>The right choice<br />shouldn&apos;t be <em style={{fontFamily:"'Zodiak',serif",fontStyle:'italic',fontWeight:400,color:'#C8603A'}}>this hard.</em></h2>
-            <p id="cta-el-2" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6860',lineHeight:1.7,maxWidth:'420px',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>We built Nested so your family can stop guessing and start deciding — with real numbers, in about 3 minutes.</p>
+            <p id="cta-el-0" style={{fontFamily:"'Figtree',sans-serif",fontSize:'11px',fontWeight:600,letterSpacing:'0.16em',textTransform:'uppercase',color:'#6B6860',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>Get started, it&apos;s free</p>
+            <h2 id="cta-el-1" style={{fontFamily:"'Clash Display',sans-serif",fontSize:'72px',fontWeight:500,color:'#1A1A1A',letterSpacing:'-0.035em',lineHeight:1.04,margin:0,opacity:0,filter:'blur(14px)',transform:'translateY(24px)',transition:'opacity 1s cubic-bezier(0.16,1,0.3,1),filter 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)'}}>The right choice<br />shouldn&apos;t be <em style={{color:'#025355'}}>this hard.</em></h2>
+            <p id="cta-el-2" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6860',lineHeight:1.7,maxWidth:'420px',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>We built Nested so your family can stop guessing and start deciding, with real numbers, in about 3 minutes.</p>
             <div id="cta-el-3" style={{display:'flex',alignItems:'center',gap:'12px',marginTop:'8px',opacity:0,filter:'blur(8px)',transform:'translateY(12px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>
-              <a href="#" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'none',background:'#033D3F',color:'#F5F3EE',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em'}}
+              <a href="/nested-calculator_25.html" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'none',background:'#033D3F',color:'#F5F3EE',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em'}}
                 onMouseOver={(e) => { e.currentTarget.style.background='#025355'; e.currentTarget.style.transform='translateY(-2px)'; }}
                 onMouseOut={(e) => { e.currentTarget.style.background='#033D3F'; e.currentTarget.style.transform='translateY(0)'; }}>
                 Start for free
@@ -1007,12 +1140,14 @@ export default function Home() {
       </div>
 
       {/* FOOTER */}
+      </main>
+
       <div className="footer-wrap">
         <footer className="footer-card-b">
           <div className="footer-top">
             <div className="footer-left">
               <h2 className="footer-tagline">Find care.<br /><em>Get clarity.</em></h2>
-              <a href="#" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+              <a href="/nested-calculator_25.html" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
             <nav className="footer-nav-b">
               <div className="footer-nav-col-b">

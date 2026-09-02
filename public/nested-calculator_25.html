@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nested — Care Cost Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&f[]=zodiak@400,400i,700&display=swap" rel="stylesheet">
+<style>
+@page { size: letter portrait; margin: 0.6in 0.7in; }
+
+/* When printing the report, hide everything except the report card */
+body.printing-report .topbar,
+body.printing-report .progress-wrap,
+body.printing-report #report-back-bar,
+body.printing-report #report-action-bar {
+  display: none !important;
+}
+
+@media print {
+  /* Force all colors to print exactly as on screen */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Hide EVERYTHING */
+  body.printing-report * {
+    visibility: hidden;
+  }
+  /* Show only s7 results card */
+  body.printing-report #s7,
+  body.printing-report #s7 * {
+    visibility: visible;
+  }
+  /* Never show the action buttons or divider label in print */
+  body.printing-report .results-actions,
+  body.printing-report .print-hide {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  /* Position s7 card at top */
+  body.printing-report #s7 {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 32px 48px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: white !important;
+  }
+  /* Tighten spacing for print */
+  body.printing-report .scenario-card {
+    padding: 12px 16px !important;
+    margin-bottom: 8px !important;
+  }
+  body.printing-report .care-section {
+    margin-bottom: 12px !important;
+  }
+  body.printing-report .care-table td {
+    padding: 7px 14px !important;
+    font-size: 12px !important;
+  }
+  body.printing-report .care-section-header {
+    padding: 7px 14px !important;
+  }
+  body.printing-report .step-title {
+    font-size: 28px !important;
+    margin-bottom: 6px !important;
+  }
+  body.printing-report .results-title-row {
+    margin-bottom: 16px !important;
+  }
+  body.printing-report .scenario-cards {
+    margin-bottom: 12px !important;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Teal / Primary ── */
+  --brand:      #025355;   /* CTAs, links, active states, navbar */
+  --brand-d:    #013F40;   /* Button hover & pressed */
+  --brand-l:    #B0CFCF;   /* Selected card borders */
+  --brand-xl:   #EBF4F4;   /* Selected state fills, pills */
+
+  /* ── Terracotta / Secondary ── */
+  --accent:     #C8603A;   /* Callouts, insights, badges, icons */
+  --accent-l:   #FAE8DC;   /* Breakeven box, hint fills */
+
+  /* ── Neutrals ── */
+  --ink:        #1A1A1A;   /* All headings & labels */
+  --ink-mid:    #6B6860;   /* Body copy, descriptions */
+  --ink-lt:     #A0A09A;   /* Hints, placeholders, eyebrows */
+  --border:     #DDD9D0;   /* All borders & dividers */
+  --warm:       #EDE8DF;   /* Hover rows, section fills */
+  --surface:    #FAFAFA;   /* Page background */
+  --white:      #FFFFFF;   /* Cards, inputs, modals */
+
+  /* ── Semantic aliases (legacy compat) ── */
+  --sage:       var(--brand);
+  --sage-d:     var(--brand-d);
+  --sage-l:     var(--brand-l);
+  --sage-xl:    var(--brand-xl);
+  --cream:      var(--warm);
+
+  /* ── Error ── */
+  --error:      #B85555;
+  --error-l:    #FAF0F0;
+
+  --radius:     12px;
+  --shadow:     0 1px 12px rgba(0,0,0,0.07);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,0.12);
+}
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Figtree', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── SHELL ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(221,217,208,0.5);
+  padding: 16px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+.logo:hover { opacity: 0.7; }
+
+/* ── Line icons (replaces the emoji set) ── */
+.nico { display: block; flex-shrink: 0; }
+.choice-icon .nico, .sc-icon .nico,
+.averages-icon .nico, .review-section-title .nico { color: var(--brand); }
+.insight-box-icon .nico, .rpt-insight-icon .nico { color: var(--accent); }
+.choice-card.selected .choice-icon .nico { color: var(--brand-d); }
+.averages-icon, .insight-box-icon, .rpt-insight-icon, .hint-icon { display: flex; }
+.btn-text-link { display: inline-flex; align-items: center; gap: 7px; }
+
+.step-counter {
+  font-size: 13px;
+  color: var(--ink-lt);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+.step-counter span { color: var(--ink-mid); font-weight: 600; }
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(221,217,208,0.5);
+  padding: 20px 48px 24px;
+}
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 0;
+}
+.prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+.prog-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(50% + 15px);
+  right: calc(-50% + 15px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+}
+.prog-step.done:not(:last-child)::after {
+  background: var(--sage-l);
+}
+.prog-step.active:not(:last-child)::after {
+  background: var(--border);
+}
+.prog-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-lt);
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+.prog-step.active .prog-dot {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: white;
+}
+.prog-step.done .prog-dot {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: white;
+}
+.prog-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-lt);
+  transition: color 0.3s;
+  text-align: center;
+}
+.prog-step.active .prog-label { color: var(--sage); }
+.prog-step.done .prog-label { color: var(--ink-mid); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px 120px;
+}
+.card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 2px 40px rgba(0,0,0,0.06);
+  width: 100%;
+  max-width: 600px;
+  padding: 48px 52px;
+  animation: slideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ── ZODIAK ITALIC ACCENT ── */
+em.zodiak {
+  font-family: 'Zodiak', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+}
+/* ── STEP HEADER ── */
+.step-eyebrow {
+  font-family: 'Figtree', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-lt);
+  margin-bottom: 10px;
+}
+.step-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.15;
+  margin-bottom: 10px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.step-desc {
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+/* ── FORM ELEMENTS ── */
+.field { margin-bottom: 22px; }
+.field-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+.field-hint {
+  font-size: 12px;
+  color: var(--ink-lt);
+  margin-bottom: 7px;
+  font-weight: 400;
+}
+.field-error {
+  font-size: 12px;
+  color: var(--error);
+  margin-top: 5px;
+  display: none;
+}
+.field.has-error .field-error { display: block; }
+.field.has-error input, .field.has-error select { border-color: var(--error) !important; }
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  height: 46px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 0 14px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+}
+input[type="number"] { -moz-appearance: textfield; }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+input:focus, select:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(2,83,85,0.1);
+}
+input::placeholder { color: var(--ink-lt); }
+/* ── Shared breakdown table styles (used in s7 inline + report PDF) ── */
+.care-section { margin-bottom: 20px; }
+.care-section-header {
+  padding: 10px 16px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #025355;
+  color: white;
+}
+.care-section-header.accent { background: #C8603A; }
+.care-section-header.neutral { background: #1A1A1A; }
+.care-section-title { font-family: 'Clash Display', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; }
+.care-section-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
+.care-table { width: 100%; border-collapse: collapse; border: 1px solid #DDD9D0; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 0; }
+.care-table tr { border-bottom: 1px solid #DDD9D0; }
+.care-table tr:last-child { border-bottom: none; }
+.care-table tr:nth-child(even) { background: #FAFAFA; }
+.care-table tr:nth-child(odd) { background: white; }
+.care-table tr.total-row { background: #EBF4F4 !important; }
+.care-table tr.total-row td { font-weight: 700 !important; color: #025355 !important; }
+.care-table tr.total-row td:first-child { font-family: 'Figtree', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; }
+.care-table td { padding: 11px 16px; font-size: 13px; vertical-align: middle; color: var(--ink-mid); }
+.care-table td:last-child { text-align: right; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.sub-note { display: block; font-size: 11px; color: #A0A09A; margin-top: 2px; font-weight: 400; }
+
+
+/* dollar prefix */
+.input-prefix {
+  position: relative;
+}
+.input-prefix::before {
+  content: '$';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--ink-mid);
+  pointer-events: none;
+  z-index: 1;
+}
+.input-prefix input { padding-left: 28px; }
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.input-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── CHOICE CARDS ── */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.choice-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.18s;
+  background: var(--white);
+  user-select: none;
+}
+.choice-card:hover { border-color: var(--sage-l); background: var(--sage-xl); }
+.choice-card.selected {
+  border-color: var(--sage);
+  background: var(--sage-xl);
+}
+.choice-check {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.18s;
+  background: var(--white);
+}
+.choice-card.selected .choice-check {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+.choice-check::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.choice-card.selected .choice-check::after { opacity: 1; }
+/* Multi-select: rounded square with CSS chevron checkmark */
+.choice-card.multi .choice-check {
+  border-radius: 6px;
+}
+.choice-card.multi .choice-check::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 6px;
+  width: 5px; height: 9px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  background: none;
+  border-radius: 0;
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.choice-card.multi.selected .choice-check::after {
+  opacity: 1;
+}
+.choice-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: var(--warm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.choice-card.selected .choice-icon { background: rgba(2,83,85,0.1); }
+.choice-text { flex: 1; }
+.choice-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.choice-sub { font-size: 12px; color: var(--ink-lt); margin-top: 2px; }
+
+/* inline choices (radio row) */
+.choices-inline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.choice-pill {
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-mid);
+  background: var(--white);
+  transition: all 0.18s;
+  user-select: none;
+}
+.choice-pill:hover { border-color: var(--sage-l); color: var(--ink); background: var(--sage-xl); }
+.choice-pill.selected {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: white;
+  font-weight: 600;
+}
+
+/* ── ADL GRID ── */
+.adl-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.adl-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 90px);
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.adl-row:last-child { border-bottom: none; }
+.adl-header { background: var(--warm); }
+.adl-label {
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.adl-header .adl-label { color: var(--ink-mid); font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+.adl-col {
+  padding: 10px 8px;
+  text-align: center;
+  border-left: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--ink-lt);
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.adl-header .adl-col { font-weight: 600; color: var(--ink-mid); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; cursor: default; }
+.adl-col:hover:not(.adl-header .adl-col) { background: var(--sage-xl); }
+.adl-col.selected { background: var(--sage-xl); color: var(--sage); font-weight: 700; }
+.adl-col.selected::after { content: '●'; display: block; font-size: 7px; color: var(--sage); margin-top: 2px; }
+
+/* ── USE AVERAGES BANNER ── */
+.averages-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--brand-xl);
+  border: 1px solid var(--brand-l);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 28px;
+}
+.averages-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.averages-icon { font-size: 18px; flex-shrink: 0; }
+.averages-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand);
+  margin-bottom: 2px;
+}
+.averages-sub {
+  font-size: 12px;
+  color: var(--ink-mid);
+  line-height: 1.4;
+}
+.averages-btn {
+  flex-shrink: 0;
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 8px 18px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+  white-space: nowrap;
+}
+.averages-btn:hover { background: var(--brand-d); transform: translateY(-1px); }
+.averages-banner.filled {
+  background: #F0FAF0;
+  border-color: #A8D4A8;
+}
+.averages-banner.filled .averages-title { color: #2A6A2A; }
+.averages-banner.filled .averages-btn {
+  background: transparent;
+  color: #2A6A2A;
+  border: 1.5px solid #A8D4A8;
+}
+.averages-banner.filled .averages-btn:hover { background: #E0F4E0; transform: none; }
+
+
+.toggle-reveal {
+  display: none;
+  margin-top: 16px;
+  padding: 18px 20px;
+  background: var(--warm);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  animation: fadeDown 0.25s ease;
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toggle-reveal.show { display: block; }
+
+/* ── HINT BOX ── */
+.hint-box {
+  background: var(--accent-l);
+  border: 1px solid #E8B89A;
+  border-radius: 9px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #7A3A1A;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.hint-box.sage { background: var(--brand-xl); border-color: var(--brand-l); color: var(--brand); }
+.hint-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── MODS CHECKBOXES ── */
+.mod-list { display: flex; flex-direction: column; gap: 7px; }
+.mod-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+  background: var(--white);
+}
+.mod-item:hover { border-color: var(--sage-l); background: var(--sage-xl); }
+.mod-item.selected { border-color: var(--sage); background: var(--sage-xl); }
+.mod-cb {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  transition: all 0.18s;
+}
+.mod-item.selected .mod-cb { background: var(--sage); border-color: var(--sage); }
+.mod-cb::after { content: ''; }
+.mod-item.selected .mod-cb::after { content: '✓'; }
+.mod-name { font-size: 13.5px; font-weight: 500; color: var(--ink); flex: 1; }
+.mod-cost { font-size: 12px; color: var(--ink-lt); }
+.mod-item.selected .mod-cost { color: var(--ink-mid); }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-lt);
+  margin: 24px 0 10px;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* ── RESULTS ── */
+
+/* Context band */
+.context-band {
+  background: var(--brand-xl); border-radius: 10px; border-left: 3px solid var(--brand);
+  padding: 13px 16px; display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; gap: 12px;
+}
+.context-band-name { font-family: 'Clash Display', sans-serif; font-size: 15px; font-weight: 500; color: var(--brand); letter-spacing: -0.01em; margin-bottom: 2px; }
+.context-band-sub { font-size: 12px; color: var(--ink-mid); }
+.context-band-date { font-size: 11px; color: var(--ink-lt); text-align: right; line-height: 1.6; white-space: nowrap; }
+
+/* Stat summary row */
+.stat-summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.stat-summary-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: white; }
+.stat-summary-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lt); margin-bottom: 4px; }
+.stat-summary-value { font-family: 'Zodiak', serif; font-style: italic; font-size: 22px; font-weight: 400; color: var(--brand); line-height: 1; margin-bottom: 2px; }
+.stat-summary-sub { font-size: 10px; color: var(--ink-lt); line-height: 1.4; }
+
+/* Projection mini cards */
+.projection-mini-row { display: flex; gap: 8px; margin: 12px 0 14px; }
+.proj-mini-card { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: white; }
+.proj-mini-card.highlight { border-color: var(--brand-l); background: var(--brand-xl); }
+.proj-mini-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lt); margin-bottom: 3px; }
+.proj-mini-card.highlight .proj-mini-label { color: var(--brand); opacity: 0.7; }
+.proj-mini-value { font-family: 'Zodiak', serif; font-size: 19px; font-weight: 400; color: var(--ink); line-height: 1; margin-bottom: 2px; }
+.proj-mini-card.highlight .proj-mini-value { color: var(--brand); }
+.proj-mini-sub { font-size: 10px; color: var(--ink-lt); }
+
+/* Insight box */
+.insight-box {
+  background: var(--accent-l); border: 1px solid #EAC8B4; border-left: 4px solid var(--accent);
+  border-radius: 10px; padding: 13px 16px; display: flex; gap: 11px; align-items: flex-start; margin-bottom: 4px;
+}
+.insight-box-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.insight-box-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+.insight-box-text { font-size: 12px; color: #7A3A1A; line-height: 1.6; }
+.insight-box-text strong { color: var(--ink); font-weight: 600; }
+
+.results-title-row {
+  margin-bottom: 22px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.scenario-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.scenario-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: box-shadow 0.2s;
+  background: var(--white);
+}
+.scenario-card:hover { box-shadow: var(--shadow); }
+.scenario-card.highlight {
+  border-color: var(--sage);
+  background: var(--sage-xl);
+}
+.sc-left { display: flex; align-items: center; gap: 14px; }
+.sc-icon {
+  width: 46px; height: 46px;
+  border-radius: 11px;
+  background: var(--warm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.scenario-card.highlight .sc-icon { background: rgba(2,83,85,0.1); }
+.sc-label { font-family: 'Figtree', sans-serif; font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+.sc-sub { font-size: 12px; color: var(--ink-lt); }
+.sc-right {
+  text-align: right;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.sc-amount { font-family: 'Zodiak', serif; font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1; }
+.scenario-card.highlight .sc-amount { color: var(--sage); }
+.sc-period { font-size: 11px; color: var(--ink-lt); letter-spacing: 0.02em; }
+.sc-annual { font-size: 12px; color: var(--ink-mid); font-weight: 500; }
+
+.breakeven-box {
+  background: var(--accent-l);
+  border: 1px solid #E8B89A;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.be-title { font-size: 11px; font-weight: 700; color: #7A3A1A; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
+.be-text { font-size: 13.5px; color: #7A3A1A; line-height: 1.6; }
+
+.best-value-badge {
+  display: inline-block;
+  background: var(--sage);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 100px;
+}
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-text-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Figtree', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-lt);
+  text-align: center;
+  padding: 6px;
+  transition: color 0.18s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+}
+.btn-text-link:hover { color: var(--ink-mid); text-decoration-color: var(--border); }
+
+
+/* ── REVIEW SCREEN ── */
+.review-section {
+  margin-bottom: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.review-section-header {
+  background: var(--warm);
+  padding: 11px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.review-section-title { font-size: 13px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.review-edit {
+  font-size: 12px;
+  color: var(--sage);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.review-edit:hover { color: var(--sage-d); }
+.review-row {
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.review-row:last-child { border-bottom: none; }
+.review-key { color: var(--ink-mid); }
+.review-val { color: var(--ink); font-weight: 500; text-align: right; max-width: 55%; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: 100px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  border: none;
+  padding: 0 24px;
+  width: 100%;
+  letter-spacing: 0.01em;
+}
+.btn-primary {
+  background: var(--sage);
+  color: white;
+  border-radius: 100px;
+  letter-spacing: 0.02em;
+}
+.btn-primary:hover { background: var(--sage-d); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(2,83,85,0.28); }
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn-outline {
+  background: transparent;
+  color: var(--ink-mid);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+}
+.btn-outline:hover { border-color: var(--ink-mid); color: var(--ink); }
+.btn-ghost {
+  background: transparent;
+  color: var(--sage);
+  border: 1.5px solid var(--sage-l);
+  font-weight: 600;
+  border-radius: 100px;
+}
+.btn-ghost:hover { background: var(--sage-xl); border-color: var(--sage); }
+
+.btn-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-top: 28px;
+}
+.btn-row.first { grid-template-columns: 1fr; }
+.btn-back {
+  height: 50px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--ink-mid);
+  cursor: pointer;
+  padding: 0 20px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.18s;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
+.btn-back:hover { border-color: var(--ink-mid); color: var(--ink); }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── SLIDER ── */
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--sage);
+  height: 5px;
+  cursor: pointer;
+  margin: 8px 0;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-lt);
+  margin-top: 2px;
+}
+.slider-value {
+  font-family: 'Zodiak', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--sage);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <a class="logo" href="/" aria-label="Nested home">
+      <svg width="26" height="28" viewBox="0 0 89 97" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <g clip-path="url(#clip0_90_229)">
+        <path d="M17.4499 28.6123C20.2362 28.4318 21.8646 30.1097 21.7174 32.8721C21.707 33.0653 21.7185 33.2817 21.7761 33.4672C22.7446 33.3005 23.8628 32.2404 24.7727 31.8285C28.7858 30.0291 32.9641 29.218 37.3365 28.9293C39.7215 28.7719 41.9515 28.5382 44.3577 28.5848C53.8881 28.7695 65.6594 29.4896 71.6034 38.132C74.5171 42.3681 74.2892 47.4853 74.2786 52.2873L74.2729 63.1182L74.275 76.0669C74.276 78.2629 74.3238 80.4586 74.25 82.6527C74.3557 83.0404 73.6034 84.1506 73.9711 84.376C75.6243 85.3901 78.7787 85.6184 79.9235 87.2244C80.5534 92.064 74.0797 87.8598 72.0251 87.4008L71.9434 87.3835C65.9021 85.4737 60.9652 84.1098 54.6605 83.3028C46.3999 82.1702 38.0114 82.3668 29.813 83.8852C28.687 84.0839 27.4565 84.4637 26.326 84.7223C25.4588 84.9207 24.5682 85.0691 23.7144 85.2806C22.8892 85.485 21.9781 85.8737 21.1556 86.1014C19.5344 86.5159 17.95 87.0375 16.3585 87.5529C15.7336 87.7555 15.0923 88.071 14.4737 88.3117C13.48 88.682 12.5081 89.0949 11.4818 89.3782C10.2761 89.7128 9.41825 89.818 8.81993 88.5273C8.66731 88.1979 8.61639 87.7763 8.77535 87.4399C9.4518 86.0087 11.2806 85.7765 12.5959 85.2428C13.4415 84.9053 14.2136 84.5842 15.0215 84.2454C14.4737 82.9714 14.6627 79.5568 14.6639 78.0282L14.6658 67.6101L14.6686 43.8581C14.668 39.9652 14.6527 36.059 14.6595 32.1655C14.6605 31.6116 14.7324 30.7612 15.0144 30.2978C15.5676 29.3887 16.4568 28.8805 17.4499 28.6123ZM21.7283 82.2517C25.7431 81.0379 30.0336 80.2851 34.2041 79.7275C35.3272 79.5774 36.5184 79.5623 37.6481 79.4457C39.906 79.2126 42.2519 79.3609 44.4984 79.1872C48.1003 79.4029 51.3454 79.3299 55.0276 79.7931C59.4269 80.3464 62.842 81.1746 67.0999 82.2166C67.2658 80.4281 67.1767 77.2914 67.1768 75.3914L67.1766 63.0547L67.1816 52.6088C67.1837 49.2018 67.5432 43.7865 65.0394 41.171C60.3297 36.2513 50.8055 35.5494 44.3926 35.5921C37.5307 35.6728 23.8447 36.1721 21.906 44.9536C21.6275 46.2149 21.7074 48.6112 21.7082 49.9771L21.7133 56.8216L21.7283 82.2517Z" fill="#025355"/>
+        <path d="M44.0044 0.374109C45.6768 0.241395 47.6412 1.48489 49.1571 2.22678C51.4144 3.31047 53.656 4.42641 55.8814 5.57427C56.7471 6.01006 57.6452 6.35525 58.5013 6.77476L67.7803 11.3416C73.8931 14.3185 80.0497 17.2189 86.1423 20.2402C90.322 22.3127 87.5859 27.9175 83.5042 26.2002C81.5152 25.3633 79.6207 24.3095 77.6751 23.3821L62.3328 15.9196L51.162 10.4786L47.2233 8.59617C46.5094 8.25562 45.4471 7.78665 44.8141 7.39314C44.6117 7.309 44.3874 7.23904 44.1815 7.32926C42.8713 7.90323 41.5446 8.55662 40.2702 9.19676L33.9152 12.349L19.7464 19.1727C16.1206 20.9274 12.5455 22.8113 8.8615 24.4491C6.83345 25.3507 4.28354 27.4986 2.03241 26.0179C1.31264 25.5423 0.814126 24.7975 0.648877 23.9508C0.34326 22.4399 0.915621 21.2522 2.1971 20.4907C3.47958 19.7286 4.77237 19.2109 6.10615 18.5693L13.9507 14.7755L28.4856 7.71087L39.4071 2.39344C40.7134 1.77209 42.6998 0.562295 44.0044 0.374109Z" fill="#025355"/>
+        <path d="M42.3313 88.0075C42.5163 88.0014 42.7014 87.9953 42.8864 87.991C52.5117 87.7424 62.3129 89.5529 71.1994 93.2582C72.3009 93.7745 73.8438 94.1022 74.8024 94.821C75.5973 95.3877 74.7294 96.9357 73.9971 96.721C70.554 95.7101 67.325 94.1917 63.8398 93.2008C62.3841 92.7871 61.3797 92.502 59.9125 92.1717C57.7051 91.6737 55.711 91.0183 53.4083 90.9227C50.8595 90.5698 48.7899 90.3708 46.2166 90.3013C39.4908 90.1335 32.7769 90.954 26.2895 92.7367C24.8101 93.1435 23.2635 93.7754 21.7167 94.1978C19.4419 94.8201 17.1427 96.3855 14.7318 96.6697C13.6618 96.7957 13.3243 95.6241 13.9102 94.8723C14.5855 94.2256 16.0585 93.8866 16.9438 93.5155C24.9768 90.0753 33.5946 88.2048 42.3313 88.0075Z" fill="#025355"/>
+        </g>
+        <defs><clipPath id="clip0_90_229"><rect width="89" height="97" fill="white"/></clipPath></defs>
+      </svg>
+      nested
+    </a>
+    <div class="step-counter" id="stepCounter">Step <span id="stepNum">1</span> of 5</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="prog-step active" data-step="1"><div class="prog-dot">1</div><div class="prog-label">Compare</div></div>
+      <div class="prog-step" data-step="2"><div class="prog-dot">2</div><div class="prog-label">Person</div></div>
+      <div class="prog-step" data-step="3"><div class="prog-dot">3</div><div class="prog-label">Costs</div></div>
+      <div class="prog-step" data-step="4"><div class="prog-dot">4</div><div class="prog-label">Review</div></div>
+      <div class="prog-step" data-step="5"><div class="prog-dot">5</div><div class="prog-label">Results</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ── S1: WHAT TO COMPARE ── -->
+    <div class="card screen active" id="s1">
+      <div class="step-eyebrow">Step 1 of 5 — Compare</div>
+      <div class="step-title">What would you like to <em class="zodiak">compare?</em></div>
+      <div class="step-desc">Select the care options you want to see side-by-side. You can choose one, two, or all three.</div>
+      <div class="choices">
+        <div class="choice-card multi" id="opt-home" onclick="toggleScenario('home', this)">
+          <div class="choice-check"></div><div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.6V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.6"/><path d="M12 17.3s-2.7-1.7-2.7-3.4a1.5 1.5 0 0 1 2.7-.95 1.5 1.5 0 0 1 2.7.95c0 1.7-2.7 3.4-2.7 3.4Z"/></svg></div>
+          <div class="choice-text"><div class="choice-title">Aging at Home</div><div class="choice-sub">Stay in current home with caregiving support</div></div>
+        </div>
+        <div class="choice-card multi" id="opt-al" onclick="toggleScenario('al', this)">
+          <div class="choice-check"></div><div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V21"/><path d="M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h4M7.5 12h4M7.5 16h4M17.5 14.5v2.5"/></svg></div>
+          <div class="choice-text"><div class="choice-title">Assisted Living</div><div class="choice-sub">Residential community with staff support</div></div>
+        </div>
+        <div class="choice-card multi" id="opt-mc" onclick="toggleScenario('mc', this)">
+          <div class="choice-check"></div><div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21v-6.8"/><path d="M12.2 14.2c-.3-4.4 2.5-8.2 6.4-8.5.3 4.4-2.5 8.2-6.4 8.5Z"/><path d="M11.6 17.2c-3.3.2-6.1-2.2-6.4-5.5 3.3-.2 6.1 2.2 6.4 5.5Z"/></svg></div>
+          <div class="choice-text"><div class="choice-title">Memory Care</div><div class="choice-sub">Specialized community for cognitive needs</div></div>
+        </div>
+      </div>
+      <div id="s1-error" class="field-error" style="display:none; margin-top:12px;">Please select at least one option to continue.</div>
+      <div class="btn-row first" style="margin-top:28px;">
+        <button class="btn btn-primary" onclick="goTo('s2a')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S2a: WHO ARE WE PLANNING FOR ── -->
+    <div class="card screen" id="s2a">
+      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-title">Who is this plan <em class="zodiak">for?</em></div>
+      <div class="step-desc">This helps us personalize the language and estimates throughout.</div>
+      <div class="choices">
+        <div class="choice-card" onclick="selectSingleCard(this,'planFor')">
+          <div class="choice-check"></div>
+          <div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.6"/><path d="M4.9 20.3a7.1 7.1 0 0 1 14.2 0"/></svg></div>
+          <div class="choice-text"><div class="choice-title">Myself</div><div class="choice-sub">I'm planning ahead for my own care</div></div>
+        </div>
+        <div class="choice-card" onclick="selectSingleCard(this,'planFor')">
+          <div class="choice-check"></div>
+          <div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="8.4" cy="6.6" r="2.8"/><path d="M3.7 20.2a4.7 4.7 0 0 1 9.4 0"/><circle cx="17.1" cy="11.4" r="2.2"/><path d="M13.7 20.2a3.4 3.4 0 0 1 6.8 0"/></svg></div>
+          <div class="choice-text"><div class="choice-title">A parent</div><div class="choice-sub">I'm helping plan for my mom or dad</div></div>
+        </div>
+        <div class="choice-card" onclick="selectSingleCard(this,'planFor')">
+          <div class="choice-check"></div>
+          <div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="7.4" cy="10.2" r="2.6"/><path d="M3.1 20.4a4.3 4.3 0 0 1 8.6 0"/><circle cx="16.6" cy="10.2" r="2.6"/><path d="M12.3 20.4a4.3 4.3 0 0 1 8.6 0"/><path d="M12 7.5s-2-1.3-2-2.6a1.25 1.25 0 0 1 2-.86 1.25 1.25 0 0 1 2 .86c0 1.3-2 2.6-2 2.6Z"/></svg></div>
+          <div class="choice-text"><div class="choice-title">A spouse or partner</div><div class="choice-sub">Planning together or on their behalf</div></div>
+        </div>
+        <div class="choice-card" onclick="selectSingleCard(this,'planFor')">
+          <div class="choice-check"></div>
+          <div class="choice-icon"><svg class="nico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8.4" r="2.8"/><path d="M7.6 19.6a4.4 4.4 0 0 1 8.8 0"/><path d="M18.4 8.3a2.3 2.3 0 0 1 0 4.5"/><path d="M19.4 19.6a3.7 3.7 0 0 0-2.2-3.3"/><path d="M5.6 8.3a2.3 2.3 0 0 0 0 4.5"/><path d="M4.6 19.6a3.7 3.7 0 0 1 2.2-3.3"/></svg></div>
+          <div class="choice-text"><div class="choice-title">Someone else</div><div class="choice-sub">A relative, friend, or client</div></div>
+        </div>
+      </div>
+      <input type="hidden" id="planFor" value="">
+      <div id="s2a-error" class="field-error" style="display:none; margin-top:12px;">Please select who you're planning for to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s1')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s2b')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S2b: AGE + LOCATION ── -->
+    <div class="card screen" id="s2b">
+      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-title">A little about <em class="zodiak">them</em></div>
+      <div class="step-desc">Age and location help us estimate realistic, region-adjusted costs.</div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Age</label>
+          <input type="number" id="personAge" placeholder="e.g. 82" min="50" max="110" oninput="document.getElementById('s2b-error').style.display='none'">
+        </div>
+        <div class="field">
+          <label class="field-label">Lives</label>
+          <select id="livingSituation">
+            <option value="">Select…</option>
+            <option value="alone">Alone</option>
+            <option value="spouse">With spouse / partner</option>
+            <option value="family">With adult children</option>
+            <option value="community">In a community</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">State / region</label>
+        <div class="field-hint">We'll adjust cost estimates to reflect local rates</div>
+        <select id="locationState" onchange="applyLocationDefaults()">
+          <option value="national">National average</option>
+          <option value="ak">Alaska</option>
+          <option value="al">Alabama</option>
+          <option value="ar">Arkansas</option>
+          <option value="az">Arizona</option>
+          <option value="ca">California</option>
+          <option value="co">Colorado</option>
+          <option value="ct">Connecticut</option>
+          <option value="fl">Florida</option>
+          <option value="ga">Georgia</option>
+          <option value="hi">Hawaii</option>
+          <option value="ia">Iowa</option>
+          <option value="id">Idaho</option>
+          <option value="il">Illinois</option>
+          <option value="ks">Kansas</option>
+          <option value="ky">Kentucky</option>
+          <option value="ma">Massachusetts</option>
+          <option value="mi">Michigan</option>
+          <option value="mn">Minnesota</option>
+          <option value="mo">Missouri</option>
+          <option value="ms">Mississippi</option>
+          <option value="mt">Montana</option>
+          <option value="nc">North Carolina</option>
+          <option value="nd">North Dakota</option>
+          <option value="ne">Nebraska</option>
+          <option value="nj">New Jersey</option>
+          <option value="nm">New Mexico</option>
+          <option value="ny">New York</option>
+          <option value="oh">Ohio</option>
+          <option value="ok">Oklahoma</option>
+          <option value="or">Oregon</option>
+          <option value="pa">Pennsylvania</option>
+          <option value="sd">South Dakota</option>
+          <option value="tn">Tennessee</option>
+          <option value="tx">Texas</option>
+          <option value="va">Virginia</option>
+          <option value="wa">Washington</option>
+          <option value="wi">Wisconsin</option>
+          <option value="wv">West Virginia</option>
+          <option value="wy">Wyoming</option>
+        </select>
+        <div id="locationHint" class="field-hint" style="margin-top:6px; color:var(--ink-mid);"></div>
+      </div>
+      <div id="s2b-error" class="field-error" style="display:none; margin-top:12px;">Please enter their age to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s2a')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s2c')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S2c: HEALTH CONCERNS ── -->
+    <div class="card screen" id="s2c">
+      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-title">Any health <em class="zodiak">concerns?</em></div>
+      <div class="step-desc">Check all that apply. This helps us suggest the right care level.</div>
+      <div class="mod-list" id="healthConcerns">
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Memory loss / cognitive decline</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Mobility issues / fall risk</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Chronic illness (diabetes, COPD, heart)</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Incontinence</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">None of these</span></div>
+      </div>
+      <div id="s2c-error" class="field-error" style="display:none; margin-top:12px;">Please select at least one option to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s2b')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s2d')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S2d: ADLs ── -->
+    <div class="card screen" id="s2d">
+      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-title">Daily living <em class="zodiak">needs</em></div>
+      <div class="step-desc">How much help do they need with each activity? This is the biggest factor in care costs.</div>
+      <div class="adl-grid">
+        <div class="adl-row adl-header">
+          <div class="adl-label">Activity</div>
+          <div class="adl-col">Independent</div>
+          <div class="adl-col">Some help</div>
+          <div class="adl-col">Full help</div>
+        </div>
+        <div class="adl-row" id="adl-bathing">
+          <div class="adl-label">Bathing</div>
+          <div class="adl-col selected" onclick="selectADL('adl-bathing',0)">✓</div>
+          <div class="adl-col" onclick="selectADL('adl-bathing',1)"></div>
+          <div class="adl-col" onclick="selectADL('adl-bathing',2)"></div>
+        </div>
+        <div class="adl-row" id="adl-dressing">
+          <div class="adl-label">Dressing</div>
+          <div class="adl-col selected" onclick="selectADL('adl-dressing',0)">✓</div>
+          <div class="adl-col" onclick="selectADL('adl-dressing',1)"></div>
+          <div class="adl-col" onclick="selectADL('adl-dressing',2)"></div>
+        </div>
+        <div class="adl-row" id="adl-mobility">
+          <div class="adl-label">Moving around</div>
+          <div class="adl-col selected" onclick="selectADL('adl-mobility',0)">✓</div>
+          <div class="adl-col" onclick="selectADL('adl-mobility',1)"></div>
+          <div class="adl-col" onclick="selectADL('adl-mobility',2)"></div>
+        </div>
+        <div class="adl-row" id="adl-meals">
+          <div class="adl-label">Meals</div>
+          <div class="adl-col selected" onclick="selectADL('adl-meals',0)">✓</div>
+          <div class="adl-col" onclick="selectADL('adl-meals',1)"></div>
+          <div class="adl-col" onclick="selectADL('adl-meals',2)"></div>
+        </div>
+        <div class="adl-row" id="adl-meds">
+          <div class="adl-label">Medications</div>
+          <div class="adl-col selected" onclick="selectADL('adl-meds',0)">✓</div>
+          <div class="adl-col" onclick="selectADL('adl-meds',1)"></div>
+          <div class="adl-col" onclick="selectADL('adl-meds',2)"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s2c')">← Back</button>
+        <button class="btn btn-primary" onclick="startCosts()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3a-1: HOME — HOUSING ── -->
+    <div class="card screen" id="s3a1">
+      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-title">Housing <em class="zodiak">costs</em></div>
+      <div class="step-desc">What does it cost each month to live in this home?</div>
+      <div class="averages-banner" id="avgBannerHome">
+        <div class="averages-banner-left">
+          <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
+          <div>
+            <div class="averages-title">Not sure of your numbers?</div>
+            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+          </div>
+        </div>
+        <button class="averages-btn" onclick="fillHomeAverages()">Use averages</button>
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Mortgage or rent</label>
+          <div class="input-prefix"><input type="number" id="home-mortgage" placeholder="e.g. 1,800"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Utilities</label>
+          <div class="input-prefix"><input type="number" id="home-utilities" placeholder="e.g. 300"></div>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Property tax <span style="color:var(--ink-lt); font-weight:400">(annual)</span></label>
+          <div class="input-prefix"><input type="number" id="home-tax" placeholder="e.g. 4,800"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Home insurance <span style="color:var(--ink-lt); font-weight:400">(annual)</span></label>
+          <div class="input-prefix"><input type="number" id="home-ins" placeholder="e.g. 1,200"></div>
+        </div>
+      </div>
+      <div id="s3a1-error" class="field-error" style="display:none; margin-top:12px;">Please enter the monthly mortgage or rent to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s2d')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s3a2')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3a-2: HOME — CAREGIVER ── -->
+    <div class="card screen" id="s3a2">
+      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-title">Do they need a paid <em class="zodiak">caregiver?</em></div>
+      <div class="step-desc">This is often the largest variable in home care costs.</div>
+      <div class="field">
+        <div class="choices-inline" id="needCaregiver">
+          <div class="choice-pill" onclick="selectPill(this, 'needCaregiver'); toggleCaregiver()">Yes</div>
+          <div class="choice-pill selected" onclick="selectPill(this, 'needCaregiver'); toggleCaregiver()">No</div>
+        </div>
+      </div>
+      <div id="caregiver-detail" class="toggle-reveal">
+        <div class="field">
+          <label class="field-label">Hours of care needed per week</label>
+          <div class="slider-value" id="hoursLabel">20 hrs/week</div>
+          <input type="range" min="1" max="168" value="20" id="careHours" oninput="document.getElementById('hoursLabel').textContent = this.value + ' hrs/week'; updateCareRate()">
+          <div class="slider-labels"><span>1 hr</span><span>168 hrs (full-time)</span></div>
+        </div>
+        <div class="field" style="margin-top:16px;">
+          <label class="field-label">Type of caregiver</label>
+          <div class="choices-inline" id="careType">
+            <div class="choice-pill selected" onclick="selectPill(this, 'careType'); updateCareRate()">Agency</div>
+            <div class="choice-pill" onclick="selectPill(this, 'careType'); updateCareRate()">Private hire</div>
+            <div class="choice-pill" onclick="selectPill(this, 'careType'); updateCareRate()">Family (unpaid)</div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px;" id="careRateField">
+          <label class="field-label">Hourly rate <span style="font-weight:400; color:var(--ink-lt)">(edit if needed)</span></label>
+          <div class="input-prefix"><input type="number" id="careRate" placeholder="e.g. 35"></div>
+          <div class="care-type-note" id="careRateNote">Agency rate: typically $30–$40/hr. We've pre-filled $35.</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s3a1')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s3a3')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3a-3: HOME — EXTRAS + MODS ── -->
+    <div class="card screen" id="s3a3">
+      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-title">Day-to-day <em class="zodiak">supports</em></div>
+      <div class="step-desc">Any monthly services or one-time home modifications? Leave blank if not applicable.</div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Transportation</label>
+          <div class="input-prefix"><input type="number" id="home-transport" placeholder="e.g. 200"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Meals / delivery</label>
+          <div class="input-prefix"><input type="number" id="home-meals" placeholder="e.g. 300"></div>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Housekeeping</label>
+          <div class="input-prefix"><input type="number" id="home-housekeeping" placeholder="e.g. 150"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Med monitoring</label>
+          <div class="input-prefix"><input type="number" id="home-medmon" placeholder="e.g. 50"></div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:24px;">Home modifications <span style="color:var(--ink-lt); font-weight:400; text-transform:none; letter-spacing:0">(one-time, optional)</span></div>
+      <div class="hint-box">
+        <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.3 18.2h5.4"/><path d="M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1.9 1.8v.6h5.4v-.6c0-.7.3-1.3.9-1.8A6 6 0 0 0 12 3Z"/></svg></span>
+        <span>One-time costs will be spread over <strong>24 months</strong> in the estimate.</span>
+      </div>
+      <div class="mod-list" id="s3a">
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Grab bars</span><span class="mod-cost">~$200</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Wheelchair ramp</span><span class="mod-cost">~$2,000</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Bath conversion</span><span class="mod-cost">~$8,000</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Stairlift</span><span class="mod-cost">~$5,000</span></div>
+        <div class="mod-item" onclick="toggleMod(this)"><div class="mod-cb"></div><span class="mod-name">Emergency alert device</span><span class="mod-cost">$30/mo</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s3a2')">← Back</button>
+        <button class="btn btn-primary" onclick="goNextCosts('home')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3b-1: AL — BASE RATE ── -->
+    <div class="card screen" id="s3b1">
+      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-title">Assisted living <em class="zodiak">rates</em></div>
+      <div class="step-desc">What's the base monthly cost for a private room in this community?</div>
+      <div class="averages-banner" id="avgBannerAL">
+        <div class="averages-banner-left">
+          <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
+          <div>
+            <div class="averages-title">Not sure of your numbers?</div>
+            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+          </div>
+        </div>
+        <button class="averages-btn" onclick="fillALAverages()">Use averages</button>
+      </div>
+      <div class="hint-box sage">
+        <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21.2s6.8-5.6 6.8-10.8a6.8 6.8 0 1 0-13.6 0c0 5.2 6.8 10.8 6.8 10.8Z"/><circle cx="12" cy="10.2" r="2.5"/></svg></span>
+        <span>National averages shown. Costs vary significantly by region — edit freely.</span>
+      </div>
+      <div class="field">
+        <label class="field-label">Monthly rent (private studio / 1BR)</label>
+        <div class="input-prefix"><input type="number" id="al-base" placeholder="e.g. 4,500"></div>
+        <div class="field-hint" style="margin-top:6px;">National avg: $3,500–$6,000/mo · <span style="color:var(--brand-d); cursor:pointer; font-weight:500" onclick="document.getElementById('al-base').value=4500">Use $4,500</span></div>
+      </div>
+      <div id="s3b1-error" class="field-error" style="display:none; margin-top:12px;">Please enter the monthly base rate to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" id="alBackBtn" onclick="goBackAL()">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s3b2')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3b-2: AL — CARE LEVEL ── -->
+    <div class="card screen" id="s3b2">
+      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-title">Level of <em class="zodiak">care</em></div>
+      <div class="step-desc">Care add-ons are charged on top of base rent and depend on how much daily help is needed.</div>
+      <div class="hint-box">
+        <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.3 18.2h5.4"/><path d="M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1.9 1.8v.6h5.4v-.6c0-.7.3-1.3.9-1.8A6 6 0 0 0 12 3Z"/></svg></span>
+        <span>Based on the daily needs you entered, we suggest <strong id="suggestedCareLevel">Moderate</strong> care. You can change this.</span>
+      </div>
+      <div class="field">
+        <label class="field-label">Care level</label>
+        <div class="choices-inline" id="alCareLevel">
+          <div class="choice-pill" onclick="selectPill(this, 'alCareLevel'); updateALAddOn()">Low</div>
+          <div class="choice-pill selected" onclick="selectPill(this, 'alCareLevel'); updateALAddOn()">Moderate</div>
+          <div class="choice-pill" onclick="selectPill(this, 'alCareLevel'); updateALAddOn()">High</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Care add-on amount <span style="font-weight:400; color:var(--ink-lt)">(edit if known)</span></label>
+        <div class="input-prefix"><input type="number" id="al-addon" placeholder="e.g. 800"></div>
+        <div class="field-hint" style="margin-top:6px;" id="alAddonHint">Moderate: typically $600–$1,000/mo</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s3b1')">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s3b3')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3b-3: AL — MEDS + EXTRAS ── -->
+    <div class="card screen" id="s3b3">
+      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-title">Medications & <em class="zodiak">extras</em></div>
+      <div class="step-desc">Most extras are optional — leave blank if they don't apply.</div>
+      <div class="field">
+        <label class="field-label">Daily medication complexity</label>
+        <div class="choices-inline" id="alMeds">
+          <div class="choice-pill selected" onclick="selectPill(this, 'alMeds'); updateALMeds()">None</div>
+          <div class="choice-pill" onclick="selectPill(this, 'alMeds'); updateALMeds()">1–3 meds</div>
+          <div class="choice-pill" onclick="selectPill(this, 'alMeds'); updateALMeds()">4–9 meds</div>
+          <div class="choice-pill" onclick="selectPill(this, 'alMeds'); updateALMeds()">10+ meds</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Med management fee</label>
+        <div class="input-prefix"><input type="number" id="al-meds" placeholder="e.g. 0"></div>
+        <div class="field-hint" style="margin-top:6px;" id="alMedsHint">None selected</div>
+      </div>
+      <div class="input-row" style="margin-top:8px;">
+        <div class="field">
+          <label class="field-label">Laundry</label>
+          <div class="input-prefix"><input type="number" id="al-laundry" placeholder="e.g. 0"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Cable / internet</label>
+          <div class="input-prefix"><input type="number" id="al-cable" placeholder="e.g. 0"></div>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Transportation</label>
+          <div class="input-prefix"><input type="number" id="al-transport" placeholder="e.g. 0"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Pet fee</label>
+          <div class="input-prefix"><input type="number" id="al-pet" placeholder="e.g. 0"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s3b2')">← Back</button>
+        <button class="btn btn-primary" onclick="goNextCosts('al')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3c-1: MC — BASE RATE ── -->
+    <div class="card screen" id="s3c1">
+      <div class="step-eyebrow">Step 3 of 5 — Memory Care</div>
+      <div class="step-title">Memory care <em class="zodiak">rates</em></div>
+      <div class="step-desc">Memory care communities have higher staffing ratios and security, which is reflected in cost.</div>
+      <div class="averages-banner" id="avgBannerMC">
+        <div class="averages-banner-left">
+          <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
+          <div>
+            <div class="averages-title">Not sure of your numbers?</div>
+            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+          </div>
+        </div>
+        <button class="averages-btn" onclick="fillMCAverages()">Use averages</button>
+      </div>
+      <div class="hint-box sage">
+        <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21.2s6.8-5.6 6.8-10.8a6.8 6.8 0 1 0-13.6 0c0 5.2 6.8 10.8 6.8 10.8Z"/><circle cx="12" cy="10.2" r="2.5"/></svg></span>
+        <span>National averages shown. Costs vary significantly by region — edit freely.</span>
+      </div>
+      <div class="field">
+        <label class="field-label">Monthly rate (private room)</label>
+        <div class="input-prefix"><input type="number" id="mc-base" placeholder="e.g. 6,500"></div>
+        <div class="field-hint" style="margin-top:6px;">National avg: $5,000–$9,000/mo · <span style="color:var(--brand-d); cursor:pointer; font-weight:500" onclick="document.getElementById('mc-base').value=6500">Use $6,500</span></div>
+      </div>
+      <div id="s3c1-error" class="field-error" style="display:none; margin-top:12px;">Please enter the monthly base rate to continue.</div>
+      <div class="btn-row">
+        <button class="btn-back" id="mcBackBtn" onclick="goBackMC()">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s3c2')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S3c-2: MC — COGNITIVE LEVEL + EXTRAS ── -->
+    <div class="card screen" id="s3c2">
+      <div class="step-eyebrow">Step 3 of 5 — Memory Care</div>
+      <div class="step-title">Cognitive stage & <em class="zodiak">extras</em></div>
+      <div class="step-desc">Behavioral support and other add-ons depend on the stage of care needed.</div>
+      <div class="field">
+        <label class="field-label">Current stage</label>
+        <div class="choices" style="gap:8px;" id="mcLevel">
+          <div class="choice-card" onclick="selectSingle(this,'mcLevel')">
+            <div class="choice-check"></div>
+            <div class="choice-text"><div class="choice-title">Mild</div><div class="choice-sub">Occasional memory lapses, mostly independent</div></div>
+          </div>
+          <div class="choice-card selected" onclick="selectSingle(this,'mcLevel')">
+            <div class="choice-check"></div>
+            <div class="choice-text"><div class="choice-title">Moderate</div><div class="choice-sub">Needs regular reminders and supervision</div></div>
+          </div>
+          <div class="choice-card" onclick="selectSingle(this,'mcLevel')">
+            <div class="choice-check"></div>
+            <div class="choice-text"><div class="choice-title">Advanced</div><div class="choice-sub">Requires full-time, hands-on care and monitoring</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:20px;">
+        <label class="field-label">Behavioral or safety concerns?</label>
+        <div class="field-hint">e.g. wandering, agitation, sundowning</div>
+        <div class="choices-inline" id="mcBehavior">
+          <div class="choice-pill" onclick="selectPill(this, 'mcBehavior'); toggleBehaviorCost()">Yes</div>
+          <div class="choice-pill selected" onclick="selectPill(this, 'mcBehavior'); toggleBehaviorCost()">No</div>
+        </div>
+      </div>
+      <div id="mc-behavior-detail" class="toggle-reveal">
+        <div class="field">
+          <label class="field-label">Behavioral support add-on</label>
+          <div class="input-prefix"><input type="number" id="mc-behavior-cost" placeholder="e.g. 500"></div>
+          <div class="field-hint" style="margin-top:6px;">Typically $300–$800/mo depending on intensity</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label class="field-label">Additional monthly costs</label>
+        <div class="input-prefix"><input type="number" id="mc-extras" placeholder="e.g. 0"></div>
+        <div class="field-hint" style="margin-top:6px;">Most memory care includes security monitoring — add any extras not covered</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goTo('s3c1')">← Back</button>
+        <button class="btn btn-primary" onclick="goNextCosts('mc')">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── S6: REVIEW ── -->
+    <div class="card screen" id="s6">
+      <div class="step-eyebrow">Step 4 of 5 — Review</div>
+      <div class="step-title">Does everything <em class="zodiak">look right?</em></div>
+      <div class="step-desc">Take a moment to check your numbers. Click any section to make changes.</div>
+      <div id="review-content"></div>
+      <div class="btn-row" style="margin-top:24px;">
+        <button class="btn-back" onclick="goBackReview()">← Back</button>
+        <button class="btn btn-primary" onclick="goTo('s7')">See results →</button>
+      </div>
+    </div>
+
+    <!-- ── S7: RESULTS ── -->
+    <div class="card screen" id="s7">
+      <!-- Print-only header -->
+      <div class="print-only" style="display:none; justify-content:space-between; align-items:flex-start; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid #025355;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg width="28" height="31" viewBox="0 0 89 97" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_90_229)"><path d="M17.4499 28.6123C20.2362 28.4318 21.8646 30.1097 21.7174 32.8721C21.707 33.0653 21.7185 33.2817 21.7761 33.4672C22.7446 33.3005 23.8628 32.2404 24.7727 31.8285C28.7858 30.0291 32.9641 29.218 37.3365 28.9293C39.7215 28.7719 41.9515 28.5382 44.3577 28.5848C53.8881 28.7695 65.6594 29.4896 71.6034 38.132C74.5171 42.3681 74.2892 47.4853 74.2786 52.2873L74.2729 63.1182L74.275 76.0669C74.276 78.2629 74.3238 80.4586 74.25 82.6527C74.3557 83.0404 73.6034 84.1506 73.9711 84.376C75.6243 85.3901 78.7787 85.6184 79.9235 87.2244C80.5534 92.064 74.0797 87.8598 72.0251 87.4008L71.9434 87.3835C65.9021 85.4737 60.9652 84.1098 54.6605 83.3028C46.3999 82.1702 38.0114 82.3668 29.813 83.8852C28.687 84.0839 27.4565 84.4637 26.326 84.7223C25.4588 84.9207 24.5682 85.0691 23.7144 85.2806C22.8892 85.485 21.9781 85.8737 21.1556 86.1014C19.5344 86.5159 17.95 87.0375 16.3585 87.5529C15.7336 87.7555 15.0923 88.071 14.4737 88.3117C13.48 88.682 12.5081 89.0949 11.4818 89.3782C10.2761 89.7128 9.41825 89.818 8.81993 88.5273C8.66731 88.1979 8.61639 87.7763 8.77535 87.4399C9.4518 86.0087 11.2806 85.7765 12.5959 85.2428C13.4415 84.9053 14.2136 84.5842 15.0215 84.2454C14.4737 82.9714 14.6627 79.5568 14.6639 78.0282L14.6658 67.6101L14.6686 43.8581C14.668 39.9652 14.6527 36.059 14.6595 32.1655C14.6605 31.6116 14.7324 30.7612 15.0144 30.2978C15.5676 29.3887 16.4568 28.8805 17.4499 28.6123ZM21.7283 82.2517C25.7431 81.0379 30.0336 80.2851 34.2041 79.7275C35.3272 79.5774 36.5184 79.5623 37.6481 79.4457C39.906 79.2126 42.2519 79.3609 44.4984 79.1872C48.1003 79.4029 51.3454 79.3299 55.0276 79.7931C59.4269 80.3464 62.842 81.1746 67.0999 82.2166C67.2658 80.4281 67.1767 77.2914 67.1768 75.3914L67.1766 63.0547L67.1816 52.6088C67.1837 49.2018 67.5432 43.7865 65.0394 41.171C60.3297 36.2513 50.8055 35.5494 44.3926 35.5921C37.5307 35.6728 23.8447 36.1721 21.906 44.9536C21.6275 46.2149 21.7074 48.6112 21.7082 49.9771L21.7133 56.8216L21.7283 82.2517Z" fill="#025355"/><path d="M44.0044 0.374109C45.6768 0.241395 47.6412 1.48489 49.1571 2.22678C51.4144 3.31047 53.656 4.42641 55.8814 5.57427C56.7471 6.01006 57.6452 6.35525 58.5013 6.77476L67.7803 11.3416C73.8931 14.3185 80.0497 17.2189 86.1423 20.2402C90.322 22.3127 87.5859 27.9175 83.5042 26.2002C81.5152 25.3633 79.6207 24.3095 77.6751 23.3821L62.3328 15.9196L51.162 10.4786L47.2233 8.59617C46.5094 8.25562 45.4471 7.78665 44.8141 7.39314C44.6117 7.309 44.3874 7.23904 44.1815 7.32926C42.8713 7.90323 41.5446 8.55662 40.2702 9.19676L33.9152 12.349L19.7464 19.1727C16.1206 20.9274 12.5455 22.8113 8.8615 24.4491C6.83345 25.3507 4.28354 27.4986 2.03241 26.0179C1.31264 25.5423 0.814126 24.7975 0.648877 23.9508C0.34326 22.4399 0.915621 21.2522 2.1971 20.4907C3.47958 19.7286 4.77237 19.2109 6.10615 18.5693L13.9507 14.7755L28.4856 7.71087L39.4071 2.39344C40.7134 1.77209 42.6998 0.562295 44.0044 0.374109Z" fill="#025355"/><path d="M42.3313 88.0075C42.5163 88.0014 42.7014 87.9953 42.8864 87.991C52.5117 87.7424 62.3129 89.5529 71.1994 93.2582C72.3009 93.7745 73.8438 94.1022 74.8024 94.821C75.5973 95.3877 74.7294 96.9357 73.9971 96.721C70.554 95.7101 67.325 94.1917 63.8398 93.2008C62.3841 92.7871 61.3797 92.502 59.9125 92.1717C57.7051 91.6737 55.711 91.0183 53.4083 90.9227C50.8595 90.5698 48.7899 90.3708 46.2166 90.3013C39.4908 90.1335 32.7769 90.954 26.2895 92.7367C24.8101 93.1435 23.2635 93.7754 21.7167 94.1978C19.4419 94.8201 17.1427 96.3855 14.7318 96.6697C13.6618 96.7957 13.3243 95.6241 13.9102 94.8723C14.5855 94.2256 16.0585 93.8866 16.9438 93.5155C24.9768 90.0753 33.5946 88.2048 42.3313 88.0075Z" fill="#025355"/></g><defs><clipPath id="clip0_90_229"><rect width="89" height="97" fill="white"/></clipPath></defs></svg>
+          <span style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:500;color:#025355;letter-spacing:-0.01em;">nested</span>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#A0A09A;margin-bottom:3px;">Cost of Care Report</div>
+          <div id="print-date" style="font-size:12px;color:#6B6860;"></div>
+        </div>
+      </div>
+
+      <div class="results-title-row">
+        <div class="step-eyebrow" style="margin-bottom:4px;">Your results</div>
+        <div class="step-title" style="font-size:38px; margin-bottom:10px; line-height:1.1;">Cost <em class="zodiak">comparison</em></div>
+        <div style="font-size:13.5px; color:var(--ink-lt); line-height:1.5;" class="step-desc-location">Based on national averages and your inputs.</div>
+      </div>
+      <div id="context-band"></div>
+      <div id="stat-row"></div>
+      <div class="scenario-cards" id="resultCards"></div>
+      <div id="projection-row"></div>
+      <div id="breakeven-section"></div>
+      <div style="height:1px;background:var(--border);margin:24px 0 16px;"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-lt);margin-bottom:16px;">Cost breakdown</div>
+      <div id="result-breakdown"></div>
+      <div style="font-size:11px; color:var(--ink-lt); line-height:1.6; margin-top:20px; margin-bottom:24px; padding: 0 2px;">
+        * All figures are monthly estimates based on your inputs and location data. Actual costs vary by provider.<br>
+        * 5-year projection assumes 3% annual cost growth. Actual rates may differ.<br>
+        * Nested does not receive referral fees from any care providers. This report is for informational purposes only.
+      </div>
+      <!-- Print-only footer -->
+      <div class="print-only" style="display:none; margin-top:24px; padding-top:16px; border-top:1px solid #EDE8DF; justify-content:space-between; align-items:center;">
+        <span style="font-family:'Clash Display',sans-serif;font-size:14px;font-weight:500;color:#025355;">nested</span>
+        <span style="font-size:10px;color:#A0A09A;text-align:right;line-height:1.6;">© 2026 Nested, Inc. All rights reserved.<br>Not financial or medical advice.</span>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-primary" onclick="openReport('pdf')"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.6v10.8"/><path d="m7.6 10 4.4 4.4 4.4-4.4"/><path d="M4.6 20.4h14.8"/></svg>Save as PDF</button>
+        <button class="btn btn-outline" style="color:var(--brand); border-color:var(--brand-l); font-weight:600;" onclick="showEmailModal()"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="m3.9 6.9 7.1 5.2a1.7 1.7 0 0 0 2 0l7.1-5.2"/></svg>Email me this comparison</button>
+        <button class="btn-text-link" onclick="goTo('s1'); resetAll()"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4.2v5h-5"/></svg>Start a new comparison</button>
+      </div>
+    </div>
+
+    <!-- ── S8: REPORT ── -->
+    <div class="card screen" id="s8" style="padding:0; overflow:hidden; max-width:680px;">
+      <div id="report-shell"></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+<script>
+// ── STATE ──
+const state = {
+  scenarios: new Set(),
+  costQueue: [],
+  costIdx: 0,
+};
+
+const progressMap = {
+  s1:1, s2a:2, s2b:2, s2c:2, s2d:2,
+  s3a1:3, s3a2:3, s3a3:3,
+  s3b1:3, s3b2:3, s3b3:3,
+  s3c1:3, s3c2:3,
+  s6:4, s7:5, s8:5
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('active'); window.scrollTo(0,0); }
+  const ps = progressMap[id] || 1;
+  document.getElementById('stepNum').textContent = ps;
+  document.getElementById('progressSteps').querySelectorAll('.prog-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active','done');
+    if (s === ps) el.classList.add('active');
+    else if (s < ps) el.classList.add('done');
+  });
+  const isResults = id === 's7';
+  document.querySelector('.progress-wrap').style.display = isResults ? 'none' : '';
+  document.getElementById('stepCounter').style.display = isResults ? 'none' : '';
+}
+
+function goTo(id) {
+  if (id === 's2a' && !validateS1()) return;
+  if (id === 's2b' && !validateS2a()) return;
+  if (id === 's2c' && !validateS2b()) return;
+  if (id === 's2d' && !validateS2c()) return;
+  if (id === 's3a2' && !validateS3a1()) return;
+  if (id === 's3b2' && !validateS3b1()) return;
+  if (id === 's3c2' && !validateS3c1()) return;
+  if (id === 's7') { buildResults(); showScreen('s7'); return; }
+  if (id === 's6') { buildReview(); showScreen('s6'); return; }
+  showScreen(id);
+}
+
+function validateS1() {
+  if (state.scenarios.size === 0) {
+    document.getElementById('s1-error').style.display = 'block';
+    return false;
+  }
+  document.getElementById('s1-error').style.display = 'none';
+  return true;
+}
+
+function validateS2a() {
+  const val = document.getElementById('planFor').value;
+  const err = document.getElementById('s2a-error');
+  if (!val) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function validateS2b() {
+  const age = document.getElementById('personAge').value;
+  const err = document.getElementById('s2b-error');
+  if (!age || isNaN(age) || age < 1) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function validateS2c() {
+  const selected = document.querySelectorAll('#healthConcerns .mod-item.selected');
+  const err = document.getElementById('s2c-error');
+  if (selected.length === 0) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function validateS3a1() {
+  const val = document.getElementById('home-mortgage').value;
+  const err = document.getElementById('s3a1-error');
+  if (!val) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function validateS3b1() {
+  const val = document.getElementById('al-base').value;
+  const err = document.getElementById('s3b1-error');
+  if (!val) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function validateS3c1() {
+  const val = document.getElementById('mc-base').value;
+  const err = document.getElementById('s3c1-error');
+  if (!val) { err.style.display = 'block'; return false; }
+  err.style.display = 'none';
+  return true;
+}
+
+function toggleScenario(key, el) {
+  el.classList.toggle('selected');
+  if (state.scenarios.has(key)) state.scenarios.delete(key);
+  else state.scenarios.add(key);
+  document.getElementById('s1-error').style.display = 'none';
+}
+
+function selectSingleCard(el, groupId) {
+  el.closest('.choices').querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const hidden = document.getElementById(groupId);
+  if (hidden) hidden.value = el.querySelector('.choice-title').textContent;
+  const err = document.getElementById(groupId + '-error');
+  if (err) err.style.display = 'none';
+}
+
+function startCosts() {
+  state.costQueue = [];
+  if (state.scenarios.has('home')) state.costQueue.push(['s3a1','s3a2','s3a3']);
+  if (state.scenarios.has('al'))   state.costQueue.push(['s3b1','s3b2','s3b3']);
+  if (state.scenarios.has('mc'))   state.costQueue.push(['s3c1','s3c2']);
+  state.costIdx = 0;
+  applyLocationToCostScreens();
+  setSuggestedCareLevel();
+  if (state.costQueue.length > 0) showScreen(state.costQueue[0][0]);
+  else { buildReview(); showScreen('s6'); }
+}
+
+function goNextCosts(type) {
+  state.costIdx++;
+  if (state.costIdx < state.costQueue.length) showScreen(state.costQueue[state.costIdx][0]);
+  else { buildReview(); showScreen('s6'); }
+}
+
+function goBackAL() {
+  if (state.scenarios.has('home')) showScreen('s3a3');
+  else showScreen('s2d');
+}
+function goBackMC() {
+  if (state.scenarios.has('al')) showScreen('s3b3');
+  else if (state.scenarios.has('home')) showScreen('s3a3');
+  else showScreen('s2d');
+}
+function goBackReview() {
+  if (state.costQueue.length > 0) {
+    const lastGroup = state.costQueue[state.costQueue.length-1];
+    showScreen(lastGroup[lastGroup.length-1]);
+  } else showScreen('s2d');
+}
+
+function setField(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+function markBannerFilled(bannerId, msg) {
+  const banner = document.getElementById(bannerId);
+  if (!banner) return;
+  banner.classList.add('filled');
+  banner.querySelector('.averages-title').textContent = '✓ National averages pre-filled';
+  banner.querySelector('.averages-sub').textContent = msg || 'Edit any value to match your situation.';
+  banner.querySelector('.averages-btn').textContent = 'Clear all';
+  banner.querySelector('.averages-btn').onclick = function() {
+    // Clear the relevant fields based on which banner this is
+    const fieldMap = {
+      avgBannerHome: ['home-mortgage','home-utilities','home-tax','home-ins','home-transport','home-meals','home-housekeeping','home-medmon'],
+      avgBannerAL:   ['al-base','al-addon','al-meds','al-laundry','al-cable','al-transport','al-pet'],
+      avgBannerMC:   ['mc-base','mc-behavior-cost','mc-extras'],
+    };
+    const fields = fieldMap[bannerId] || [];
+    fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    banner.classList.remove('filled');
+    banner.querySelector('.averages-title').textContent = 'Enter your own numbers';
+    banner.querySelector('.averages-sub').textContent = 'All fields cleared — enter the actual costs for your situation.';
+    banner.querySelector('.averages-btn').textContent = 'Restore averages';
+    banner.querySelector('.averages-btn').onclick = function() {
+      if (bannerId === 'avgBannerHome') fillHomeAverages();
+      else if (bannerId === 'avgBannerAL') fillALAverages();
+      else if (bannerId === 'avgBannerMC') fillMCAverages();
+    };
+  };
+}
+function fillHomeAverages() {
+  setField('home-mortgage',1800); setField('home-utilities',300);
+  setField('home-tax',4800); setField('home-ins',1200);
+  setField('home-transport',200); setField('home-meals',300);
+  setField('home-housekeeping',150); setField('home-medmon',50);
+  markBannerFilled('avgBannerHome','Based on U.S. national averages — edit any value to match your situation.');
+}
+function fillALAverages() {
+  setField('al-base',4500); setField('al-addon',800); setField('al-meds',0);
+  setField('al-laundry',0); setField('al-cable',60); setField('al-transport',0); setField('al-pet',0);
+  markBannerFilled('avgBannerAL','Based on U.S. national averages — edit any value to match your situation.');
+}
+function fillMCAverages() {
+  setField('mc-base',6500); setField('mc-behavior-cost',0); setField('mc-extras',0);
+  markBannerFilled('avgBannerMC','Based on U.S. national averages — edit any value to match your situation.');
+}
+
+function selectPill(el, groupId) {
+  document.getElementById(groupId).querySelectorAll('.choice-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectSingle(el, groupId) {
+  el.closest('.choices').querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleMod(el) {
+  el.classList.toggle('selected');
+  document.getElementById('s2c-error').style.display = 'none';
+}
+function selectADL(rowId, col) {
+  const row = document.getElementById(rowId);
+  row.querySelectorAll('.adl-col').forEach((c,i) => {
+    c.classList.toggle('selected', i===col);
+    c.textContent = (i===col) ? '✓' : '';
+  });
+}
+
+function toggleCaregiver() {
+  const yes = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+  document.getElementById('caregiver-detail').classList.toggle('show', yes);
+}
+function updateCareRate() {
+  const type = document.querySelector('#careType .selected')?.textContent.trim();
+  const note = document.getElementById('careRateNote');
+  const rateInput = document.getElementById('careRate');
+  const rateField = document.getElementById('careRateField');
+  if (type === 'Family (unpaid)') { rateField.style.display = 'none'; }
+  else {
+    rateField.style.display = 'block';
+    if (type === 'Agency') { rateInput.value = 35; note.textContent = 'Agency rate: typically $30–$40/hr. Pre-filled $35.'; }
+    else if (type === 'Private hire') { rateInput.value = 22; note.textContent = 'Private hire: typically $18–$28/hr. Pre-filled $22.'; }
+  }
+}
+
+function setSuggestedCareLevel() {
+  const needsHelp = ['adl-bathing','adl-dressing','adl-mobility','adl-meals','adl-meds'].filter(id => {
+    const cols = document.getElementById(id)?.querySelectorAll('.adl-col');
+    return cols && (cols[1]?.classList.contains('selected') || cols[2]?.classList.contains('selected'));
+  }).length;
+  const el = document.getElementById('suggestedCareLevel');
+  if (!el) return;
+  if (needsHelp >= 4) el.textContent = 'High';
+  else if (needsHelp >= 2) el.textContent = 'Moderate';
+  else el.textContent = 'Low';
+}
+
+const locationData = {
+  national:{label:'National average',m:1.00,home:1500,al:4500,mc:6500,care:35},
+  ca:{label:'California',m:1.45,home:2400,al:6800,mc:9500,care:38},
+  ny:{label:'New York',m:1.40,home:2200,al:6500,mc:9200,care:37},
+  wa:{label:'Washington',m:1.30,home:2000,al:6200,mc:8800,care:36},
+  ma:{label:'Massachusetts',m:1.35,home:2100,al:6400,mc:9000,care:37},
+  ct:{label:'Connecticut',m:1.30,home:2000,al:6100,mc:8600,care:36},
+  nj:{label:'New Jersey',m:1.30,home:2000,al:6000,mc:8500,care:36},
+  ak:{label:'Alaska',m:1.50,home:1800,al:7200,mc:9800,care:40},
+  hi:{label:'Hawaii',m:1.55,home:2600,al:7500,mc:10200,care:42},
+  or:{label:'Oregon',m:1.20,home:1800,al:5800,mc:8200,care:35},
+  co:{label:'Colorado',m:1.20,home:1800,al:5600,mc:7800,care:34},
+  il:{label:'Illinois',m:1.05,home:1600,al:4800,mc:6800,care:33},
+  mn:{label:'Minnesota',m:1.10,home:1600,al:5000,mc:7000,care:33},
+  wi:{label:'Wisconsin',m:1.00,home:1400,al:4500,mc:6400,care:30},
+  oh:{label:'Ohio',m:0.95,home:1300,al:4200,mc:6000,care:28},
+  pa:{label:'Pennsylvania',m:1.00,home:1400,al:4500,mc:6500,care:30},
+  va:{label:'Virginia',m:1.05,home:1600,al:4800,mc:6800,care:32},
+  fl:{label:'Florida',m:1.00,home:1500,al:4400,mc:6200,care:30},
+  az:{label:'Arizona',m:1.00,home:1400,al:4400,mc:6200,care:30},
+  tx:{label:'Texas',m:0.95,home:1400,al:4200,mc:5800,care:28},
+  nc:{label:'North Carolina',m:0.95,home:1300,al:4000,mc:5800,care:28},
+  ga:{label:'Georgia',m:0.95,home:1300,al:4100,mc:5800,care:27},
+  mi:{label:'Michigan',m:0.95,home:1300,al:4100,mc:5900,care:27},
+  mo:{label:'Missouri',m:0.82,home:1100,al:3500,mc:5000,care:24},
+  ok:{label:'Oklahoma',m:0.80,home:1000,al:3400,mc:4800,care:22},
+  ar:{label:'Arkansas',m:0.78,home:1000,al:3200,mc:4600,care:21},
+  ms:{label:'Mississippi',m:0.75,home:900,al:3000,mc:4400,care:20},
+  al:{label:'Alabama',m:0.78,home:900,al:3200,mc:4600,care:21},
+  tn:{label:'Tennessee',m:0.85,home:1100,al:3600,mc:5200,care:24},
+  ky:{label:'Kentucky',m:0.82,home:1000,al:3400,mc:4900,care:23},
+  wv:{label:'West Virginia',m:0.78,home:900,al:3200,mc:4600,care:21},
+  ia:{label:'Iowa',m:0.85,home:1100,al:3800,mc:5400,care:24},
+  ks:{label:'Kansas',m:0.85,home:1100,al:3700,mc:5200,care:24},
+  ne:{label:'Nebraska',m:0.85,home:1100,al:3700,mc:5300,care:24},
+  sd:{label:'South Dakota',m:0.85,home:1100,al:3800,mc:5400,care:25},
+  nd:{label:'North Dakota',m:0.88,home:1200,al:4000,mc:5600,care:26},
+  id:{label:'Idaho',m:0.90,home:1200,al:4000,mc:5700,care:26},
+  mt:{label:'Montana',m:0.90,home:1200,al:4100,mc:5800,care:26},
+  wy:{label:'Wyoming',m:0.90,home:1200,al:4100,mc:5800,care:26},
+  nm:{label:'New Mexico',m:0.85,home:1100,al:3700,mc:5200,care:24},
+};
+
+function applyLocationDefaults() {
+  const stateKey = document.getElementById('locationState')?.value || 'national';
+  const d = locationData[stateKey] || locationData.national;
+  const hint = document.getElementById('locationHint');
+  if (stateKey === 'national') { hint.textContent = ''; }
+  else {
+    const pct = d.m >= 1 ? `+${Math.round((d.m-1)*100)}%` : `${Math.round((d.m-1)*100)}%`;
+    hint.textContent = `${d.label}: costs are roughly ${pct} vs. national average. Defaults updated.`;
+  }
+  window.locationDefaults = d;
+}
+
+function applyLocationToCostScreens() {
+  // Inputs start empty — user fills manually or clicks "Use averages"
+  // Just reset banners to their default "offer" state
+  ['avgBannerHome','avgBannerAL','avgBannerMC'].forEach(id => {
+    const banner = document.getElementById(id);
+    if (!banner) return;
+    banner.classList.remove('filled');
+    banner.querySelector('.averages-title').textContent = 'Not sure of your numbers?';
+    banner.querySelector('.averages-sub').textContent = 'Fill everything with national averages — edit any field after.';
+    banner.querySelector('.averages-btn').textContent = 'Use averages';
+  });
+}
+
+function updateALAddOn() {
+  const level = document.querySelector('#alCareLevel .selected')?.textContent.trim();
+  const addon = document.getElementById('al-addon');
+  const hint = document.getElementById('alAddonHint');
+  const map = {'Low':[300,600,400],'Moderate':[600,1000,800],'High':[1000,1800,1400]};
+  const hints = {'Low':'Low: typically $300–$600/mo','Moderate':'Moderate: typically $600–$1,000/mo','High':'High: typically $1,000–$1,800/mo'};
+  if (level && map[level]) { addon.value = map[level][2]; hint.textContent = hints[level]; }
+}
+function updateALMeds() {
+  const tier = document.querySelector('#alMeds .selected')?.textContent.trim();
+  const inp = document.getElementById('al-meds');
+  const hint = document.getElementById('alMedsHint');
+  const map = {'None':[0,'None selected'],'1–3 meds':[150,'Basic: ~$100–$200/mo'],'4–9 meds':[300,'Moderate: ~$250–$400/mo'],'10+ meds':[500,'Complex: ~$400–$600/mo']};
+  if (tier && map[tier]) { inp.value = map[tier][0]; hint.textContent = map[tier][1]; }
+}
+function toggleBehaviorCost() {
+  const yes = document.querySelector('#mcBehavior .selected')?.textContent.trim() === 'Yes';
+  document.getElementById('mc-behavior-detail').classList.toggle('show', yes);
+}
+
+function getVal(id, fallback=0) { return parseFloat(document.getElementById(id)?.value) || fallback; }
+
+function calcHome() {
+  const mods = {'Grab bars':200,'Wheelchair ramp':2000,'Bath conversion':8000,'Stairlift':5000};
+  let modTotal = 0;
+  document.querySelectorAll('#s3a3 .mod-item.selected').forEach(el => {
+    const name = el.querySelector('.mod-name').textContent;
+    if (mods[name]) modTotal += mods[name];
+    if (name === 'Emergency alert device') modTotal += 30 * 24;
+  });
+  let careMonthly = 0;
+  if (document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes') {
+    const type = document.querySelector('#careType .selected')?.textContent.trim();
+    if (type !== 'Family (unpaid)') careMonthly = getVal('careHours',20) * 4.33 * getVal('careRate',35);
+  }
+  return Math.round(getVal('home-mortgage') + getVal('home-utilities') +
+    getVal('home-tax')/12 + getVal('home-ins')/12 + modTotal/24 + careMonthly +
+    getVal('home-transport') + getVal('home-meals') + getVal('home-housekeeping') + getVal('home-medmon'));
+}
+function calcAL() {
+  return Math.round(getVal('al-base',4500) + getVal('al-addon',800) + getVal('al-meds') +
+    getVal('al-laundry') + getVal('al-cable') + getVal('al-transport') + getVal('al-pet'));
+}
+function calcMC() {
+  const hasBehavior = document.querySelector('#mcBehavior .selected')?.textContent.trim() === 'Yes';
+  return Math.round(getVal('mc-base',6500) + (hasBehavior ? getVal('mc-behavior-cost',500) : 0) + getVal('mc-extras'));
+}
+function fmt(n) { return '$' + n.toLocaleString(); }
+
+function buildReview() {
+  const planFor = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || '—';
+  const age = document.getElementById('personAge')?.value || '—';
+  const living = document.getElementById('livingSituation')?.value || '—';
+  const livingMap = {alone:'Lives alone',spouse:'With spouse/partner',family:'With adult children',community:'In a community'};
+  const stateKey = document.getElementById('locationState')?.value || 'national';
+  const stateLabel = locationData[stateKey]?.label || 'National average';
+  let html = `<div class="review-section">
+    <div class="review-section-header">
+      <div class="review-section-title"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.6"/><path d="M4.9 20.3a7.1 7.1 0 0 1 14.2 0"/></svg>About the person</div>
+      <button class="review-edit" onclick="showScreen('s2a')">Edit</button>
+    </div>
+    <div class="review-row"><span class="review-key">Plan for</span><span class="review-val">${planFor}</span></div>
+    <div class="review-row"><span class="review-key">Age</span><span class="review-val">${age}</span></div>
+    <div class="review-row"><span class="review-key">Living situation</span><span class="review-val">${livingMap[living]||living}</span></div>
+    <div class="review-row"><span class="review-key">Location</span><span class="review-val">${stateLabel}</span></div>
+  </div>`;
+  if (state.scenarios.has('home')) {
+    const t = calcHome();
+    const propTaxMo   = Math.round(getVal('home-tax', 0) / 12);
+    const insuranceMo = Math.round(getVal('home-ins', 0) / 12);
+    const transport   = getVal('home-transport', 0);
+    const meals       = getVal('home-meals', 0);
+    const housekeep   = getVal('home-housekeeping', 0);
+    const medmon      = getVal('home-medmon', 0);
+    const hasCaregiver = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+    const careType    = document.querySelector('#careType .selected')?.textContent.trim();
+    const careHours   = getVal('careHours', 20);
+    const careRate    = getVal('careRate', 35);
+    const caregiverCost = (hasCaregiver && careType !== 'Family (unpaid)') ? Math.round(careHours * 4.33 * careRate) : 0;
+    function revRow(label, val, note='') {
+      if (!val) return '';
+      return `<div class="review-row"><span class="review-key">${label}${note ? '<span style="font-size:11px;color:#A0A09A;display:block;">' + note + '</span>' : ''}</span><span class="review-val">${fmt(val)}/mo</span></div>`;
+    }
+    html += `<div class="review-section">
+      <div class="review-section-header">
+        <div class="review-section-title"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.6V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.6"/><path d="M12 17.3s-2.7-1.7-2.7-3.4a1.5 1.5 0 0 1 2.7-.95 1.5 1.5 0 0 1 2.7.95c0 1.7-2.7 3.4-2.7 3.4Z"/></svg>Aging at Home</div>
+        <button class="review-edit" onclick="showScreen('s3a1')">Edit</button>
+      </div>
+      ${revRow('Mortgage / Rent', getVal('home-mortgage', 0))}
+      ${revRow('Utilities', getVal('home-utilities', 0))}
+      ${revRow('Property tax', propTaxMo, 'Annual ÷ 12')}
+      ${revRow('Home insurance', insuranceMo, 'Annual ÷ 12')}
+      ${revRow('Transportation', transport)}
+      ${revRow('Meal services', meals)}
+      ${revRow('Housekeeping', housekeep)}
+      ${revRow('Medical monitoring', medmon)}
+      ${caregiverCost > 0 ? revRow('Caregiver support', caregiverCost, careHours + ' hrs/wk · $' + careRate + '/hr') : ''}
+      <div class="review-row" style="background:var(--brand-xl);"><span class="review-key" style="font-weight:700;color:var(--brand);">Estimated total</span><span class="review-val" style="font-weight:700;color:var(--brand);">${fmt(t)}/mo</span></div>
+    </div>`;
+  }
+  if (state.scenarios.has('al')) {
+    const t = calcAL();
+    const alMeds     = getVal('al-meds', 0);
+    const alLaundry  = getVal('al-laundry', 0);
+    const alCable    = getVal('al-cable', 0);
+    const alTransport = getVal('al-transport', 0);
+    const alPet      = getVal('al-pet', 0);
+    function revRowAL(label, val) {
+      if (!val) return '';
+      return `<div class="review-row"><span class="review-key">${label}</span><span class="review-val">${fmt(val)}/mo</span></div>`;
+    }
+    html += `<div class="review-section">
+      <div class="review-section-header">
+        <div class="review-section-title"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V21"/><path d="M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h4M7.5 12h4M7.5 16h4M17.5 14.5v2.5"/></svg>Assisted Living</div>
+        <button class="review-edit" onclick="showScreen('s3b1')">Edit</button>
+      </div>
+      ${revRowAL('Base monthly rate', getVal('al-base', 0))}
+      ${revRowAL('Care add-on', getVal('al-addon', 0))}
+      ${revRowAL('Medications', alMeds)}
+      ${revRowAL('Laundry & linen', alLaundry)}
+      ${revRowAL('Cable / internet', alCable)}
+      ${revRowAL('Transportation', alTransport)}
+      ${revRowAL('Pet care', alPet)}
+      <div class="review-row" style="background:var(--brand-xl);"><span class="review-key" style="font-weight:700;color:var(--brand);">Estimated total</span><span class="review-val" style="font-weight:700;color:var(--brand);">${fmt(t)}/mo</span></div>
+    </div>`;
+  }
+  if (state.scenarios.has('mc')) {
+    const t = calcMC();
+    const mcBehavior = getVal('mc-behavior-cost', 0);
+    const mcExtras   = getVal('mc-extras', 0);
+    html += `<div class="review-section">
+      <div class="review-section-header">
+        <div class="review-section-title"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21v-6.8"/><path d="M12.2 14.2c-.3-4.4 2.5-8.2 6.4-8.5.3 4.4-2.5 8.2-6.4 8.5Z"/><path d="M11.6 17.2c-3.3.2-6.1-2.2-6.4-5.5 3.3-.2 6.1 2.2 6.4 5.5Z"/></svg>Memory Care</div>
+        <button class="review-edit" onclick="showScreen('s3c1')">Edit</button>
+      </div>
+      <div class="review-row"><span class="review-key">Base monthly rate</span><span class="review-val">${fmt(getVal('mc-base', 0))}/mo</span></div>
+      ${mcBehavior > 0 ? `<div class="review-row"><span class="review-key">Behavioral support add-on</span><span class="review-val">${fmt(mcBehavior)}/mo</span></div>` : ''}
+      ${mcExtras > 0 ? `<div class="review-row"><span class="review-key">Additional services</span><span class="review-val">${fmt(mcExtras)}/mo</span></div>` : ''}
+      <div class="review-row" style="background:var(--brand-xl);"><span class="review-key" style="font-weight:700;color:var(--brand);">Estimated total</span><span class="review-val" style="font-weight:700;color:var(--brand);">${fmt(t)}/mo</span></div>
+    </div>`;
+  }
+  document.getElementById('review-content').innerHTML = html;
+}
+
+function buildResults() {
+  const results = [];
+  if (state.scenarios.has('home')) results.push({key:'home',icon:'<svg class="nico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.6V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.6"/><path d="M12 17.3s-2.7-1.7-2.7-3.4a1.5 1.5 0 0 1 2.7-.95 1.5 1.5 0 0 1 2.7.95c0 1.7-2.7 3.4-2.7 3.4Z"/></svg>',label:'Aging at Home',sub:'In current home with support',total:calcHome()});
+  if (state.scenarios.has('al'))   results.push({key:'al',icon:'<svg class="nico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V21"/><path d="M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h4M7.5 12h4M7.5 16h4M17.5 14.5v2.5"/></svg>',label:'Assisted Living',sub:'Residential community',total:calcAL()});
+  if (state.scenarios.has('mc'))   results.push({key:'mc',icon:'<svg class="nico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21v-6.8"/><path d="M12.2 14.2c-.3-4.4 2.5-8.2 6.4-8.5.3 4.4-2.5 8.2-6.4 8.5Z"/><path d="M11.6 17.2c-3.3.2-6.1-2.2-6.4-5.5 3.3-.2 6.1 2.2 6.4 5.5Z"/></svg>',label:'Memory Care',sub:'Specialized cognitive care',total:calcMC()});
+
+  const stateKey   = document.getElementById('locationState')?.value || 'national';
+  const stateLabel = locationData[stateKey]?.label || 'National averages';
+  const planFor    = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || '';
+  const age        = document.getElementById('personAge')?.value || '';
+  const today      = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+
+  document.querySelector('#s7 .step-desc-location').textContent =
+    `${stateKey === 'national' ? 'Based on national averages' : 'Adjusted for ' + stateLabel} and your inputs.`;
+
+  results.sort((a,b) => a.total - b.total);
+  const lowest  = results[0];
+  const highest = results[results.length - 1];
+
+  // ── Context band ──
+  const contextSubParts = [];
+  if (age) contextSubParts.push(`Age ${age}`);
+  if (stateKey !== 'national') contextSubParts.push(stateLabel);
+  const contextSub = contextSubParts.join(' · ');
+  const planForLabel = planFor ? planFor : 'a loved one';
+  document.getElementById('context-band').innerHTML = `
+    <div class="context-band">
+      <div>
+        <div class="context-band-name">Planning for ${planForLabel}</div>
+        ${contextSub ? `<div class="context-band-sub">${contextSub}</div>` : ''}
+      </div>
+      <div class="context-band-date">Generated<br>${today}</div>
+    </div>`;
+
+  // ── Stat summary row ──
+  const lowestLabel = lowest.label.replace('Aging at ', '').replace(' Living','').replace(' Care','');
+  let statMiddle = '';
+  if (results.length > 1) {
+    const diff = highest.total - lowest.total;
+    statMiddle = `<div class="stat-summary-card">
+      <div class="stat-summary-label">Cost difference</div>
+      <div class="stat-summary-value">${fmt(diff)}</div>
+      <div class="stat-summary-sub">${lowest.label.split(' ')[0]} vs. ${highest.label.split(' ')[0]}/mo</div>
+    </div>`;
+  }
+  const proj5yrLowest = Math.round(lowest.total * 12 * ((Math.pow(1.03,5)-1)/0.03));
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-summary-row">
+      <div class="stat-summary-card">
+        <div class="stat-summary-label">Lowest cost</div>
+        <div class="stat-summary-value">${fmt(lowest.total)}</div>
+        <div class="stat-summary-sub">${lowest.label} / mo</div>
+      </div>
+      ${statMiddle || `<div class="stat-summary-card">
+        <div class="stat-summary-label">Annual estimate</div>
+        <div class="stat-summary-value">${fmt(lowest.total*12)}</div>
+        <div class="stat-summary-sub">${lowest.label} / yr</div>
+      </div>`}
+      <div class="stat-summary-card">
+        <div class="stat-summary-label">5-yr projection</div>
+        <div class="stat-summary-value">$${Math.round(proj5yrLowest/1000)}k</div>
+        <div class="stat-summary-sub">${lowest.label} at 3% growth</div>
+      </div>
+    </div>`;
+
+  // ── Scenario cards ──
+  let cards = '';
+  results.forEach(r => {
+    const isLow = r.key === lowest.key && results.length > 1;
+    cards += `<div class="scenario-card ${isLow?'highlight':''}">
+      <div class="sc-left"><div class="sc-icon">${r.icon}</div>
+        <div><div class="sc-label">${r.label}${isLow?'<span class="best-value-badge">Lowest cost</span>':''}</div>
+        <div class="sc-sub">${r.sub}</div></div></div>
+      <div class="sc-right"><div class="sc-amount">${fmt(r.total)}</div>
+        <div class="sc-period">/ month</div><div class="sc-annual">${fmt(r.total*12)} / year</div></div>
+    </div>`;
+  });
+  document.getElementById('resultCards').innerHTML = cards;
+
+  // ── Projection mini cards ──
+  let projHtml = '';
+  if (results.length > 1) {
+    projHtml = '<div class="projection-mini-row">' + results.map(r => {
+      const yr5 = Math.round(r.total * 12 * Math.pow(1.03, 5));
+      const isLow = r.key === lowest.key;
+      return `<div class="proj-mini-card ${isLow?'highlight':''}">
+        <div class="proj-mini-label">${r.label} · yr 5</div>
+        <div class="proj-mini-value">${fmt(yr5)}</div>
+        <div class="proj-mini-sub">/ year at 3% growth</div>
+      </div>`;
+    }).join('') + '</div>';
+  }
+  document.getElementById('projection-row').innerHTML = projHtml;
+
+  // ── Insight box (replaces plain breakeven) ──
+  let insightText = '';
+  if (state.scenarios.has('home') && state.scenarios.has('al')) {
+    const homeBase = calcHome(), alTotal = calcAL();
+    const hasCaregiver = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+    const careType = document.querySelector('#careType .selected')?.textContent.trim();
+    const careRate = getVal('careRate',35);
+    const careHours = getVal('careHours',20);
+    const homeNoCare = homeBase - (hasCaregiver && careType !== 'Family (unpaid)' ? careHours*4.33*careRate : 0);
+    const hoursForAL = Math.round((alTotal - homeNoCare) / (4.33 * careRate));
+    const diff = Math.abs(homeBase - alTotal);
+    if (hoursForAL > 0 && hoursForAL < 168) {
+      insightText = `At <strong>${careHours} hrs/week of caregiver support</strong>, staying home costs <strong>${fmt(diff)}/month ${homeBase < alTotal ? 'less' : 'more'}</strong> than Assisted Living. That gap shifts at approximately <strong>${hoursForAL} hrs/week</strong> — worth revisiting as care needs change.`;
+    } else if (alTotal < homeBase) {
+      insightText = `Based on your inputs, Assisted Living (<strong>${fmt(alTotal)}/mo</strong>) is already more affordable than Aging at Home (<strong>${fmt(homeBase)}/mo</strong>).`;
+    }
+  } else if (state.scenarios.has('mc')) {
+    const mcTotal = calcMC();
+    insightText = `Memory Care in ${stateLabel} averages <strong>${fmt(mcTotal)}/mo</strong>. At 3% annual growth, costs could reach approximately <strong>${fmt(Math.round(mcTotal * Math.pow(1.03,5)))}/mo</strong> in five years.`;
+  } else if (state.scenarios.has('home')) {
+    insightText = `Your estimated home care cost of <strong>${fmt(calcHome())}/mo</strong> includes housing, utilities, and any caregiver support. Costs may rise as care needs increase over time.`;
+  } else if (state.scenarios.has('al')) {
+    insightText = `Assisted Living at <strong>${fmt(calcAL())}/mo</strong> bundles housing, meals, and personal care. Costs typically rise 3–5% annually as care needs increase.`;
+  }
+  document.getElementById('breakeven-section').innerHTML = insightText ? `
+    <div class="insight-box">
+      <div class="insight-box-icon"><svg class="nico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.3 18.2h5.4"/><path d="M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1.9 1.8v.6h5.4v-.6c0-.7.3-1.3.9-1.8A6 6 0 0 0 12 3Z"/></svg></div>
+      <div>
+        <div class="insight-box-label">Nested Insight</div>
+        <div class="insight-box-text">${insightText}</div>
+      </div>
+    </div>` : '';
+
+  // ── Inline breakdown — same clean styled sections as PDF ──
+  let breakdown = '';
+
+  function makeBreakdownSection(title, tag, colorClass, rows) {
+    // rows: [label, monthlyValue, optionalNote]
+    const total = rows.reduce((s, r) => s + (r[1] || 0), 0);
+    const rowsHTML = rows.filter(r => r[1] > 0).map(([label, val, note]) => `
+      <tr>
+        <td>${label}${note ? `<span class="sub-note">${note}</span>` : ''}</td>
+        <td>${fmt(val)}<span style="font-size:11px;font-weight:400;color:#A0A09A;">/mo</span></td>
+      </tr>`).join('');
+    return `
+      <div class="care-section">
+        <div class="care-section-header ${colorClass}">
+          <span class="care-section-title">${title}</span>
+          <span class="care-section-tag">${tag}</span>
+        </div>
+        <table class="care-table"><tbody>
+          ${rowsHTML}
+          <tr class="total-row">
+            <td>Estimated Total</td>
+            <td>${fmt(total)}<span style="font-size:11px;font-weight:400;color:#025355;">/mo</span></td>
+          </tr>
+        </tbody></table>
+      </div>`;
+  }
+
+  if (state.scenarios.has('home')) {
+    const mortgage     = getVal('home-mortgage', 1800);
+    const utilities    = getVal('home-utilities', 300);
+    const propTaxMo    = Math.round(getVal('home-tax', 4800) / 12);
+    const insuranceMo  = Math.round(getVal('home-ins', 1200) / 12);
+    const transport    = getVal('home-transport', 200);
+    const meals        = getVal('home-meals', 300);
+    const housekeeping = getVal('home-housekeeping', 150);
+    const medMon       = getVal('home-medmon', 50);
+    const hasCaregiver = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+    const careType     = document.querySelector('#careType .selected')?.textContent.trim();
+    const careHours    = getVal('careHours', 20);
+    const careRate     = getVal('careRate', 35);
+    const caregiverCost = (hasCaregiver && careType !== 'Family (unpaid)') ? Math.round(careHours * 4.33 * careRate) : 0;
+    // Home mods: sum selected items amortized over 24 months
+    const modMap = {'Grab bars':200,'Wheelchair ramp':2000,'Bath conversion':8000,'Stairlift':5000,'Emergency alert device':30*24};
+    let modTotal = 0;
+    document.querySelectorAll('#s3a3 .mod-item.selected').forEach(el => {
+      const name = el.querySelector('.mod-name').textContent;
+      if (modMap[name]) modTotal += modMap[name];
+    });
+    const modMo = modTotal > 0 ? Math.round(modTotal / 24) : 0;
+
+    const homeRows = [
+      ['Mortgage / Rent', mortgage],
+      ['Utilities', utilities],
+      ['Property tax', propTaxMo, 'Annual amount ÷ 12'],
+      ['Home insurance', insuranceMo, 'Annual amount ÷ 12'],
+      ['Transportation', transport],
+      ['Meal services', meals],
+      ['Housekeeping', housekeeping],
+      ...(modMo > 0 ? [['Home modifications', modMo, 'Amortized over 24 months']] : []),
+      ...(caregiverCost > 0 ? [['Caregiver support', caregiverCost, `${careHours} hrs/wk · $${careRate}/hr`]] : []),
+      ['Medical monitoring', medMon],
+    ];
+    breakdown += makeBreakdownSection('Aging at Home', 'IN CURRENT HOME WITH SUPPORT', '', homeRows);
+  }
+
+  if (state.scenarios.has('al')) {
+    const alBase    = getVal('al-base', 4500);
+    const alAddon   = getVal('al-addon', 800);
+    const alMeds    = getVal('al-meds', 0);
+    const alLaundry = getVal('al-laundry', 0);
+    const alCable   = getVal('al-cable', 0);
+    const alTransport = getVal('al-transport', 0);
+    const alPet     = getVal('al-pet', 0);
+    const alRows = [
+      ['Base monthly rate', alBase, 'Private, one bedroom'],
+      ['Care add-on', alAddon, 'Personal care services'],
+      ...(alMeds   > 0 ? [['Medications', alMeds]] : []),
+      ...(alLaundry > 0 ? [['Laundry & linen', alLaundry]] : []),
+      ...(alCable  > 0 ? [['Cable / internet', alCable]] : []),
+      ...(alTransport > 0 ? [['Transportation', alTransport]] : []),
+      ...(alPet    > 0 ? [['Pet care', alPet]] : []),
+    ];
+    breakdown += makeBreakdownSection('Assisted Living', 'RESIDENTIAL COMMUNITY', '', alRows);
+  }
+
+  if (state.scenarios.has('mc')) {
+    const mcBase     = getVal('mc-base', 6500);
+    const mcBehavior = getVal('mc-behavior-cost', 0);
+    const mcExtras   = getVal('mc-extras', 0);
+    const mcRows = [
+      ['Base monthly rate', mcBase, 'Memory care community'],
+      ...(mcBehavior > 0 ? [['Behavioral support add-on', mcBehavior]] : []),
+      ...(mcExtras  > 0 ? [['Additional services', mcExtras]] : []),
+    ];
+    breakdown += makeBreakdownSection('Memory Care', 'SPECIALIZED COGNITIVE CARE', '', mcRows);
+  }
+
+  document.getElementById('result-breakdown').innerHTML = breakdown;
+}
+
+function resetAll() {
+  state.scenarios.clear(); state.costQueue = []; state.costIdx = 0;
+  document.querySelectorAll('.choice-card.selected').forEach(el => el.classList.remove('selected'));
+}
+
+showScreen('s1');
+
+/* ══════════════════════════════════════════════
+   REPORT GENERATION
+══════════════════════════════════════════════ */
+
+function openReport(mode) {
+  if (mode === 'pdf') {
+    // Set print date
+    const today = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+    const printDate = document.getElementById('print-date');
+    if (printDate) printDate.textContent = today;
+    // Show print-only elements
+    document.querySelectorAll('.print-only').forEach(el => el.style.display = 'flex');
+    document.body.classList.add('printing-report');
+    setTimeout(() => {
+      window.print();
+      document.body.classList.remove('printing-report');
+      document.querySelectorAll('.print-only').forEach(el => el.style.display = 'none');
+    }, 300);
+  } else {
+    showEmailModal();
+  }
+}
+
+function buildReport(mode) {
+  // ── Gather data ──
+  const stateKey   = document.getElementById('locationState')?.value || 'national';
+  const locData    = locationData[stateKey] || locationData.national;
+  const locLabel   = locData.label || 'National average';
+  const planFor    = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || '—';
+  const age        = document.getElementById('personAge')?.value || '—';
+  const today      = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+  const hasHome = state.scenarios.has('home');
+  const hasAL   = state.scenarios.has('al');
+  const hasMC   = state.scenarios.has('mc');
+
+  const homeTotal = hasHome ? calcHome() : null;
+  const alTotal   = hasAL   ? calcAL()   : null;
+  const mcTotal   = hasMC   ? calcMC()   : null;
+
+  // Lowest cost option
+  const totals = [homeTotal, alTotal, mcTotal].filter(x => x !== null);
+  const lowestTotal = Math.min(...totals);
+
+  // 5-year projection at 3% growth (highest selected care)
+  const highestTotal = Math.max(...totals);
+  const proj5yr = Math.round(highestTotal * 12 * ((Math.pow(1.03, 5) - 1) / 0.03));
+
+  // Breakeven insight text
+  let insightHtml = '';
+  if (hasHome && hasAL) {
+    const hasCaregiver = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+    const careType     = document.querySelector('#careType .selected')?.textContent.trim();
+    const careRate     = getVal('careRate', 35);
+    const homeNoCare   = homeTotal - (hasCaregiver && careType !== 'Family (unpaid)' ? getVal('careHours',20)*4.33*careRate : 0);
+    const hoursForAL   = Math.round((alTotal - homeNoCare) / (4.33 * careRate));
+    if (hoursForAL > 0 && hoursForAL < 168) {
+      insightHtml = `Assisted Living becomes more cost-effective at approximately <strong>${hoursForAL} caregiver hours/week</strong>. Based on your current inputs, home care is ${homeTotal < alTotal ? 'less expensive' : 'more expensive'} by <strong>${fmt(Math.abs(homeTotal - alTotal))}/mo</strong>.`;
+    } else if (alTotal < homeTotal) {
+      insightHtml = `Based on your inputs, Assisted Living (<strong>${fmt(alTotal)}/mo</strong>) is already more affordable than Aging at Home (<strong>${fmt(homeTotal)}/mo</strong>).`;
+    }
+  } else if (hasMC) {
+    insightHtml = `Memory Care in ${locLabel} averages <strong>${fmt(mcTotal)}/mo</strong>. At a 3% annual growth rate, costs could reach approximately <strong>${fmt(Math.round(mcTotal * Math.pow(1.03, 5)))}/mo</strong> in five years.`;
+  } else if (hasHome) {
+    insightHtml = `Your estimated home care cost of <strong>${fmt(homeTotal)}/mo</strong> includes housing, utilities, and any caregiver support. Costs may rise as care needs increase.`;
+  }
+
+  // ── Stat cards ──
+  const lowestLabel = hasHome && homeTotal === lowestTotal ? 'Aging at Home' : hasAL && alTotal === lowestTotal ? 'Assisted Living' : 'Memory Care';
+  const primaryLabel = hasMC ? 'Memory Care' : hasAL ? 'Assisted Living' : 'Aging at Home';
+  const primaryTotal = hasMC ? mcTotal : hasAL ? alTotal : homeTotal;
+
+  // ── Build section rows ──
+  function sectionHTML(title, tag, colorClass, rows) {
+    const rowsHTML = rows.map(([label, val, note]) => `
+      <tr>
+        <td>${label}${note ? `<span class="sub-note">${note}</span>` : ''}</td>
+        <td>${fmt(val)}<span style="font-size:11px; font-weight:400; font-family:'Figtree',sans-serif; color:#A0A09A;">/mo</span></td>
+      </tr>`).join('');
+    return `
+    <div class="care-section">
+      <div class="care-section-header ${colorClass}">
+        <span class="care-section-title">${title}</span>
+        <span class="care-section-tag">${tag}</span>
+      </div>
+      <table class="care-table"><tbody>${rowsHTML}</tbody></table>
+    </div>`;
+  }
+
+  let sectionsHTML = '';
+
+  if (hasHome) {
+    const mort  = getVal('home-mortgage');
+    const utils = getVal('home-utilities');
+    const tax   = Math.round(getVal('home-tax') / 12);
+    const ins   = Math.round(getVal('home-ins') / 12);
+    const trans = getVal('home-transport');
+    const meals = getVal('home-meals');
+    const hk    = getVal('home-housekeeping');
+    const med   = getVal('home-medmon');
+    const careMonthly = (() => {
+      const yes = document.querySelector('#needCaregiver .selected')?.textContent.trim() === 'Yes';
+      const ct  = document.querySelector('#careType .selected')?.textContent.trim();
+      if (!yes || ct === 'Family (unpaid)') return 0;
+      return Math.round(getVal('careHours',20) * 4.33 * getVal('careRate',35));
+    })();
+    const mods = (() => {
+      const map = {'Grab bars':200,'Wheelchair ramp':2000,'Bath conversion':8000,'Stairlift':5000};
+      let t = 0;
+      document.querySelectorAll('#s3a3 .mod-item.selected').forEach(el => {
+        const n = el.querySelector('.mod-name').textContent;
+        if (map[n]) t += map[n];
+        if (n === 'Emergency alert device') t += 30*24;
+      });
+      return Math.round(t / 24);
+    })();
+    const rows = [];
+    if (mort)  rows.push(['Mortgage / Rent', mort, null]);
+    if (utils) rows.push(['Utilities', utils, null]);
+    if (tax)   rows.push(['Property tax', tax, 'Annualized']);
+    if (ins)   rows.push(['Home insurance', ins, 'Annualized']);
+    if (careMonthly) rows.push(['Paid caregiver', careMonthly, `${getVal('careHours',20)} hrs/week · ${document.querySelector('#careType .selected')?.textContent.trim() || ''}`]);
+    if (mods)  rows.push(['Home modifications', mods, 'Amortized over 2 years']);
+    if (trans) rows.push(['Transportation', trans, null]);
+    if (meals) rows.push(['Meal services', meals, null]);
+    if (hk)    rows.push(['Housekeeping', hk, null]);
+    if (med)   rows.push(['Medical monitoring', med, null]);
+    rows.push(['__total__', homeTotal, null]);
+    sectionsHTML += sectionHTMLWithTotal('Aging at Home', 'In current home with support', '', rows);
+  }
+
+  if (hasAL) {
+    const base  = getVal('al-base', 4500);
+    const addon = getVal('al-addon', 800);
+    const meds  = getVal('al-meds');
+    const laun  = getVal('al-laundry');
+    const cable = getVal('al-cable');
+    const trans = getVal('al-transport');
+    const pet   = getVal('al-pet');
+    const careLevel = document.querySelector('#alCareLevel .selected')?.textContent.trim() || 'Moderate';
+    const rows = [];
+    rows.push(['Base monthly rate', base, 'Private, one bedroom']);
+    rows.push([`Care add-on (${careLevel})`, addon, 'Personal care services']);
+    if (meds)  rows.push(['Medications', meds, null]);
+    if (laun)  rows.push(['Laundry & linen', laun, null]);
+    if (cable) rows.push(['Cable / internet', cable, null]);
+    if (trans) rows.push(['Transportation', trans, null]);
+    if (pet)   rows.push(['Pet fee', pet, null]);
+    rows.push(['__total__', alTotal, null]);
+    sectionsHTML += sectionHTMLWithTotal('Assisted Living', 'Residential community', 'accent', rows);
+  }
+
+  if (hasMC) {
+    const base     = getVal('mc-base', 6500);
+    const behavior = document.querySelector('#mcBehavior .selected')?.textContent.trim() === 'Yes' ? getVal('mc-behavior-cost', 500) : 0;
+    const extras   = getVal('mc-extras');
+    const stage    = document.querySelector('#mcLevel .choice-card.selected .choice-title')?.textContent || 'Moderate';
+    const rows = [];
+    rows.push(['Base monthly rate', base, `Private room · ${stage} stage`]);
+    if (behavior) rows.push(['Behavioral support add-on', behavior, 'Wandering / agitation support']);
+    if (extras)   rows.push(['Additional services', extras, null]);
+    rows.push(['__total__', mcTotal, null]);
+    sectionsHTML += sectionHTMLWithTotal('Memory Care', 'Specialized cognitive care', 'neutral', rows);
+  }
+
+  // ── Email modal overlay ──
+  const emailModalHTML = mode === 'email' ? `
+  <div id="emailModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;">
+    <div style="background:white;border-radius:20px;padding:40px 44px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#A0A09A;margin-bottom:8px;">Send your report</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em style="font-family:'Zodiak',serif;font-style:italic;font-weight:300;">send it?</em></div>
+      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown — no account needed.</div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:8px;">Your email address</label>
+        <input type="email" id="reportEmail" placeholder="you@example.com" style="width:100%;height:48px;border:1.5px solid #DDD9D0;border-radius:10px;padding:0 16px;font-family:'Figtree',sans-serif;font-size:15px;color:#1A1A1A;outline:none;" onfocus="this.style.borderColor='#025355';this.style.boxShadow='0 0 0 3px rgba(2,83,85,0.1)'" onblur="this.style.borderColor='#DDD9D0';this.style.boxShadow='none'">
+      </div>
+      <button onclick="sendReport()" style="width:100%;height:52px;background:#025355;color:white;border:none;border-radius:100px;font-family:'Figtree',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;transition:background 0.18s;" onmouseover="this.style.background='#013F40'" onmouseout="this.style.background='#025355'">Send report →</button>
+      <button onclick="document.getElementById('emailModal').remove()" style="width:100%;height:44px;background:transparent;color:#A0A09A;border:none;font-family:'Figtree',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">Cancel</button>
+    </div>
+  </div>` : '';
+
+  // ── Full report HTML ──
+  const html = `
+  <style>
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+    .report-wrap {
+      font-family: 'Figtree', sans-serif;
+      background: white;
+      padding: 40px 48px 52px;
+      color: #1A1A1A;
+      font-size: 14px;
+    }
+    .rpt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #025355;
+    }
+    .rpt-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Clash Display', sans-serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: #025355;
+      letter-spacing: -0.02em;
+    }
+    .rpt-header-right { text-align: right; }
+    .rpt-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #A0A09A; margin-bottom: 3px; }
+    .rpt-location { font-family: 'Clash Display', sans-serif; font-size: 17px; font-weight: 500; color: #1A1A1A; letter-spacing: -0.01em; }
+    .rpt-date { font-size: 12px; color: #6B6860; margin-top: 2px; }
+    .rpt-recipient {
+      margin-bottom: 36px;
+      padding: 18px 22px;
+      background: #EBF4F4;
+      border-radius: 12px;
+      border-left: 4px solid #025355;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .rpt-recip-name { font-family: 'Clash Display', sans-serif; font-size: 18px; font-weight: 500; color: #025355; letter-spacing: -0.01em; margin-bottom: 2px; }
+    .rpt-recip-sub { font-size: 13px; color: #6B6860; }
+    .rpt-recip-meta { text-align: right; font-size: 12px; color: #A0A09A; line-height: 1.7; flex-shrink: 0; }
+    .rpt-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #A0A09A; margin-bottom: 6px; }
+    .rpt-title { font-family: 'Clash Display', sans-serif; font-size: 32px; font-weight: 500; color: #1A1A1A; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 6px; }
+    .rpt-title em { font-family: 'Zodiak', serif; font-style: italic; font-weight: 300; }
+    .rpt-subtitle { font-size: 14px; color: #6B6860; line-height: 1.6; margin-bottom: 32px; }
+    .rpt-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .rpt-stat {
+      border: 1px solid #DDD9D0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: white;
+    }
+    .rpt-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #A0A09A; margin-bottom: 5px; }
+    .rpt-stat-value { font-family: 'Zodiak', serif; font-style: italic; font-size: 24px; font-weight: 400; color: #025355; line-height: 1.0; margin-bottom: 2px; }
+    .rpt-stat-sub { font-size: 11px; color: #A0A09A; }
+    .care-section { margin-bottom: 22px; }
+    .care-section-header {
+      padding: 10px 16px;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #025355;
+      color: white;
+    }
+    .care-section-header.accent { background: #C8603A; }
+    .care-section-header.neutral { background: #1A1A1A; }
+    .care-section-title { font-family: 'Clash Display', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; }
+    .care-section-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+    .care-table { width: 100%; border-collapse: collapse; border: 1px solid #DDD9D0; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
+    .care-table tr { border-bottom: 1px solid #DDD9D0; }
+    .care-table tr:last-child { border-bottom: none; }
+    .care-table tr:nth-child(even) { background: #FAFAFA; }
+    .care-table tr:nth-child(odd) { background: white; }
+    .care-table tr.total-row { background: #EBF4F4 !important; }
+    .care-table tr.total-row td { font-weight: 700 !important; color: #025355 !important; }
+    .care-table tr.total-row td:first-child { font-family: 'Figtree', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .care-table td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
+    .care-table td:first-child { color: #6B6860; width: 65%; }
+    .care-table td:last-child { text-align: right; font-weight: 600; color: #1A1A1A; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; }
+    .sub-note { display: block; font-size: 11px; color: #A0A09A; margin-top: 2px; font-weight: 400; font-family: 'Figtree', sans-serif; }
+    .rpt-insight {
+      background: #FAE8DC;
+      border: 1px solid #EAC8B4;
+      border-left: 4px solid #C8603A;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 24px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .rpt-insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .rpt-insight-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C8603A; margin-bottom: 4px; }
+    .rpt-insight-text { font-size: 13px; color: #6B6860; line-height: 1.6; }
+    .rpt-insight-text strong { color: #1A1A1A; font-weight: 600; }
+    .rpt-divider { height: 1px; background: #DDD9D0; margin: 28px 0; }
+    .rpt-footnotes { padding-top: 16px; border-top: 1px solid #DDD9D0; margin-top: 36px; }
+    .rpt-fn-title { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #A0A09A; margin-bottom: 10px; }
+    .rpt-fn { font-size: 11px; color: #A0A09A; line-height: 1.6; margin-bottom: 3px; }
+    .rpt-footer { margin-top: 32px; padding-top: 16px; border-top: 2px solid #EBF4F4; display: flex; justify-content: space-between; align-items: center; }
+    .rpt-footer-logo { font-family: 'Clash Display', sans-serif; font-size: 16px; font-weight: 500; color: #025355; letter-spacing: -0.01em; }
+    .rpt-footer-text { font-size: 11px; color: #A0A09A; text-align: right; line-height: 1.6; }
+  </style>
+
+  ${emailModalHTML}
+
+  <!-- Back bar (screen only) -->
+  <div id="report-back-bar" style="padding:20px 48px 0; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #EDE8DF; margin-bottom:32px; padding-bottom:20px;">
+    <button onclick="showScreen('s7'); document.querySelector('.progress-wrap').style.display='none'; document.getElementById('stepCounter').style.display='none';" style="background:none;border:none;cursor:pointer;font-family:'Figtree',sans-serif;font-size:13px;font-weight:500;color:#A0A09A;display:flex;align-items:center;gap:5px;padding:0;transition:color 0.15s;" onmouseover="this.style.color='#6B6860'" onmouseout="this.style.color='#A0A09A'">← Back to results</button>
+    <div style="display:flex;gap:8px;">
+      <button onclick="document.body.classList.add('printing-report'); setTimeout(()=>{window.print();document.body.classList.remove('printing-report');},200)" style="height:36px;padding:0 16px;border-radius:100px;border:1.5px solid #B0CFCF;background:white;color:#025355;font-family:'Figtree',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#EBF4F4'" onmouseout="this.style.background='white'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Save as PDF
+      </button>
+      <button onclick="showEmailModal()" style="height:36px;padding:0 16px;border-radius:100px;border:none;background:#025355;color:white;font-family:'Figtree',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#013F40'" onmouseout="this.style.background='#025355'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email report
+      </button>
+    </div>
+  </div>
+
+  <div class="report-wrap">
+
+    <!-- Header -->
+    <div class="rpt-header">
+      <div class="rpt-logo">
+        <svg width="22" height="24" viewBox="0 0 89 97" fill="none"><g clip-path="url(#rpt-clip)"><path d="M17.4499 28.6123C20.2362 28.4318 21.8646 30.1097 21.7174 32.8721C21.707 33.0653 21.7185 33.2817 21.7761 33.4672C22.7446 33.3005 23.8628 32.2404 24.7727 31.8285C28.7858 30.0291 32.9641 29.218 37.3365 28.9293C39.7215 28.7719 41.9515 28.5382 44.3577 28.5848C53.8881 28.7695 65.6594 29.4896 71.6034 38.132C74.5171 42.3681 74.2892 47.4853 74.2786 52.2873L74.2729 63.1182L74.275 76.0669C74.276 78.2629 74.3238 80.4586 74.25 82.6527C74.3557 83.0404 73.6034 84.1506 73.9711 84.376C75.6243 85.3901 78.7787 85.6184 79.9235 87.2244C80.5534 92.064 74.0797 87.8598 72.0251 87.4008L71.9434 87.3835C65.9021 85.4737 60.9652 84.1098 54.6605 83.3028C46.3999 82.1702 38.0114 82.3668 29.813 83.8852C28.687 84.0839 27.4565 84.4637 26.326 84.7223C25.4588 84.9207 24.5682 85.0691 23.7144 85.2806C22.8892 85.485 21.9781 85.8737 21.1556 86.1014C19.5344 86.5159 17.95 87.0375 16.3585 87.5529C15.7336 87.7555 15.0923 88.071 14.4737 88.3117C13.48 88.682 12.5081 89.0949 11.4818 89.3782C10.2761 89.7128 9.41825 89.818 8.81993 88.5273C8.66731 88.1979 8.61639 87.7763 8.77535 87.4399C9.4518 86.0087 11.2806 85.7765 12.5959 85.2428C13.4415 84.9053 14.2136 84.5842 15.0215 84.2454C14.4737 82.9714 14.6627 79.5568 14.6639 78.0282L14.6658 67.6101L14.6686 43.8581C14.668 39.9652 14.6527 36.059 14.6595 32.1655C14.6605 31.6116 14.7324 30.7612 15.0144 30.2978C15.5676 29.3887 16.4568 28.8805 17.4499 28.6123ZM21.7283 82.2517C25.7431 81.0379 30.0336 80.2851 34.2041 79.7275C35.3272 79.5774 36.5184 79.5623 37.6481 79.4457C39.906 79.2126 42.2519 79.3609 44.4984 79.1872C48.1003 79.4029 51.3454 79.3299 55.0276 79.7931C59.4269 80.3464 62.842 81.1746 67.0999 82.2166C67.2658 80.4281 67.1767 77.2914 67.1768 75.3914L67.1766 63.0547L67.1816 52.6088C67.1837 49.2018 67.5432 43.7865 65.0394 41.171C60.3297 36.2513 50.8055 35.5494 44.3926 35.5921C37.5307 35.6728 23.8447 36.1721 21.906 44.9536C21.6275 46.2149 21.7074 48.6112 21.7082 49.9771L21.7133 56.8216L21.7283 82.2517Z" fill="#025355"/><path d="M44.0044 0.374109C45.6768 0.241395 47.6412 1.48489 49.1571 2.22678C51.4144 3.31047 53.656 4.42641 55.8814 5.57427C56.7471 6.01006 57.6452 6.35525 58.5013 6.77476L67.7803 11.3416C73.8931 14.3185 80.0497 17.2189 86.1423 20.2402C90.322 22.3127 87.5859 27.9175 83.5042 26.2002C81.5152 25.3633 79.6207 24.3095 77.6751 23.3821L62.3328 15.9196L51.162 10.4786L47.2233 8.59617C46.5094 8.25562 45.4471 7.78665 44.8141 7.39314C44.6117 7.309 44.3874 7.23904 44.1815 7.32926C42.8713 7.90323 41.5446 8.55662 40.2702 9.19676L33.9152 12.349L19.7464 19.1727C16.1206 20.9274 12.5455 22.8113 8.8615 24.4491C6.83345 25.3507 4.28354 27.4986 2.03241 26.0179C1.31264 25.5423 0.814126 24.7975 0.648877 23.9508C0.34326 22.4399 0.915621 21.2522 2.1971 20.4907C3.47958 19.7286 4.77237 19.2109 6.10615 18.5693L13.9507 14.7755L28.4856 7.71087L39.4071 2.39344C40.7134 1.77209 42.6998 0.562295 44.0044 0.374109Z" fill="#025355"/><path d="M42.3313 88.0075C42.5163 88.0014 42.7014 87.9953 42.8864 87.991C52.5117 87.7424 62.3129 89.5529 71.1994 93.2582C72.3009 93.7745 73.8438 94.1022 74.8024 94.821C75.5973 95.3877 74.7294 96.9357 73.9971 96.721C70.554 95.7101 67.325 94.1917 63.8398 93.2008C62.3841 92.7871 61.3797 92.502 59.9125 92.1717C57.7051 91.6737 55.711 91.0183 53.4083 90.9227C50.8595 90.5698 48.7899 90.3708 46.2166 90.3013C39.4908 90.1335 32.7769 90.954 26.2895 92.7367C24.8101 93.1435 23.2635 93.7754 21.7167 94.1978C19.4419 94.8201 17.1427 96.3855 14.7318 96.6697C13.6618 96.7957 13.3243 95.6241 13.9102 94.8723C14.5855 94.2256 16.0585 93.8866 16.9438 93.5155C24.9768 90.0753 33.5946 88.2048 42.3313 88.0075Z" fill="#025355"/></g><defs><clipPath id="rpt-clip"><rect width="89" height="97" fill="white"/></clipPath></defs></svg>
+        nested
+      </div>
+      <div class="rpt-header-right">
+        <div class="rpt-label">Cost of Care Report</div>
+        <div class="rpt-location">${locLabel}</div>
+        <div class="rpt-date">${new Date().getFullYear()} Estimates</div>
+      </div>
+    </div>
+
+    <!-- Recipient -->
+    <div class="rpt-recipient">
+      <div>
+        <div class="rpt-recip-name">Planning for: ${planFor}</div>
+        <div class="rpt-recip-sub">Age ${age} · ${locLabel}</div>
+      </div>
+      <div class="rpt-recip-meta">Generated ${today}<br>via Nested Care Calculator</div>
+    </div>
+
+    <!-- Title -->
+    <div class="rpt-eyebrow">Your personalized estimate</div>
+    <div class="rpt-title">Senior living <em>costs</em></div>
+    <div class="rpt-subtitle">Monthly cost breakdown based on your inputs${stateKey !== 'national' ? ` — adjusted for ${locLabel}` : ''}.</div>
+
+    <!-- Stats -->
+    <div class="rpt-stats">
+      <div class="rpt-stat">
+        <div class="rpt-stat-label">Lowest option</div>
+        <div class="rpt-stat-value">${fmt(lowestTotal)}</div>
+        <div class="rpt-stat-sub">${lowestLabel} / mo</div>
+      </div>
+      <div class="rpt-stat">
+        <div class="rpt-stat-label">${primaryLabel}</div>
+        <div class="rpt-stat-value">${fmt(primaryTotal)}</div>
+        <div class="rpt-stat-sub">/ month estimated</div>
+      </div>
+      <div class="rpt-stat">
+        <div class="rpt-stat-label">5-yr projection</div>
+        <div class="rpt-stat-value">${fmt(proj5yr)}</div>
+        <div class="rpt-stat-sub">At 3% annual growth</div>
+      </div>
+    </div>
+
+    <!-- Cost sections -->
+    ${sectionsHTML}
+
+    <!-- Insight box -->
+    ${insightHtml ? `
+    <div class="rpt-insight">
+      <div class="rpt-insight-icon"><svg class="nico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.3 18.2h5.4"/><path d="M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1.9 1.8v.6h5.4v-.6c0-.7.3-1.3.9-1.8A6 6 0 0 0 12 3Z"/></svg></div>
+      <div>
+        <div class="rpt-insight-label">Nested Insight</div>
+        <div class="rpt-insight-text">${insightHtml}</div>
+      </div>
+    </div>` : ''}
+
+    <!-- Footnotes -->
+    <div class="rpt-footnotes">
+      <div class="rpt-fn-title">Notes & Sources</div>
+      <div class="rpt-fn">* All figures are monthly estimates based on your inputs and location data. Actual costs vary by provider.</div>
+      <div class="rpt-fn">* 5-year projection assumes 3% annual cost growth. Actual rates may differ.</div>
+      <div class="rpt-fn">* Home modification costs amortized over 24 months. Caregiver costs based on hours × rate × 4.33 weeks/month.</div>
+      <div class="rpt-fn">* Data informed by 2025 Genworth Cost of Care Survey and Nested regional estimates.</div>
+      <div class="rpt-fn">* Nested does not receive referral fees from any care providers. This report is for informational purposes only.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="rpt-footer">
+      <div class="rpt-footer-logo">nested</div>
+      <div class="rpt-footer-text">© ${new Date().getFullYear()} Nested, Inc. All rights reserved.<br>Not financial or medical advice.</div>
+    </div>
+
+  </div>`;
+
+  document.getElementById('report-shell').innerHTML = html;
+}
+
+function sectionHTMLWithTotal(title, tag, colorClass, rows) {
+  const rowsHTML = rows.map(([label, val, note]) => {
+    if (label === '__total__') {
+      return `<tr class="total-row"><td>Estimated total</td><td>${fmt(val)}<span style="font-size:11px;font-weight:400;font-family:'Figtree',sans-serif;color:#6B6860;">/mo</span></td></tr>`;
+    }
+    return `<tr>
+      <td>${label}${note ? `<span class="sub-note">${note}</span>` : ''}</td>
+      <td>${fmt(val)}<span style="font-size:11px;font-weight:400;font-family:'Figtree',sans-serif;color:#A0A09A;">/mo</span></td>
+    </tr>`;
+  }).join('');
+  return `
+  <div class="care-section">
+    <div class="care-section-header ${colorClass}">
+      <span class="care-section-title">${title}</span>
+      <span class="care-section-tag">${tag}</span>
+    </div>
+    <table class="care-table"><tbody>${rowsHTML}</tbody></table>
+  </div>`;
+}
+
+function showEmailModal() {
+  const existing = document.getElementById('emailModal');
+  if (existing) { existing.style.display = 'flex'; return; }
+  const modal = document.createElement('div');
+  modal.id = 'emailModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px;padding:40px 44px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#A0A09A;margin-bottom:8px;">Send your report</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em style="font-family:'Zodiak',serif;font-style:italic;font-weight:300;">send it?</em></div>
+      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown — no account needed.</div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:8px;">Your email address</label>
+        <input type="email" id="reportEmail" placeholder="you@example.com" style="width:100%;height:48px;border:1.5px solid #DDD9D0;border-radius:10px;padding:0 16px;font-family:'Figtree',sans-serif;font-size:15px;color:#1A1A1A;outline:none;" onfocus="this.style.borderColor='#025355';this.style.boxShadow='0 0 0 3px rgba(2,83,85,0.1)'" onblur="this.style.borderColor='#DDD9D0';this.style.boxShadow='none'">
+      </div>
+      <button onclick="sendReport()" style="width:100%;height:52px;background:#025355;color:white;border:none;border-radius:100px;font-family:'Figtree',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;" onmouseover="this.style.background='#013F40'" onmouseout="this.style.background='#025355'">Send report →</button>
+      <button onclick="document.getElementById('emailModal').remove()" style="width:100%;height:44px;background:transparent;color:#A0A09A;border:none;font-family:'Figtree',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">Cancel</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function sendReport() {
+  const email = document.getElementById('reportEmail')?.value;
+  if (!email || !email.includes('@')) {
+    document.getElementById('reportEmail').style.borderColor = '#B85555';
+    return;
+  }
+  document.getElementById('emailModal').innerHTML = `
+    <div style="background:white;border-radius:20px;padding:48px 44px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);text-align:center;">
+      <div style="margin-bottom:16px;color:var(--brand);display:flex;justify-content:center;"><svg class="nico" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="m3.9 6.9 7.1 5.2a1.7 1.7 0 0 0 2 0l7.1-5.2"/></svg></div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:24px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:10px;">Report sent!</div>
+      <div style="font-size:14px;color:#6B6860;line-height:1.6;margin-bottom:28px;">We've sent your cost breakdown to <strong style="color:#1A1A1A;">${email}</strong>. Check your inbox in a few minutes.</div>
+      <button onclick="document.getElementById('emailModal').remove()" style="height:48px;padding:0 32px;background:#025355;color:white;border:none;border-radius:100px;font-family:'Figtree',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Done</button>
+    </div>`;
+}
+</script>
+</body>
+</html>
