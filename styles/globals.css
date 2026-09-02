@@ -313,7 +313,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 }
 
 .care-card.revealed:hover {
-  transform: translateY(-4px) scale(1);
+
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
 
@@ -379,12 +379,6 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   height: 100%;
   object-fit: cover;
   display: block;
-  transform: scale(1.05);
-  transition: transform 0.5s ease;
-}
-
-.care-card:hover .card-hover img {
-  transform: scale(1.0);
 }
 
 /* Gradient overlay */
@@ -492,7 +486,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   flex-shrink: 0;
 }
 
-.why-arrow:hover { background: #FFFFFF; transform: scale(1.05); }
+.why-arrow:hover { background: #FFFFFF; }
 .why-arrow svg { width: 16px; height: 16px; }
 
 /* Scroll track */
@@ -787,7 +781,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 }
 
 .btn-arrow { font-size: 18px; transition: transform 0.2s; }
-.btn-primary:hover .btn-arrow { transform: translateX(4px); }
+
 
 /* Mockup internals */
 .mock-progress {
@@ -1045,9 +1039,9 @@ em .mw.lit {
 .footer-tagline { font-family:'Clash Display',sans-serif; font-size:48px; font-weight:500; letter-spacing:-0.03em; line-height:1.05; color:#F5F3EE; }
 .footer-tagline em { font-family: inherit; font-style: normal; font-weight: inherit; color:#B0CFCF; }
 .footer-link-b { display:inline-flex; align-items:center; gap:8px; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:rgba(245,243,238,0.55); text-decoration:none; transition:gap 0.2s ease, color 0.2s; }
-.footer-link-b:hover { gap:12px; color:#F5F3EE; }
+.footer-link-b:hover { color:#F5F3EE; }
 .footer-link-b svg { width:14px; height:14px; transition:transform 0.2s ease; }
-.footer-link-b:hover svg { transform:translateX(3px); }
+
 .footer-nav-b { display:grid; grid-template-columns:repeat(2,148px); gap:48px; padding-top:4px; }
 .footer-nav-col-b h4 { font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(245,243,238,0.3); margin-bottom:14px; }
 .footer-nav-col-b ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
@@ -1532,7 +1526,7 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 #why-track { display: flex; gap: 14px; align-items: stretch; padding: 0 80px; }
 
 .why-arrow:disabled { opacity: 0.35; cursor: default; }
-.why-arrow:disabled:hover { background: #F5F3EE; transform: none; }
+.why-arrow:disabled:hover { background: #F5F3EE; }
 
 /* Dragging is a mouse affordance; touch already has the native swipe. */
 @media (hover: none) {
@@ -1694,16 +1688,12 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 .navbar .btn-nav-primary:focus-visible,
 .navbar.nav-expanded .btn-nav-primary:focus-visible {
   background: #03696B;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease;
   transition-delay: 0s;
 }
 .navbar .btn-nav-primary:active,
 .navbar.nav-expanded .btn-nav-primary:active {
   background: #013F40;
-  transform: translateY(0);
-  box-shadow: none;
   transition-delay: 0s;
 }
 
@@ -1711,4 +1701,23 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 .navbar.scrolled .btn-nav-primary:hover,
 .navbar.scrolled .btn-nav-primary:focus-visible {
   background: #05807F;
+}
+
+/* ============================================================
+   IN-PAGE SECTION ANCHORS
+   Zero-height markers sitting just above each section. scroll-margin-top
+   keeps the target clear of the fixed navbar, which would otherwise
+   cover the heading you just jumped to.
+   ============================================================ */
+.scroll-anchor {
+  display: block;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  visibility: hidden;
+  scroll-margin-top: 112px;
+}
+@media (max-width: 768px) {
+  .scroll-anchor { scroll-margin-top: 88px; }
 }

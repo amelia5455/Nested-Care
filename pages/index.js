@@ -622,8 +622,8 @@ export default function Home() {
 
         <div className="nav-center" id="nav-center">
           <ul className="nav-links">
-            <li><a href="#">How it works</a></li>
-            <li><a href="#">Care types</a></li>
+            <li><a href="#how-it-works">How it works</a></li>
+            <li><a href="#care-types">Care types</a></li>
             <li className="nav-dropdown-wrap">
               <button className="nav-dropdown-trigger" aria-expanded="false" aria-controls="resources-dropdown" aria-haspopup="true" onClick={(e) => window.toggleDropdown && window.toggleDropdown(e.currentTarget)}>Resources
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 4L6.35 7.62C6.26 7.71 6.15 7.76 6.03 7.76C5.91 7.76 5.8 7.71 5.71 7.62L2 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -642,7 +642,7 @@ export default function Home() {
                     <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
                     <span className="dd-item-text"><span className="dd-item-name">Blog</span><span className="dd-item-desc">Stories and guides on senior care.</span></span>
                   </a>
-                  <a href="#" className="dd-item">
+                  <a href="#faqs" className="dd-item">
                     <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
                     <span className="dd-item-text"><span className="dd-item-name">FAQs</span><span className="dd-item-desc">Common questions, clearly answered.</span></span>
                   </a>
@@ -652,7 +652,7 @@ export default function Home() {
                   </a>
                   <div className="dd-divider"></div>
                   <p className="dd-section-label">Tools</p>
-                  <a href="#" className="dd-item">
+                  <a href="/calculator" className="dd-item">
                     <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
                     <span className="dd-item-text"><span className="dd-item-name">Cost Calculator</span><span className="dd-item-desc">Estimate care costs in your area.</span></span>
                   </a>
@@ -812,6 +812,7 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS INTRO */}
+      <div id="how-it-works" className="scroll-anchor" />
       <div id="hiw-intro" style={{background:'#F5F3EE',padding:'80px 80px 0',textAlign:'center'}}>
         <p id="hiw-eyebrow" style={{fontFamily:"'Figtree',sans-serif",fontSize:'12px',fontWeight:600,letterSpacing:'0.12em',textTransform:'uppercase',color:'#A89E90',marginBottom:'20px',opacity:0,filter:'blur(10px)',transform:'translateY(8px)',transition:'opacity 0.8s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.8s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)'}}>How it works</p>
         <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'52px',fontWeight:500,color:'#1C1C1A',lineHeight:1.08,letterSpacing:'-0.025em',margin:'0 0 20px 0'}}>
@@ -969,6 +970,7 @@ export default function Home() {
       </div>
 
       {/* WHY NESTED */}
+      <div id="compare" className="scroll-anchor" />
       <div id="why-scroll-outer">
         <section id="why-sticky" style={{background:'#033D3F',display:'flex',flexDirection:'column',justifyContent:'center',padding:'110px 0'}}>
 
@@ -1044,6 +1046,7 @@ export default function Home() {
 
       {/* CARE CARDS */}
       <div className="band-pad" style={{background:'#F5F3EE',padding:'80px 80px'}}>
+        <div id="care-types" className="scroll-anchor" />
         <section className="nested-section">
           <div className="care-cards-heading">
             <p className="section-eyebrow">What we cover</p>
@@ -1126,6 +1129,7 @@ export default function Home() {
 
       {/* FAQ */}
       <div id="faq-wrapper" style={{padding:'0 80px',boxSizing:'border-box',transition:'padding 0.1s linear'}}>
+        <div id="faqs" className="scroll-anchor" />
         <section id="faq-section" style={{position:'relative',overflow:'hidden',minHeight:'700px',borderRadius:'32px',transition:'border-radius 0.1s linear'}}>
 
           {/* Full bleed photo */}
@@ -1250,10 +1254,10 @@ export default function Home() {
               <div className="footer-nav-col-b">
                 <h4>Product</h4>
                 <ul>
-                  <li><a href="#">How it works</a></li>
-                  <li><a href="#">Care types</a></li>
-                  <li><a href="#">Cost calculator</a></li>
-                  <li><a href="#">Compare options</a></li>
+                  <li><a href="#how-it-works">How it works</a></li>
+                  <li><a href="#care-types">Care types</a></li>
+                  <li><a href="/calculator">Cost calculator</a></li>
+                  <li><a href="#compare">Compare options</a></li>
                 </ul>
               </div>
               <div className="footer-nav-col-b">
