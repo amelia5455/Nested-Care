@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nested — Care Cost Calculator</title>
+<title>Nested · Care Cost Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&f[]=zodiak@400,400i,700&display=swap" rel="stylesheet">
 <style>
@@ -89,8 +89,8 @@ body.printing-report #report-action-bar {
   --brand-xl:   #EBF4F4;   /* Selected state fills, pills */
 
   /* ── Terracotta / Secondary ── */
-  --accent:     #C8603A;   /* Callouts, insights, badges, icons */
-  --accent-l:   #FAE8DC;   /* Breakeven box, hint fills */
+  --accent:     #025355;   /* Callouts, insights, badges, icons */
+  --accent-l:   #EBF4F4;   /* Breakeven box, hint fills */
 
   /* ── Neutrals ── */
   --ink:        #1A1A1A;   /* All headings & labels */
@@ -277,11 +277,13 @@ body {
 }
 
 
-/* ── ZODIAK ITALIC ACCENT ── */
+/* Headings read in one voice; nothing here is set in italic. */
+em, i { font-family: inherit; font-style: normal; font-weight: inherit; }
+
 em.zodiak {
-  font-family: 'Zodiak', serif;
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 500;
   color: var(--ink);
 }
 /* ── STEP HEADER ── */
@@ -373,7 +375,7 @@ input::placeholder { color: var(--ink-lt); }
   background: #025355;
   color: white;
 }
-.care-section-header.accent { background: #C8603A; }
+.care-section-header.accent { background: #025355; }
 .care-section-header.neutral { background: #1A1A1A; }
 .care-section-title { font-family: 'Clash Display', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; }
 .care-section-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
@@ -643,7 +645,7 @@ input::placeholder { color: var(--ink-lt); }
   border-radius: 9px;
   padding: 11px 14px;
   font-size: 13px;
-  color: #7A3A1A;
+  color: #02403F;
   line-height: 1.55;
   margin-bottom: 18px;
   display: flex;
@@ -702,7 +704,7 @@ input::placeholder { color: var(--ink-lt); }
 
 /* Context band */
 .context-band {
-  background: var(--brand-xl); border-radius: 10px; border-left: 3px solid var(--brand);
+  background: var(--brand-xl); border-radius: 10px; border: 1px solid var(--brand-l);
   padding: 13px 16px; display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px; gap: 12px;
 }
@@ -714,7 +716,7 @@ input::placeholder { color: var(--ink-lt); }
 .stat-summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
 .stat-summary-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: white; }
 .stat-summary-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lt); margin-bottom: 4px; }
-.stat-summary-value { font-family: 'Zodiak', serif; font-style: italic; font-size: 22px; font-weight: 400; color: var(--brand); line-height: 1; margin-bottom: 2px; }
+.stat-summary-value { font-family: inherit; font-style: normal; font-size: 22px; font-weight: 400; color: var(--brand); line-height: 1; margin-bottom: 2px; }
 .stat-summary-sub { font-size: 10px; color: var(--ink-lt); line-height: 1.4; }
 
 /* Projection mini cards */
@@ -729,12 +731,12 @@ input::placeholder { color: var(--ink-lt); }
 
 /* Insight box */
 .insight-box {
-  background: var(--accent-l); border: 1px solid #EAC8B4; border-left: 4px solid var(--accent);
+  background: var(--accent-l); border: 1px solid #B0CFCF;
   border-radius: 10px; padding: 13px 16px; display: flex; gap: 11px; align-items: flex-start; margin-bottom: 4px;
 }
 .insight-box-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
 .insight-box-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
-.insight-box-text { font-size: 12px; color: #7A3A1A; line-height: 1.6; }
+.insight-box-text { font-size: 12px; color: #02403F; line-height: 1.6; }
 .insight-box-text strong { color: var(--ink); font-weight: 600; }
 
 .results-title-row {
@@ -796,8 +798,8 @@ input::placeholder { color: var(--ink-lt); }
   padding: 14px 16px;
   margin-bottom: 14px;
 }
-.be-title { font-size: 11px; font-weight: 700; color: #7A3A1A; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
-.be-text { font-size: 13.5px; color: #7A3A1A; line-height: 1.6; }
+.be-title { font-size: 11px; font-weight: 700; color: #02403F; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
+.be-text { font-size: 13.5px; color: #02403F; line-height: 1.6; }
 
 .best-value-badge {
   display: inline-block;
@@ -1005,7 +1007,7 @@ input[type="range"] {
 
     <!-- ── S1: WHAT TO COMPARE ── -->
     <div class="card screen active" id="s1">
-      <div class="step-eyebrow">Step 1 of 5 — Compare</div>
+      <div class="step-eyebrow">Step 1 of 5 · Compare</div>
       <div class="step-title">What would you like to <em class="zodiak">compare?</em></div>
       <div class="step-desc">Select the care options you want to see side-by-side. You can choose one, two, or all three.</div>
       <div class="choices">
@@ -1030,7 +1032,7 @@ input[type="range"] {
 
     <!-- ── S2a: WHO ARE WE PLANNING FOR ── -->
     <div class="card screen" id="s2a">
-      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-eyebrow">Step 2 of 5 · About the person</div>
       <div class="step-title">Who is this plan <em class="zodiak">for?</em></div>
       <div class="step-desc">This helps us personalize the language and estimates throughout.</div>
       <div class="choices">
@@ -1065,7 +1067,7 @@ input[type="range"] {
 
     <!-- ── S2b: AGE + LOCATION ── -->
     <div class="card screen" id="s2b">
-      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-eyebrow">Step 2 of 5 · About the person</div>
       <div class="step-title">A little about <em class="zodiak">them</em></div>
       <div class="step-desc">Age and location help us estimate realistic, region-adjusted costs.</div>
       <div class="input-row">
@@ -1140,7 +1142,7 @@ input[type="range"] {
 
     <!-- ── S2c: HEALTH CONCERNS ── -->
     <div class="card screen" id="s2c">
-      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-eyebrow">Step 2 of 5 · About the person</div>
       <div class="step-title">Any health <em class="zodiak">concerns?</em></div>
       <div class="step-desc">Check all that apply. This helps us suggest the right care level.</div>
       <div class="mod-list" id="healthConcerns">
@@ -1159,7 +1161,7 @@ input[type="range"] {
 
     <!-- ── S2d: ADLs ── -->
     <div class="card screen" id="s2d">
-      <div class="step-eyebrow">Step 2 of 5 — About the person</div>
+      <div class="step-eyebrow">Step 2 of 5 · About the person</div>
       <div class="step-title">Daily living <em class="zodiak">needs</em></div>
       <div class="step-desc">How much help do they need with each activity? This is the biggest factor in care costs.</div>
       <div class="adl-grid">
@@ -1206,9 +1208,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3a-1: HOME — HOUSING ── -->
+    <!-- ── S3a-1: HOME · HOUSING ── -->
     <div class="card screen" id="s3a1">
-      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-eyebrow">Step 3 of 5 · Aging at Home</div>
       <div class="step-title">Housing <em class="zodiak">costs</em></div>
       <div class="step-desc">What does it cost each month to live in this home?</div>
       <div class="averages-banner" id="avgBannerHome">
@@ -1216,7 +1218,7 @@ input[type="range"] {
           <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
           <div>
             <div class="averages-title">Not sure of your numbers?</div>
-            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+            <div class="averages-sub">Fill everything with national averages. Edit any field after.</div>
           </div>
         </div>
         <button class="averages-btn" onclick="fillHomeAverages()">Use averages</button>
@@ -1248,9 +1250,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3a-2: HOME — CAREGIVER ── -->
+    <!-- ── S3a-2: HOME · CAREGIVER ── -->
     <div class="card screen" id="s3a2">
-      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-eyebrow">Step 3 of 5 · Aging at Home</div>
       <div class="step-title">Do they need a paid <em class="zodiak">caregiver?</em></div>
       <div class="step-desc">This is often the largest variable in home care costs.</div>
       <div class="field">
@@ -1286,9 +1288,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3a-3: HOME — EXTRAS + MODS ── -->
+    <!-- ── S3a-3: HOME · EXTRAS + MODS ── -->
     <div class="card screen" id="s3a3">
-      <div class="step-eyebrow">Step 3 of 5 — Aging at Home</div>
+      <div class="step-eyebrow">Step 3 of 5 · Aging at Home</div>
       <div class="step-title">Day-to-day <em class="zodiak">supports</em></div>
       <div class="step-desc">Any monthly services or one-time home modifications? Leave blank if not applicable.</div>
       <div class="input-row">
@@ -1329,9 +1331,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3b-1: AL — BASE RATE ── -->
+    <!-- ── S3b-1: AL · BASE RATE ── -->
     <div class="card screen" id="s3b1">
-      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-eyebrow">Step 3 of 5 · Assisted Living</div>
       <div class="step-title">Assisted living <em class="zodiak">rates</em></div>
       <div class="step-desc">What's the base monthly cost for a private room in this community?</div>
       <div class="averages-banner" id="avgBannerAL">
@@ -1339,14 +1341,14 @@ input[type="range"] {
           <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
           <div>
             <div class="averages-title">Not sure of your numbers?</div>
-            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+            <div class="averages-sub">Fill everything with national averages. Edit any field after.</div>
           </div>
         </div>
         <button class="averages-btn" onclick="fillALAverages()">Use averages</button>
       </div>
       <div class="hint-box sage">
         <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21.2s6.8-5.6 6.8-10.8a6.8 6.8 0 1 0-13.6 0c0 5.2 6.8 10.8 6.8 10.8Z"/><circle cx="12" cy="10.2" r="2.5"/></svg></span>
-        <span>National averages shown. Costs vary significantly by region — edit freely.</span>
+        <span>National averages shown. Costs vary significantly by region. Edit freely.</span>
       </div>
       <div class="field">
         <label class="field-label">Monthly rent (private studio / 1BR)</label>
@@ -1360,9 +1362,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3b-2: AL — CARE LEVEL ── -->
+    <!-- ── S3b-2: AL · CARE LEVEL ── -->
     <div class="card screen" id="s3b2">
-      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-eyebrow">Step 3 of 5 · Assisted Living</div>
       <div class="step-title">Level of <em class="zodiak">care</em></div>
       <div class="step-desc">Care add-ons are charged on top of base rent and depend on how much daily help is needed.</div>
       <div class="hint-box">
@@ -1388,11 +1390,11 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3b-3: AL — MEDS + EXTRAS ── -->
+    <!-- ── S3b-3: AL · MEDS + EXTRAS ── -->
     <div class="card screen" id="s3b3">
-      <div class="step-eyebrow">Step 3 of 5 — Assisted Living</div>
+      <div class="step-eyebrow">Step 3 of 5 · Assisted Living</div>
       <div class="step-title">Medications & <em class="zodiak">extras</em></div>
-      <div class="step-desc">Most extras are optional — leave blank if they don't apply.</div>
+      <div class="step-desc">Most extras are optional. Leave blank if they don't apply.</div>
       <div class="field">
         <label class="field-label">Daily medication complexity</label>
         <div class="choices-inline" id="alMeds">
@@ -1433,9 +1435,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3c-1: MC — BASE RATE ── -->
+    <!-- ── S3c-1: MC · BASE RATE ── -->
     <div class="card screen" id="s3c1">
-      <div class="step-eyebrow">Step 3 of 5 — Memory Care</div>
+      <div class="step-eyebrow">Step 3 of 5 · Memory Care</div>
       <div class="step-title">Memory care <em class="zodiak">rates</em></div>
       <div class="step-desc">Memory care communities have higher staffing ratios and security, which is reflected in cost.</div>
       <div class="averages-banner" id="avgBannerMC">
@@ -1443,14 +1445,14 @@ input[type="range"] {
           <span class="averages-icon"><svg class="nico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 3.5v17h16"/><path d="M8 17v-4.5"/><path d="M12.5 17V9"/><path d="M17 17V6"/></svg></span>
           <div>
             <div class="averages-title">Not sure of your numbers?</div>
-            <div class="averages-sub">Fill everything with national averages — edit any field after.</div>
+            <div class="averages-sub">Fill everything with national averages. Edit any field after.</div>
           </div>
         </div>
         <button class="averages-btn" onclick="fillMCAverages()">Use averages</button>
       </div>
       <div class="hint-box sage">
         <span class="hint-icon"><svg class="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21.2s6.8-5.6 6.8-10.8a6.8 6.8 0 1 0-13.6 0c0 5.2 6.8 10.8 6.8 10.8Z"/><circle cx="12" cy="10.2" r="2.5"/></svg></span>
-        <span>National averages shown. Costs vary significantly by region — edit freely.</span>
+        <span>National averages shown. Costs vary significantly by region. Edit freely.</span>
       </div>
       <div class="field">
         <label class="field-label">Monthly rate (private room)</label>
@@ -1464,9 +1466,9 @@ input[type="range"] {
       </div>
     </div>
 
-    <!-- ── S3c-2: MC — COGNITIVE LEVEL + EXTRAS ── -->
+    <!-- ── S3c-2: MC · COGNITIVE LEVEL + EXTRAS ── -->
     <div class="card screen" id="s3c2">
-      <div class="step-eyebrow">Step 3 of 5 — Memory Care</div>
+      <div class="step-eyebrow">Step 3 of 5 · Memory Care</div>
       <div class="step-title">Cognitive stage & <em class="zodiak">extras</em></div>
       <div class="step-desc">Behavioral support and other add-ons depend on the stage of care needed.</div>
       <div class="field">
@@ -1504,7 +1506,7 @@ input[type="range"] {
       <div class="field" style="margin-top:16px;">
         <label class="field-label">Additional monthly costs</label>
         <div class="input-prefix"><input type="number" id="mc-extras" placeholder="e.g. 0"></div>
-        <div class="field-hint" style="margin-top:6px;">Most memory care includes security monitoring — add any extras not covered</div>
+        <div class="field-hint" style="margin-top:6px;">Most memory care includes security monitoring. Add any extras not covered</div>
       </div>
       <div class="btn-row">
         <button class="btn-back" onclick="goTo('s3c1')">← Back</button>
@@ -1514,7 +1516,7 @@ input[type="range"] {
 
     <!-- ── S6: REVIEW ── -->
     <div class="card screen" id="s6">
-      <div class="step-eyebrow">Step 4 of 5 — Review</div>
+      <div class="step-eyebrow">Step 4 of 5 · Review</div>
       <div class="step-title">Does everything <em class="zodiak">look right?</em></div>
       <div class="step-desc">Take a moment to check your numbers. Click any section to make changes.</div>
       <div id="review-content"></div>
@@ -1748,7 +1750,7 @@ function markBannerFilled(bannerId, msg) {
     fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     banner.classList.remove('filled');
     banner.querySelector('.averages-title').textContent = 'Enter your own numbers';
-    banner.querySelector('.averages-sub').textContent = 'All fields cleared — enter the actual costs for your situation.';
+    banner.querySelector('.averages-sub').textContent = 'All fields cleared. Enter the actual costs for your situation.';
     banner.querySelector('.averages-btn').textContent = 'Restore averages';
     banner.querySelector('.averages-btn').onclick = function() {
       if (bannerId === 'avgBannerHome') fillHomeAverages();
@@ -1762,16 +1764,16 @@ function fillHomeAverages() {
   setField('home-tax',4800); setField('home-ins',1200);
   setField('home-transport',200); setField('home-meals',300);
   setField('home-housekeeping',150); setField('home-medmon',50);
-  markBannerFilled('avgBannerHome','Based on U.S. national averages — edit any value to match your situation.');
+  markBannerFilled('avgBannerHome','Based on U.S. national averages. Edit any value to match your situation.');
 }
 function fillALAverages() {
   setField('al-base',4500); setField('al-addon',800); setField('al-meds',0);
   setField('al-laundry',0); setField('al-cable',60); setField('al-transport',0); setField('al-pet',0);
-  markBannerFilled('avgBannerAL','Based on U.S. national averages — edit any value to match your situation.');
+  markBannerFilled('avgBannerAL','Based on U.S. national averages. Edit any value to match your situation.');
 }
 function fillMCAverages() {
   setField('mc-base',6500); setField('mc-behavior-cost',0); setField('mc-extras',0);
-  markBannerFilled('avgBannerMC','Based on U.S. national averages — edit any value to match your situation.');
+  markBannerFilled('avgBannerMC','Based on U.S. national averages. Edit any value to match your situation.');
 }
 
 function selectPill(el, groupId) {
@@ -1879,14 +1881,14 @@ function applyLocationDefaults() {
 }
 
 function applyLocationToCostScreens() {
-  // Inputs start empty — user fills manually or clicks "Use averages"
+  // Inputs start empty; user fills manually or clicks "Use averages"
   // Just reset banners to their default "offer" state
   ['avgBannerHome','avgBannerAL','avgBannerMC'].forEach(id => {
     const banner = document.getElementById(id);
     if (!banner) return;
     banner.classList.remove('filled');
     banner.querySelector('.averages-title').textContent = 'Not sure of your numbers?';
-    banner.querySelector('.averages-sub').textContent = 'Fill everything with national averages — edit any field after.';
+    banner.querySelector('.averages-sub').textContent = 'Fill everything with national averages. Edit any field after.';
     banner.querySelector('.averages-btn').textContent = 'Use averages';
   });
 }
@@ -1941,9 +1943,9 @@ function calcMC() {
 function fmt(n) { return '$' + n.toLocaleString(); }
 
 function buildReview() {
-  const planFor = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || '—';
-  const age = document.getElementById('personAge')?.value || '—';
-  const living = document.getElementById('livingSituation')?.value || '—';
+  const planFor = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || 'Not specified';
+  const age = document.getElementById('personAge')?.value || 'Not specified';
+  const living = document.getElementById('livingSituation')?.value || 'Not specified';
   const livingMap = {alone:'Lives alone',spouse:'With spouse/partner',family:'With adult children',community:'In a community'};
   const stateKey = document.getElementById('locationState')?.value || 'national';
   const stateLabel = locationData[stateKey]?.label || 'National average';
@@ -2141,7 +2143,7 @@ function buildResults() {
     const hoursForAL = Math.round((alTotal - homeNoCare) / (4.33 * careRate));
     const diff = Math.abs(homeBase - alTotal);
     if (hoursForAL > 0 && hoursForAL < 168) {
-      insightText = `At <strong>${careHours} hrs/week of caregiver support</strong>, staying home costs <strong>${fmt(diff)}/month ${homeBase < alTotal ? 'less' : 'more'}</strong> than Assisted Living. That gap shifts at approximately <strong>${hoursForAL} hrs/week</strong> — worth revisiting as care needs change.`;
+      insightText = `At <strong>${careHours} hrs/week of caregiver support</strong>, staying home costs <strong>${fmt(diff)}/month ${homeBase < alTotal ? 'less' : 'more'}</strong> than Assisted Living. That gap shifts at approximately <strong>${hoursForAL} hrs/week</strong>. Worth revisiting as care needs change.`;
     } else if (alTotal < homeBase) {
       insightText = `Based on your inputs, Assisted Living (<strong>${fmt(alTotal)}/mo</strong>) is already more affordable than Aging at Home (<strong>${fmt(homeBase)}/mo</strong>).`;
     }
@@ -2162,7 +2164,7 @@ function buildResults() {
       </div>
     </div>` : '';
 
-  // ── Inline breakdown — same clean styled sections as PDF ──
+  // ── Inline breakdown: same clean styled sections as PDF ──
   let breakdown = '';
 
   function makeBreakdownSection(title, tag, colorClass, rows) {
@@ -2297,8 +2299,8 @@ function buildReport(mode) {
   const stateKey   = document.getElementById('locationState')?.value || 'national';
   const locData    = locationData[stateKey] || locationData.national;
   const locLabel   = locData.label || 'National average';
-  const planFor    = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || '—';
-  const age        = document.getElementById('personAge')?.value || '—';
+  const planFor    = document.querySelector('#s2a .choice-card.selected .choice-title')?.textContent || 'Not specified';
+  const age        = document.getElementById('personAge')?.value || 'Not specified';
   const today      = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
 
   const hasHome = state.scenarios.has('home');
@@ -2439,8 +2441,8 @@ function buildReport(mode) {
   <div id="emailModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;">
     <div style="background:white;border-radius:20px;padding:40px 44px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
       <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#A0A09A;margin-bottom:8px;">Send your report</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em style="font-family:'Zodiak',serif;font-style:italic;font-weight:300;">send it?</em></div>
-      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown — no account needed.</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em>send it?</em></div>
+      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown. No account needed.</div>
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:8px;">Your email address</label>
         <input type="email" id="reportEmail" placeholder="you@example.com" style="width:100%;height:48px;border:1.5px solid #DDD9D0;border-radius:10px;padding:0 16px;font-family:'Figtree',sans-serif;font-size:15px;color:#1A1A1A;outline:none;" onfocus="this.style.borderColor='#025355';this.style.boxShadow='0 0 0 3px rgba(2,83,85,0.1)'" onblur="this.style.borderColor='#DDD9D0';this.style.boxShadow='none'">
@@ -2490,7 +2492,7 @@ function buildReport(mode) {
       padding: 18px 22px;
       background: #EBF4F4;
       border-radius: 12px;
-      border-left: 4px solid #025355;
+      border: 1px solid #B0CFCF;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -2501,7 +2503,7 @@ function buildReport(mode) {
     .rpt-recip-meta { text-align: right; font-size: 12px; color: #A0A09A; line-height: 1.7; flex-shrink: 0; }
     .rpt-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #A0A09A; margin-bottom: 6px; }
     .rpt-title { font-family: 'Clash Display', sans-serif; font-size: 32px; font-weight: 500; color: #1A1A1A; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 6px; }
-    .rpt-title em { font-family: 'Zodiak', serif; font-style: italic; font-weight: 300; }
+    .rpt-title em { font-family: inherit; font-style: normal; font-weight: 500; }
     .rpt-subtitle { font-size: 14px; color: #6B6860; line-height: 1.6; margin-bottom: 32px; }
     .rpt-stats {
       display: grid;
@@ -2516,7 +2518,7 @@ function buildReport(mode) {
       background: white;
     }
     .rpt-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #A0A09A; margin-bottom: 5px; }
-    .rpt-stat-value { font-family: 'Zodiak', serif; font-style: italic; font-size: 24px; font-weight: 400; color: #025355; line-height: 1.0; margin-bottom: 2px; }
+    .rpt-stat-value { font-family: inherit; font-style: normal; font-size: 24px; font-weight: 400; color: #025355; line-height: 1.0; margin-bottom: 2px; }
     .rpt-stat-sub { font-size: 11px; color: #A0A09A; }
     .care-section { margin-bottom: 22px; }
     .care-section-header {
@@ -2528,7 +2530,7 @@ function buildReport(mode) {
       background: #025355;
       color: white;
     }
-    .care-section-header.accent { background: #C8603A; }
+    .care-section-header.accent { background: #025355; }
     .care-section-header.neutral { background: #1A1A1A; }
     .care-section-title { font-family: 'Clash Display', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; }
     .care-section-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
@@ -2545,9 +2547,8 @@ function buildReport(mode) {
     .care-table td:last-child { text-align: right; font-weight: 600; color: #1A1A1A; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; }
     .sub-note { display: block; font-size: 11px; color: #A0A09A; margin-top: 2px; font-weight: 400; font-family: 'Figtree', sans-serif; }
     .rpt-insight {
-      background: #FAE8DC;
-      border: 1px solid #EAC8B4;
-      border-left: 4px solid #C8603A;
+      background: #EBF4F4;
+      border: 1px solid #B0CFCF;
       border-radius: 8px;
       padding: 14px 18px;
       margin: 24px 0;
@@ -2556,7 +2557,7 @@ function buildReport(mode) {
       align-items: flex-start;
     }
     .rpt-insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-    .rpt-insight-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C8603A; margin-bottom: 4px; }
+    .rpt-insight-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #025355; margin-bottom: 4px; }
     .rpt-insight-text { font-size: 13px; color: #6B6860; line-height: 1.6; }
     .rpt-insight-text strong { color: #1A1A1A; font-weight: 600; }
     .rpt-divider { height: 1px; background: #DDD9D0; margin: 28px 0; }
@@ -2612,7 +2613,7 @@ function buildReport(mode) {
     <!-- Title -->
     <div class="rpt-eyebrow">Your personalized estimate</div>
     <div class="rpt-title">Senior living <em>costs</em></div>
-    <div class="rpt-subtitle">Monthly cost breakdown based on your inputs${stateKey !== 'national' ? ` — adjusted for ${locLabel}` : ''}.</div>
+    <div class="rpt-subtitle">Monthly cost breakdown based on your inputs${stateKey !== 'national' ? `, adjusted for ${locLabel}` : ''}.</div>
 
     <!-- Stats -->
     <div class="rpt-stats">
@@ -2696,8 +2697,8 @@ function showEmailModal() {
   modal.innerHTML = `
     <div style="background:white;border-radius:20px;padding:40px 44px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
       <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#A0A09A;margin-bottom:8px;">Send your report</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em style="font-family:'Zodiak',serif;font-style:italic;font-weight:300;">send it?</em></div>
-      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown — no account needed.</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:26px;font-weight:500;color:#1A1A1A;letter-spacing:-0.015em;margin-bottom:6px;">Where should we <em>send it?</em></div>
+      <div style="font-size:14px;color:#6B6860;margin-bottom:28px;line-height:1.6;">We'll email you a PDF of this cost breakdown. No account needed.</div>
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:8px;">Your email address</label>
         <input type="email" id="reportEmail" placeholder="you@example.com" style="width:100%;height:48px;border:1.5px solid #DDD9D0;border-radius:10px;padding:0 16px;font-family:'Figtree',sans-serif;font-size:15px;color:#1A1A1A;outline:none;" onfocus="this.style.borderColor='#025355';this.style.boxShadow='0 0 0 3px rgba(2,83,85,0.1)'" onblur="this.style.borderColor='#DDD9D0';this.style.boxShadow='none'">

@@ -402,6 +402,67 @@ export default function Home() {
       observer.observe(hero);
     })();
 
+    // ── Why Nested: user-driven horizontal scroller ──
+    // Deliberately NOT tied to page scroll position. Native overflow gives
+    // wheel, trackpad, touch and keyboard; the arrows and click-drag are
+    // layered on top of it.
+    (function() {
+      const scroller = document.getElementById('why-scroller');
+      const track = document.getElementById('why-track');
+      if (!scroller || !track) return;
+
+      const stride = () => {
+        const card = track.querySelector('.why-card');
+        if (!card) return 354;
+        const gap = parseFloat(getComputedStyle(track).columnGap || '14') || 14;
+        return card.getBoundingClientRect().width + gap;
+      };
+
+      const arrows = document.querySelectorAll('.why-arrow');
+      const syncArrows = () => {
+        if (arrows.length < 2) return;
+        const max = scroller.scrollWidth - scroller.clientWidth;
+        arrows[0].disabled = scroller.scrollLeft <= 1;
+        arrows[1].disabled = scroller.scrollLeft >= max - 1;
+      };
+
+      window.whyNav = function(dir) {
+        const reduced = document.documentElement.getAttribute('data-motion') === 'reduced';
+        scroller.scrollBy({ left: dir * stride(), behavior: reduced ? 'auto' : 'smooth' });
+      };
+
+      scroller.addEventListener('scroll', syncArrows, { passive: true });
+      window.addEventListener('resize', syncArrows);
+      syncArrows();
+
+      // Click and drag, for mice without a horizontal wheel.
+      let down = false, startX = 0, startLeft = 0, moved = 0;
+      scroller.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return;      // native swipe handles touch
+        down = true; moved = 0;
+        startX = e.clientX;
+        startLeft = scroller.scrollLeft;
+        scroller.setPointerCapture(e.pointerId);
+      });
+      scroller.addEventListener('pointermove', (e) => {
+        if (!down) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 3) scroller.classList.add('dragging');
+        moved = Math.max(moved, Math.abs(dx));
+        scroller.scrollLeft = startLeft - dx;
+      });
+      const endDrag = (e) => {
+        if (!down) return;
+        down = false;
+        scroller.classList.remove('dragging');
+        try { scroller.releasePointerCapture(e.pointerId); } catch (err) {}
+      };
+      scroller.addEventListener('pointerup', endDrag);
+      scroller.addEventListener('pointercancel', endDrag);
+      // a drag shouldn't also register as a click on a card
+      scroller.addEventListener('click', (e) => { if (moved > 5) { e.preventDefault(); e.stopPropagation(); } }, true);
+    })();
+
     // ── Care cards scroll reveal ──
     (function() {
       const heading = document.querySelector('.care-cards-heading');
@@ -889,11 +950,19 @@ export default function Home() {
             </div>
             <div className="why-right">
               <p className="why-subtext">Nested gives you the tools to understand, compare, and plan senior care costs, without the runaround.</p>
+              <div className="why-arrows">
+                <button className="why-arrow" type="button" onClick={() => window.whyNav && window.whyNav(-1)} aria-label="Previous cards">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <button className="why-arrow" type="button" onClick={() => window.whyNav && window.whyNav(1)} aria-label="Next cards">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div style={{padding:'0 80px'}}>
-            <div id="why-track" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:'18px'}}>
+          <div className="why-scroller" id="why-scroller" tabIndex={0} role="region" aria-label="Why Nested, scrollable cards">
+            <div id="why-track">
 
               <div className="why-card">
                 <div className="why-card-badge">

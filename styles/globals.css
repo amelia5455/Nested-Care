@@ -516,7 +516,10 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 18px;
   padding: 28px 28px 32px;
-  min-width: 0;
+  min-width: 340px;
+  max-width: 340px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1158,7 +1161,7 @@ html[data-text-scale]:not([data-text-scale="1"]) .nav-links {
    A single, unmissable focus style. The site had none at all, which
    makes keyboard navigation impossible to follow. */
 :focus-visible {
-  outline: 3px solid #C8603A;
+  outline: 3px solid #025355;
   outline-offset: 3px;
   border-radius: 6px;
 }
@@ -1167,7 +1170,7 @@ html[data-text-scale]:not([data-text-scale="1"]) .nav-links {
 footer :focus-visible,
 .footer-wrap :focus-visible,
 [style*="033D3F"] :focus-visible {
-  outline-color: #FFB088;
+  outline-color: #B0CFCF;
 }
 
 /* ---- 4. Comfortable hit targets ----------------------------------- */
@@ -1411,7 +1414,8 @@ html[data-motion="reduced"] .hero-bg {
   background: #F5F3EE;
   transition: transform 0.15s ease;
 }
-.a11y-toggle[aria-pressed="true"] .a11y-switch { background: #C8603A; border-color: #C8603A; }
+.a11y-toggle[aria-pressed="true"] .a11y-switch { background: #B0CFCF; border-color: #B0CFCF; }
+.a11y-toggle[aria-pressed="true"] .a11y-switch::after { background: #033D3F; }
 .a11y-toggle[aria-pressed="true"] .a11y-switch::after { transform: translateX(22px); }
 
 .a11y-reset {
@@ -1499,4 +1503,38 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 .navbar.scrolled .btn-a11y {
   border-color: rgba(245, 243, 238, 0.45);
   color: #F5F3EE;
+}
+
+/* ============================================================
+   WHY NESTED: HORIZONTAL SCROLLER
+   Driven by the user, not by page scroll position. Native overflow
+   gives trackpad, shift+wheel, touch swipe and keyboard for free;
+   the arrows and click-drag sit on top of it.
+   ============================================================ */
+.why-scroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  /* the inset lives on the track, so scrollLeft:0 really is the start
+     and the Previous arrow can disable correctly */
+  padding: 4px 0 8px;
+  scroll-padding-left: 80px;
+  scrollbar-width: none;              /* Firefox */
+  -ms-overflow-style: none;           /* old Edge */
+  cursor: grab;
+}
+.why-scroller::-webkit-scrollbar { display: none; }
+.why-scroller.dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; }
+.why-scroller.dragging * { pointer-events: none; }
+.why-scroller:focus-visible { outline: 3px solid #B0CFCF; outline-offset: -3px; border-radius: 18px; }
+
+#why-track { display: flex; gap: 14px; align-items: stretch; padding: 0 80px; }
+
+.why-arrow:disabled { opacity: 0.35; cursor: default; }
+.why-arrow:disabled:hover { background: #F5F3EE; transform: none; }
+
+/* Dragging is a mouse affordance; touch already has the native swipe. */
+@media (hover: none) {
+  .why-scroller { cursor: auto; }
 }
