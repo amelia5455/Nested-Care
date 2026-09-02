@@ -116,61 +116,6 @@ export default function Home() {
     });
 
     // ── Dropdown toggle ──
-    function setDropdown(open) {
-      const t = document.querySelector('.nav-dropdown-trigger');
-      const m = document.getElementById('resources-dropdown');
-      if (!t || !m) return;
-      t.classList.toggle('open', open);
-      m.classList.toggle('open', open);
-      t.setAttribute('aria-expanded', String(open));
-    }
-    const openDropdown = () => setDropdown(true);
-    const closeDropdown = () => setDropdown(false);
-
-    window.toggleDropdown = function(btn) {
-      setDropdown(!btn.classList.contains('open'));
-    };
-
-    document.addEventListener('click', function(e) {
-      const w = document.querySelector('.nav-dropdown-wrap');
-      if (w && !w.contains(e.target)) closeDropdown();
-    });
-
-    // Escape closes the menu and hands focus back to the trigger.
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Escape') return;
-      const t = document.querySelector('.nav-dropdown-trigger');
-      if (t && t.classList.contains('open')) { closeDropdown(); t.focus(); }
-    });
-
-    // ── Resources opens on hover as well as click ──
-    // Only where hovering is meaningful: on touch there is no hover state,
-    // and tap would otherwise open and immediately close the menu. Click and
-    // keyboard keep working everywhere.
-    (function() {
-      const wrap = document.querySelector('.nav-dropdown-wrap');
-      const trigger = document.querySelector('.nav-dropdown-trigger');
-      if (!wrap || !trigger) return;
-      const canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-      if (!canHover) return;
-
-      let closeTimer;
-      const cancelClose = () => clearTimeout(closeTimer);
-      // A small grace period so crossing the gap between the trigger and the
-      // panel doesn't snap it shut.
-      const scheduleClose = () => {
-        cancelClose();
-        closeTimer = setTimeout(closeDropdown, 220);
-      };
-
-      wrap.addEventListener('mouseenter', () => { cancelClose(); openDropdown(); });
-      wrap.addEventListener('mouseleave', scheduleClose);
-      trigger.addEventListener('focus', () => { cancelClose(); openDropdown(); });
-      wrap.addEventListener('focusout', (e) => {
-        if (!wrap.contains(e.relatedTarget)) scheduleClose();
-      });
-    })();
-
     // ── Hero blur-word reveal ──
     (function() {
       const words = document.querySelectorAll('.blur-word');
@@ -625,31 +570,6 @@ export default function Home() {
             <li><a href="#how-it-works">How it works</a></li>
             <li><a href="#care-types">Care types</a></li>
             <li><a href="#faqs">FAQs</a></li>
-            <li className="nav-dropdown-wrap">
-              <button className="nav-dropdown-trigger" aria-expanded="false" aria-controls="resources-dropdown" aria-haspopup="true" onClick={(e) => window.toggleDropdown && window.toggleDropdown(e.currentTarget)}>Resources
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 4L6.35 7.62C6.26 7.71 6.15 7.76 6.03 7.76C5.91 7.76 5.8 7.71 5.71 7.62L2 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </button>
-              <div className="nav-dropdown-menu" id="resources-dropdown">
-                {/* Left image panel */}
-                <div className="dd-image-panel">
-                  <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&q=80" alt="Care resources" />
-                  <p className="dd-panel-title">Exceptional Care for Aging with Dignity</p>
-                  <p className="dd-panel-sub">High-quality caregiving designed around comfort and respect.</p>
-                </div>
-                {/* Right content panel */}
-                <div className="dd-content-panel">
-                  <p className="dd-section-label">Resources</p>
-                  <a href="#" className="dd-item">
-                    <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-                    <span className="dd-item-text"><span className="dd-item-name">Blog</span><span className="dd-item-desc">Stories and guides on senior care.</span></span>
-                  </a>
-                  <a href="#" className="dd-item">
-                    <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
-                    <span className="dd-item-text"><span className="dd-item-name">Care Guide</span><span className="dd-item-desc">A full guide to care types and costs.</span></span>
-                  </a>
-                </div>
-              </div>
-            </li>
           </ul>
         </div>
 

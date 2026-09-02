@@ -78,153 +78,6 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 .nav-actions { display:flex; align-items:center; gap:12px; }
 
 /* DROPDOWN */
-.nav-dropdown-wrap { position:relative; list-style:none; }
-.nav-dropdown-trigger { display:inline-flex; align-items:center; gap:6px; background:none; border:none; font-family:'Figtree',sans-serif; font-size:14px; font-weight:500; color:rgba(250,250,250,0.75); cursor:pointer; padding:0; transition:color 0.15s; }
-.nav-dropdown-trigger:hover { color:#FAFAFA; }
-.nav-dropdown-trigger svg { transition:transform 0.2s ease; }
-.nav-dropdown-trigger.open svg { transform:rotate(180deg); }
-
-.nav-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 20px);
-  left: 50%;
-  transform: translateX(-50%) translateY(-8px);
-  background: #FAFAFA;
-  border-radius: 20px;
-  border: 1px solid rgba(0,0,0,0.07);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
-  z-index: 200;
-  width: 580px;
-  overflow: hidden;
-  display: flex;
-}
-.nav-dropdown-menu.open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Left image panel */
-.dd-image-panel {
-  width: 180px;
-  flex-shrink: 0;
-  background: #033D3F;
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
-}
-.dd-image-panel img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.55;
-}
-.dd-image-panel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(3,61,63,0.85) 0%, rgba(3,61,63,0.2) 100%);
-}
-.dd-panel-title {
-  font-family: 'Clash Display', sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  color: #F5F3EE;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
-  position: relative;
-  z-index: 1;
-}
-.dd-panel-sub {
-  font-family: 'Figtree', sans-serif;
-  font-size: 12px;
-  color: rgba(245,243,238,0.6);
-  line-height: 1.5;
-  position: relative;
-  z-index: 1;
-}
-
-/* Right content panel */
-.dd-content-panel {
-  flex: 1;
-  padding: 20px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.dd-section-label {
-  font-family: 'Figtree', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #A0A09A;
-  padding: 0 8px;
-  margin-bottom: 4px;
-  margin-top: 4px;
-}
-.dd-section-label:first-child { margin-top: 0; }
-.dd-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 10px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background 0.15s;
-  cursor: pointer;
-}
-.dd-item:hover { background: rgba(0,0,0,0.05); }
-.dd-item-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #F0EFEB;
-  border: 1px solid rgba(0,0,0,0.07);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #6B6860;
-}
-.dd-item-icon svg { width:16px; height:16px; }
-.dd-item-text { display:flex; flex-direction:column; gap:1px; }
-.dd-item-name { font-family:'Figtree',sans-serif; font-size:13px; font-weight:600; color:#1A1A1A; line-height:1.2; }
-.dd-item-desc { font-family:'Figtree',sans-serif; font-size:12px; color:#6B6860; line-height:1.3; }
-.dd-item.coming { opacity: 0.5; cursor: default; }
-.dd-item.coming:hover { background: transparent; }
-.dd-item-coming-badge {
-  margin-left: auto;
-  font-family: 'Figtree', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  color: #A0A09A;
-  background: #EEECEA;
-  border-radius: 100px;
-  padding: 2px 8px;
-  white-space: nowrap;
-}
-.dd-divider { height:1px; background:rgba(0,0,0,0.06); margin: 6px 0; }
-.dd-footer {
-  margin-top: 4px;
-  padding: 10px 10px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgba(0,0,0,0.06);
-}
-.dd-footer-text { font-family:'Figtree',sans-serif; font-size:12px; color:#6B6860; }
-.dd-footer-link { font-family:'Figtree',sans-serif; font-size:12px; font-weight:600; color:#025355; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
-.dd-footer-link:hover { text-decoration: underline; }
 
 /* HERO */
 .hero { position:relative; height:100vh; min-height:700px; overflow:hidden; display:flex; align-items:flex-end; padding-bottom:80px; }
@@ -574,7 +427,6 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   font-family: 'Figtree', sans-serif;
 }
 
-
 /* HOW IT WORKS */
 /* Scroll container */
 .hiw-scroll-container {
@@ -781,7 +633,6 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 }
 
 .btn-arrow { font-size: 18px; transition: transform 0.2s; }
-
 
 /* Mockup internals */
 .mock-progress {
@@ -1169,7 +1020,6 @@ footer :focus-visible,
 
 /* ---- 4. Comfortable hit targets ----------------------------------- */
 .nav-links a,
-.nav-dropdown-trigger,
 .btn-nav-ghost,
 .btn-nav-primary,
 .footer-nav-b a,
@@ -1182,10 +1032,9 @@ footer :focus-visible,
 
 /* ---- 5. Legibility floors ----------------------------------------
    Nothing on a site read by older eyes should sit at 10-13px. */
-.eyebrow, .why-card-badge + *, .dd-item-desc, .dd-section-label,
+.eyebrow, .why-card-badge + *,
 .footer-disclaimer-b, .footer-copy-b, .footer-legal-b a,
 .mock-results-lbl, .step-desc, .why-subtext { font-size: 15px; }
-.dd-item-name { font-size: 16px; }
 
 /* ---- 6. Contrast repairs (always on) ------------------------------
    These were below the WCAG AA 4.5:1 floor at their original values. */
@@ -1194,7 +1043,6 @@ footer :focus-visible,
 .footer-copy-b          { color: rgba(245,243,238,0.75); }
 .footer-legal-b a       { color: rgba(245,243,238,0.85); }
 .faq-a                  { color: rgba(245,243,238,0.88); }
-.dd-item-desc           { color: #5B564F; }
 .mw                     { color: rgba(26,26,26,0.38); }
 
 /* ---- 7. Underline links ------------------------------------------- */
@@ -1216,7 +1064,6 @@ html[data-contrast="high"] .footer-disclaimer-b,
 html[data-contrast="high"] .footer-copy-b,
 html[data-contrast="high"] .footer-legal-b a { color: #FFFFFF; }
 html[data-contrast="high"] .step-desc,
-html[data-contrast="high"] .dd-item-desc,
 html[data-contrast="high"] .hiw-sub,
 html[data-contrast="high"] .averages-sub { color: #2A2A2A; }
 html[data-contrast="high"] .hero-overlay { background: rgba(0,0,0,0.62) !important; }
@@ -1450,8 +1297,7 @@ html[data-motion="reduced"] .hero-bg {
     min-width: 0;
   }
   .nav-links { gap: 20px; }
-  .nav-links a,
-  .nav-dropdown-trigger { font-size: 13px; }
+  .nav-links a { font-size: 13px; }
   .nav-right { gap: 8px; }
 }
 
@@ -1475,7 +1321,6 @@ html[data-motion="reduced"] .hero-bg {
    Headings read in one voice. */
 em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
-
 /* ============================================================
    NAVBAR OVER LIGHT SECTIONS
    The bar is translucent with a backdrop blur, which reads beautifully
@@ -1490,10 +1335,8 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.24);
 }
 .navbar.scrolled .nav-logo-mark { color: #F5F3EE; }
-.navbar.scrolled .nav-links a,
-.navbar.scrolled .nav-dropdown-trigger { color: rgba(245, 243, 238, 0.92); }
-.navbar.scrolled .nav-links a:hover,
-.navbar.scrolled .nav-dropdown-trigger:hover { color: #FFFFFF; }
+.navbar.scrolled .nav-links a { color: rgba(245, 243, 238, 0.92); }
+.navbar.scrolled .nav-links a:hover { color: #FFFFFF; }
 .navbar.scrolled .btn-a11y {
   border-color: rgba(245, 243, 238, 0.45);
   color: #F5F3EE;
@@ -1733,13 +1576,6 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
    buttons at ~960px, so the gaps tighten a step earlier.
    ============================================================ */
 @media (max-width: 1180px) {
-  .nav-dropdown-menu {
-    left: auto;
-    right: 0;
-    transform: translateY(-8px);
-    width: min(580px, calc(100vw - 40px));
-  }
-  .nav-dropdown-menu.open { transform: translateY(0); }
 
   .nav-right { gap: 8px; }
 }
