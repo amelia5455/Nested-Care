@@ -1538,3 +1538,143 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 @media (hover: none) {
   .why-scroller { cursor: auto; }
 }
+
+/* ============================================================
+   RESPONSIVE
+   The page was laid out for the desktop only: 80px gutters, fixed
+   pixel column widths and display type up to 80px. Several of those
+   live in inline styles, which is why the overrides below need
+   !important to reach them.
+   ============================================================ */
+
+/* ---- Tablet ------------------------------------------------------ */
+@media (max-width: 1024px) {
+  .hero { min-height: 620px; padding-bottom: 56px; }
+  .hero-content { padding: 0 32px; }
+  .hero-heading { font-size: 52px; margin-bottom: 28px; }
+
+  .mission { padding: 72px 32px; }
+  .mission-heading { font-size: 34px; margin-bottom: 28px; }
+
+  #hiw-intro { padding: 64px 32px 0 !important; }
+  #hiw-intro h2 { font-size: 36px !important; }
+
+  .band-pad { padding: 64px 32px !important; }
+  .why-head { padding: 0 32px !important; }
+  .why-heading { font-size: 32px; }
+  #why-track { padding: 0 32px; }
+  .why-scroller { scroll-padding-left: 32px; }
+
+  .section-heading { font-size: 32px; }
+  .hiw-cta { padding: 64px 32px 80px; }
+
+  #faq-wrapper { padding: 0 24px !important; }
+  .faq-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+    padding: 72px 32px !important;
+  }
+  .faq-grid > div:first-child { position: static !important; }
+  .faq-grid h2 { font-size: 40px !important; }
+
+  .cta-panel { padding: 80px 32px !important; }
+  #cta-el-1 { font-size: 40px !important; }
+
+  .footer-top { grid-template-columns: 1fr; gap: 40px; padding: 40px 32px 32px; }
+  .footer-tagline { font-size: 34px; }
+}
+
+/* ---- Phone ------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* The sticky "How it works" is a 500vh scrubbed viewport with
+     absolutely-positioned 720px layers. On a phone that is neither
+     readable nor navigable, so the steps stack and scroll normally. */
+  .hiw-scroll-container { height: auto; }
+  .hiw-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 40px 0 72px;
+  }
+  .hiw-inner {
+    position: relative;
+    height: auto;
+    opacity: 1;
+    filter: none;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 0 18px;
+  }
+  .hiw-left { display: none; }
+  .hiw-right { position: static; width: 100%; transform: none; }
+
+  .step-layer, .step-layer.active, .step-layer.past,
+  .step-desc-layer, .step-desc-layer.active, .step-desc-layer.past {
+    position: static !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto !important;
+    gap: 20px;
+  }
+  .step-desc-layer { margin-top: -32px; }
+  .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .step-heading { font-size: 26px; }
+  .step-mockup { padding: 18px 16px 22px; }
+
+  .hero { min-height: 560px; padding-bottom: 40px; }
+  .hero-content { padding: 0 18px; }
+  .hero-heading { font-size: 34px; margin-bottom: 22px; letter-spacing: -0.02em; }
+  .hero-ctas { flex-wrap: wrap; gap: 10px; }
+  .btn-primary, .btn-outline { height: 48px; padding: 0 20px; font-size: 14px; }
+
+  .mission { padding: 56px 18px; }
+  .mission-heading { font-size: 24px; line-height: 1.3; }
+
+  #hiw-intro { padding: 48px 18px 0 !important; }
+  #hiw-intro h2 { font-size: 28px !important; }
+  #hiw-sub { font-size: 15px !important; }
+
+  .band-pad { padding: 48px 18px !important; }
+  .why-head { padding: 0 18px !important; grid-template-columns: 1fr !important; gap: 18px !important; }
+  .why-heading { font-size: 26px; }
+  .why-subtext { font-size: 15px; }
+  #why-track { padding: 0 18px; }
+  .why-scroller { scroll-padding-left: 18px; }
+  .why-card { min-width: 272px; max-width: 272px; padding: 22px 20px 24px; gap: 28px; }
+
+  .section-heading { font-size: 26px; }
+  .care-cards-heading { padding: 0 18px; }
+  .hiw-cta { padding: 48px 18px 64px; }
+
+  #faq-wrapper { padding: 0 12px !important; }
+  .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
+  .faq-grid h2 { font-size: 30px !important; }
+  .faq-q { font-size: 15px; gap: 14px; padding: 18px 0; }
+  .faq-a { font-size: 14px; }
+
+  .cta-panel { padding: 56px 20px !important; border-radius: 20px; }
+  #cta-el-1 { font-size: 30px !important; }
+  #cta-el-3 { flex-wrap: wrap; justify-content: center; }
+
+  .footer-top { padding: 32px 18px 24px; gap: 28px; }
+  .footer-tagline { font-size: 28px; }
+  .footer-nav-b { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .footer-bottom-b { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px; }
+  .footer-disclaimer-b { padding: 0 18px; }
+
+  /* the drifting CTA orbs are decorative and overflow on a narrow screen */
+  #cta-content ~ div[style*="radial-gradient"],
+  .cta-panel > div[style*="radial-gradient"] { display: none; }
+}
+
+/* ---- Small phone ------------------------------------------------- */
+@media (max-width: 400px) {
+  .hero-heading { font-size: 30px; }
+  .why-card { min-width: 244px; max-width: 244px; }
+  .faq-grid h2 { font-size: 26px !important; }
+  .footer-nav-b { grid-template-columns: 1fr; }
+}

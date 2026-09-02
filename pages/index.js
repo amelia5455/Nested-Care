@@ -739,7 +739,7 @@ export default function Home() {
               </div>
             )}
           </div>
-          <a href="/nested-calculator_25.html" className="btn-nav-primary" id="nav-cta">Start Now</a>
+          <a href="/calculator" className="btn-nav-primary" id="nav-cta">Start Now</a>
         </div>
       </nav>
 
@@ -769,7 +769,7 @@ export default function Home() {
             <span className="blur-word">decision</span>
           </h1>
           <div style={{display:'flex',gap:'12px',alignItems:'center'}}>
-            <a href="/nested-calculator_25.html" className="btn-primary" id="cta-left" style={{opacity:0,transform:'translateX(100%)',transition:'opacity 0.5s ease, transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)'}}>Start Comparison</a>
+            <a href="/calculator" className="btn-primary" id="cta-left" style={{opacity:0,transform:'translateX(100%)',transition:'opacity 0.5s ease, transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)'}}>Start Comparison</a>
             <a href="#" className="btn-outline" id="cta-right" style={{opacity:0,transform:'translateY(6px)',transition:'opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',fontSize:'14px',fontWeight:500,borderColor:'rgba(255,255,255,0.35)',color:'rgba(255,255,255,0.7)'}}>How it works</a>
           </div>
         </div>
@@ -937,14 +937,14 @@ export default function Home() {
 
       {/* HIW CTA */}
       <div className="hiw-cta">
-        <a href="/nested-calculator_25.html" className="btn-primary">Start the calculator <span className="btn-arrow">→</span></a>
+        <a href="/calculator" className="btn-primary">Start the calculator <span className="btn-arrow">→</span></a>
       </div>
 
       {/* WHY NESTED */}
       <div id="why-scroll-outer">
         <section id="why-sticky" style={{background:'#033D3F',display:'flex',flexDirection:'column',justifyContent:'center',padding:'110px 0'}}>
 
-          <div style={{padding:'0 80px',marginBottom:'28px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'32px',alignItems:'start'}}>
+          <div className="why-head" style={{padding:'0 80px',marginBottom:'28px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:'32px',alignItems:'start'}}>
             <div>
               <h2 className="why-heading">Everything you need<br />in <em>one place.</em></h2>
             </div>
@@ -1015,7 +1015,7 @@ export default function Home() {
       <div style={{width:'100%',height:'1px',background:'#E8E4DC'}}></div>
 
       {/* CARE CARDS */}
-      <div style={{background:'#F5F3EE',padding:'80px 80px'}}>
+      <div className="band-pad" style={{background:'#F5F3EE',padding:'80px 80px'}}>
         <section className="nested-section">
           <div className="care-cards-heading">
             <p className="section-eyebrow">What we cover</p>
@@ -1106,7 +1106,7 @@ export default function Home() {
           <div style={{position:'absolute',inset:0,background:'rgba(8,28,22,0.88)'}}></div>
 
           {/* 2-col content */}
-          <div style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'440px 1fr',gap:'120px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
+          <div className="faq-grid" style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'440px 1fr',gap:'120px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
 
             {/* Left: label + heading + subtext */}
             <div style={{position:'sticky',top:'120px'}}>
@@ -1176,8 +1176,8 @@ export default function Home() {
       </div>
 
       {/* CTA SECTION */}
-      <div style={{background:'#F5F3EE',padding:'80px 80px'}}>
-        <section style={{background:'#EDE9E1',width:'100%',borderRadius:'28px',padding:'120px 80px',display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',position:'relative',overflow:'hidden'}}>
+      <div className="band-pad" style={{background:'#F5F3EE',padding:'80px 80px'}}>
+        <section className="cta-panel" style={{background:'#EDE9E1',width:'100%',borderRadius:'28px',padding:'120px 80px',display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',position:'relative',overflow:'hidden'}}>
 
           {/* Floating orbs */}
           <div style={{position:'absolute',width:'480px',height:'480px',borderRadius:'50%',background:'radial-gradient(circle,rgba(2,83,85,0.14) 0%,transparent 70%)',top:'-120px',left:'-100px',filter:'blur(80px)',pointerEvents:'none',animation:'ctaDrift1 14s ease-in-out infinite'}}></div>
@@ -1191,7 +1191,7 @@ export default function Home() {
             <h2 id="cta-el-1" style={{fontFamily:"'Clash Display',sans-serif",fontSize:'72px',fontWeight:500,color:'#1A1A1A',letterSpacing:'-0.035em',lineHeight:1.04,margin:0,opacity:0,filter:'blur(14px)',transform:'translateY(24px)',transition:'opacity 1s cubic-bezier(0.16,1,0.3,1),filter 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1)'}}>The right choice<br />shouldn&apos;t be <em style={{color:'#025355'}}>this hard.</em></h2>
             <p id="cta-el-2" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6860',lineHeight:1.7,maxWidth:'420px',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>We built Nested so your family can stop guessing and start deciding, with real numbers, in about 3 minutes.</p>
             <div id="cta-el-3" style={{display:'flex',alignItems:'center',gap:'12px',marginTop:'8px',opacity:0,filter:'blur(8px)',transform:'translateY(12px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>
-              <a href="/nested-calculator_25.html" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'none',background:'#033D3F',color:'#F5F3EE',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em'}}
+              <a href="/calculator" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'none',background:'#033D3F',color:'#F5F3EE',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em'}}
                 onMouseOver={(e) => { e.currentTarget.style.background='#025355'; e.currentTarget.style.transform='translateY(-2px)'; }}
                 onMouseOut={(e) => { e.currentTarget.style.background='#033D3F'; e.currentTarget.style.transform='translateY(0)'; }}>
                 Start for free
@@ -1216,7 +1216,7 @@ export default function Home() {
           <div className="footer-top">
             <div className="footer-left">
               <h2 className="footer-tagline">Find care.<br /><em>Get clarity.</em></h2>
-              <a href="/nested-calculator_25.html" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+              <a href="/calculator" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
             <nav className="footer-nav-b">
               <div className="footer-nav-col-b">
