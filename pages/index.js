@@ -467,6 +467,14 @@ export default function Home() {
       if (!wrapper || !section) return;
 
       function updateExpand() {
+        // The inset-and-round-in effect only makes sense when there is room
+        // for it. On a narrow window it just leaves a sliver of the page
+        // showing down each side of the panel, so run it full bleed.
+        if (window.innerWidth <= 900) {
+          wrapper.style.padding = '0px';
+          section.style.borderRadius = '0px';
+          return;
+        }
         const rect = wrapper.getBoundingClientRect();
         const windowH = window.innerHeight;
 
@@ -490,6 +498,7 @@ export default function Home() {
       }
 
       window.addEventListener('scroll', updateExpand, { passive: true });
+      window.addEventListener('resize', updateExpand);
       updateExpand();
     })();
 

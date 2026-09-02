@@ -1457,7 +1457,16 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
     pointer-events: auto !important;
     gap: 20px;
   }
-  .step-desc-layer { margin-top: -32px; }
+  /* display:contents lets each description become a sibling of the steps,
+     so order can pair them up instead of leaving all three at the end. */
+  .hiw-right { display: contents; }
+  .step-layer#layer-0 { order: 1; }
+  .step-desc-layer#desc-0 { order: 2; }
+  .step-layer#layer-1 { order: 3; }
+  .step-desc-layer#desc-1 { order: 4; }
+  .step-layer#layer-2 { order: 5; }
+  .step-desc-layer#desc-2 { order: 6; }
+  .step-desc-layer { margin-top: -28px; text-align: center; }
   .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
   .step-heading { font-size: 26px; }
   .step-mockup { padding: 18px 16px 22px; }
@@ -1487,7 +1496,8 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .care-cards-heading { padding: 0 18px; }
   .hiw-cta { padding: 48px 18px 64px; }
 
-  #faq-wrapper { padding: 0 12px !important; }
+  #faq-wrapper { padding: 0 !important; }
+  #faq-section { border-radius: 0 !important; min-height: 0 !important; }
   .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
   .faq-grid h2 { font-size: 30px !important; }
   .faq-q { font-size: 15px; gap: 14px; padding: 18px 0; }
@@ -1580,3 +1590,43 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .nav-right { gap: 8px; }
 }
 
+
+/* ============================================================
+   CARE CARDS AND FOOTER AT NARROWER WIDTHS
+   The card grid was a hard repeat(3, 1fr), so on a small window the
+   three cards squeezed to ~140px and clipped their own titles.
+   ============================================================ */
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (max-width: 620px) {
+  .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+  .care-card { aspect-ratio: 16 / 10; }
+}
+
+@media (max-width: 900px) {
+  /* The footer was running its three groups together with no room to
+     breathe once the columns collapsed. */
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: 44px;
+    padding: 52px 28px 40px;
+  }
+  .footer-left { gap: 24px; }
+  .footer-nav-b { grid-template-columns: 1fr 1fr; gap: 32px 24px; }
+  .footer-nav-b h4 { margin-bottom: 14px; }
+  .footer-nav-b li + li { margin-top: 12px; }
+  .footer-disclaimer-b { padding: 0 28px; margin-top: 8px; }
+  .footer-bottom-b {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 24px 28px 28px;
+  }
+  .footer-legal-b { flex-wrap: wrap; gap: 18px; }
+}
+@media (max-width: 480px) {
+  .footer-top { padding: 44px 20px 32px; gap: 36px; }
+  .footer-disclaimer-b { padding: 0 20px; }
+  .footer-bottom-b { padding: 20px 20px 24px; }
+}
