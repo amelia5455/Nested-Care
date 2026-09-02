@@ -1721,3 +1721,26 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 @media (max-width: 768px) {
   .scroll-anchor { scroll-margin-top: 88px; }
 }
+
+/* ============================================================
+   DROPDOWN AND NAV FIT
+   The menu is 580px centred on its trigger, which sits near the right
+   of the bar — on a narrower window half of it hangs off the screen.
+   Below the desktop breakpoint it anchors to its right edge instead
+   and is capped to the viewport.
+
+   Promoting FAQs to the navbar also left the link group touching the
+   buttons at ~960px, so the gaps tighten a step earlier.
+   ============================================================ */
+@media (max-width: 1180px) {
+  .nav-dropdown-menu {
+    left: auto;
+    right: 0;
+    transform: translateY(-8px);
+    width: min(580px, calc(100vw - 40px));
+  }
+  .nav-dropdown-menu.open { transform: translateY(0); }
+
+  .nav-right { gap: 8px; }
+}
+

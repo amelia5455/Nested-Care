@@ -624,6 +624,7 @@ export default function Home() {
           <ul className="nav-links">
             <li><a href="#how-it-works">How it works</a></li>
             <li><a href="#care-types">Care types</a></li>
+            <li><a href="#faqs">FAQs</a></li>
             <li className="nav-dropdown-wrap">
               <button className="nav-dropdown-trigger" aria-expanded="false" aria-controls="resources-dropdown" aria-haspopup="true" onClick={(e) => window.toggleDropdown && window.toggleDropdown(e.currentTarget)}>Resources
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 4L6.35 7.62C6.26 7.71 6.15 7.76 6.03 7.76C5.91 7.76 5.8 7.71 5.71 7.62L2 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -642,24 +643,9 @@ export default function Home() {
                     <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
                     <span className="dd-item-text"><span className="dd-item-name">Blog</span><span className="dd-item-desc">Stories and guides on senior care.</span></span>
                   </a>
-                  <a href="#faqs" className="dd-item">
-                    <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
-                    <span className="dd-item-text"><span className="dd-item-name">FAQs</span><span className="dd-item-desc">Common questions, clearly answered.</span></span>
-                  </a>
                   <a href="#" className="dd-item">
                     <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
                     <span className="dd-item-text"><span className="dd-item-name">Care Guide</span><span className="dd-item-desc">A full guide to care types and costs.</span></span>
-                  </a>
-                  <div className="dd-divider"></div>
-                  <p className="dd-section-label">Tools</p>
-                  <a href="/calculator" className="dd-item">
-                    <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-                    <span className="dd-item-text"><span className="dd-item-name">Cost Calculator</span><span className="dd-item-desc">Estimate care costs in your area.</span></span>
-                  </a>
-                  <a href="#" className="dd-item coming">
-                    <span className="dd-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
-                    <span className="dd-item-text"><span className="dd-item-name">Provider Directory</span><span className="dd-item-desc">Find vetted local providers.</span></span>
-                    <span className="dd-item-coming-badge">Soon</span>
                   </a>
                 </div>
               </div>
