@@ -131,18 +131,18 @@ export default function Home() {
     // ── Intro overlay + navbar expand ──
     whenVisible(function() {
       const o = document.getElementById('intro-overlay');
-      setTimeout(() => o.classList.add('slide-up'), 1500);
+      setTimeout(() => o.classList.add('slide-up'), 800);
 
       // Navbar expands outward from center as overlay lifts
       setTimeout(() => {
         document.querySelector('.navbar').classList.add('nav-expanded');
-      }, 1500);
+      }, 800);
       // After expand animation finishes, allow overflow so dropdowns aren't clipped
       setTimeout(() => {
         document.querySelector('.navbar').classList.add('nav-ready');
-      }, 2500);
+      }, 1600);
 
-      setTimeout(() => o.classList.add('gone'), 2600);
+      setTimeout(() => o.classList.add('gone'), 1600);
     });
 
     // ── Dropdown toggle ──
@@ -154,11 +154,11 @@ export default function Home() {
         words.forEach((word, i) => {
           setTimeout(() => {
             word.classList.add('visible');
-          }, i * 120);
+          }, i * 55);
         });
 
-        const lastWordDelay = words.length * 120;
-        const midWordDelay = Math.floor(words.length * 0.45) * 120;
+        const lastWordDelay = words.length * 55;
+        const midWordDelay = Math.floor(words.length * 0.45) * 55;
 
         // Primary CTA appears at ~45% through headline
         setTimeout(() => {
@@ -176,10 +176,10 @@ export default function Home() {
             ctaRight.style.opacity = '1';
             ctaRight.style.transform = 'translateY(0)';
           }
-        }, Math.floor(words.length * 0.55) * 120);
+        }, Math.floor(words.length * 0.55) * 55);
       }
 
-      whenVisible(() => setTimeout(startReveal, 1600));
+      whenVisible(() => setTimeout(startReveal, 900));
     })();
 
     // ── Mission heading word reveal ──
@@ -353,7 +353,12 @@ export default function Home() {
       const rect = container.getBoundingClientRect();
       const scrolled = -rect.top;
       if (scrolled < 0 || scrolled > container.offsetHeight) return;
-      const totalScroll = container.offsetHeight - window.innerHeight;
+      // Measure against the pinned element itself, not window.innerHeight:
+      // on mobile innerHeight changes as the address bar hides, which shifts
+      // every step boundary mid-scroll.
+      const pinned = container.firstElementChild;
+      const viewportH = pinned ? pinned.offsetHeight : window.innerHeight;
+      const totalScroll = container.offsetHeight - viewportH;
       const progress = Math.min(1, scrolled / totalScroll);
 
       const rawStep = progress * STEPS;

@@ -1,17 +1,27 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; overflow-x: hidden; }
+body {
+  font-family: 'Figtree', sans-serif;
+  background: #F5F3EE;
+  color: #1A1A1A;
+  /* `clip` contains overflow without creating a scroll container. `hidden`
+     does create one, which is a well-known way to break position:sticky on
+     mobile. The hidden line stays first as a fallback for browsers without
+     `clip`; where both are understood, the later one wins. */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
 
 /* INTRO */
 .intro-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
 .intro-logo-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
 .intro-logo-wrap svg { width:64px; height:auto; color:#025355; }
 .intro-wordmark { font-family:'Clash Display',sans-serif; font-size:28px; font-weight:500; color:#1A1A1A; letter-spacing:-0.025em; }
-.intro-overlay.slide-up { transform:translateY(-100%); transition:transform 1s cubic-bezier(0.76,0,0.24,1); }
+.intro-overlay.slide-up { transform:translateY(-100%); transition:transform 0.65s cubic-bezier(0.76,0,0.24,1); }
 .intro-overlay.gone { display:none; }
 
 /* NAVBAR */
-.navbar { position:fixed; top:20px; left:50%; transform:translateX(-50%); width:0; max-width:1340px; height:68px; background:rgba(26,26,26,0.10); --navbar-blur:blur(40px) saturate(160%) brightness(1.08); -webkit-backdrop-filter:var(--navbar-blur); backdrop-filter:var(--navbar-blur); border-radius:48px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 2px 32px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:space-between; padding:0 24px; z-index:100; overflow:hidden; transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+.navbar { position:fixed; top:20px; left:50%; transform:translateX(-50%); width:0; max-width:1340px; height:68px; background:rgba(26,26,26,0.10); --navbar-blur:blur(40px) saturate(160%) brightness(1.08); -webkit-backdrop-filter:var(--navbar-blur); backdrop-filter:var(--navbar-blur); border-radius:48px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 2px 32px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:space-between; padding:0 24px; z-index:100; overflow:hidden; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .navbar.nav-expanded { width: calc(100vw - 80px); }
 .navbar.nav-ready { overflow: visible; }
 
@@ -20,7 +30,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   align-items: center;
   gap: 32px;
   opacity: 0;
-  transition: opacity 0.35s ease 0.7s;
+  transition: opacity 0.3s ease 0.35s;
   flex-shrink: 0;
 }
 .nav-center {
@@ -30,7 +40,7 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
-  transition: opacity 0.35s ease 0.7s;
+  transition: opacity 0.3s ease 0.35s;
 }
 .nav-right {
   display: flex;
@@ -59,12 +69,12 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 .navbar.nav-expanded .btn-nav-primary {
   opacity: 1;
   transform: translateX(0);
-  transition-delay: 0.72s;
+  transition-delay: 0.4s;
 }
 .navbar.nav-expanded .btn-nav-ghost {
   opacity: 1;
   transform: translateX(0);
-  transition-delay: 0.88s;
+  transition-delay: 0.5s;
 }
 .btn-nav-ghost:hover { background:rgba(255,255,255,0.12); color:#FAFAFA; }
 .btn-nav-primary { display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 20px; border-radius:100px; border:none; background:#025355; color:white; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; }
@@ -800,9 +810,9 @@ body { font-family: 'Figtree', sans-serif; background: #F5F3EE; color: #1A1A1A; 
 .blur-word {
   display: inline-block;
   opacity: 0;
-  filter: blur(16px);
-  transform: translateY(8px);
-  transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter: blur(7px);
+  transform: translateY(5px);
+  transition: opacity 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .blur-word.visible {
   opacity: 1;
@@ -1628,13 +1638,14 @@ em { font: inherit; }
    needed to shorten the journey.
    ============================================================ */
 @media (max-width: 1180px) {
-  .hiw-scroll-container { height: 300vh; }
+  .hiw-scroll-container { height: 300svh; }
 
   .hiw-sticky {
     position: sticky;
     top: 0;
-    height: 100vh;
-    height: 100dvh;
+    /* svh, not dvh: dvh changes as the address bar hides, which resizes the
+       pinned viewport mid-scroll and makes the steps jump. */
+    height: 100svh;
     overflow: hidden;
     padding: 0;
     display: flex;
@@ -1713,7 +1724,7 @@ em { font: inherit; }
 }
 
 @media (max-width: 768px) {
-  .hiw-scroll-container { height: 280vh; }
+  .hiw-scroll-container { height: 280svh; }
   .step-heading { font-size: 25px; }
   .step-layer { padding: 0 14px; }
   .step-desc-layer { padding: 0 18px; font-size: 14px; }
