@@ -1405,7 +1405,8 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .section-heading { font-size: 32px; }
   .hiw-cta { padding: 64px 32px 80px; }
 
-  #faq-wrapper { padding: 0 24px !important; }
+  #faq-wrapper { padding: 0 !important; }
+  #faq-section { border-radius: 0 !important; min-height: 0 !important; }
   .faq-grid {
     grid-template-columns: 1fr !important;
     gap: 40px !important;
@@ -1423,54 +1424,6 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 /* ---- Phone ------------------------------------------------------- */
 @media (max-width: 768px) {
-  /* The sticky "How it works" is a 500vh scrubbed viewport with
-     absolutely-positioned 720px layers. On a phone that is neither
-     readable nor navigable, so the steps stack and scroll normally. */
-  .hiw-scroll-container { height: auto; }
-  .hiw-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    padding: 40px 0 72px;
-  }
-  .hiw-inner {
-    position: relative;
-    height: auto;
-    opacity: 1;
-    filter: none;
-    transform: none;
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
-    padding: 0 18px;
-  }
-  .hiw-left { display: none; }
-  .hiw-right { position: static; width: 100%; transform: none; }
-
-  .step-layer, .step-layer.active, .step-layer.past,
-  .step-desc-layer, .step-desc-layer.active, .step-desc-layer.past {
-    position: static !important;
-    width: 100% !important;
-    transform: none !important;
-    opacity: 1 !important;
-    filter: none !important;
-    pointer-events: auto !important;
-    gap: 20px;
-  }
-  /* display:contents lets each description become a sibling of the steps,
-     so order can pair them up instead of leaving all three at the end. */
-  .hiw-right { display: contents; }
-  .step-layer#layer-0 { order: 1; }
-  .step-desc-layer#desc-0 { order: 2; }
-  .step-layer#layer-1 { order: 3; }
-  .step-desc-layer#desc-1 { order: 4; }
-  .step-layer#layer-2 { order: 5; }
-  .step-desc-layer#desc-2 { order: 6; }
-  .step-desc-layer { margin-top: -28px; text-align: center; }
-  .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
-  .step-heading { font-size: 26px; }
-  .step-mockup { padding: 18px 16px 22px; }
-
   .hero { min-height: 560px; padding-bottom: 40px; }
   .hero-content { padding: 0 18px; }
   .hero-heading { font-size: 34px; margin-bottom: 22px; letter-spacing: -0.02em; }
@@ -1496,8 +1449,7 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .care-cards-heading { padding: 0 18px; }
   .hiw-cta { padding: 48px 18px 64px; }
 
-  #faq-wrapper { padding: 0 !important; }
-  #faq-section { border-radius: 0 !important; min-height: 0 !important; }
+
   .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
   .faq-grid h2 { font-size: 30px !important; }
   .faq-q { font-size: 15px; gap: 14px; padding: 18px 0; }
@@ -1629,4 +1581,58 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .footer-top { padding: 44px 20px 32px; gap: 36px; }
   .footer-disclaimer-b { padding: 0 20px; }
   .footer-bottom-b { padding: 20px 20px 24px; }
+}
+
+/* ============================================================
+   HOW IT WORKS BELOW THE DESKTOP WIDTH
+   The sticky layout needs roughly 1280px: a 720px step, a 180px number
+   column and a 220px description column, plus gutters. Any narrower and
+   those three sit on top of each other, so it stacks instead.
+   ============================================================ */
+@media (max-width: 1180px) {
+  .hiw-scroll-container { height: auto; }
+  .hiw-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 40px 0 72px;
+  }
+  .hiw-inner {
+    position: relative;
+    height: auto;
+    opacity: 1;
+    filter: none;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 0 18px;
+  }
+  .hiw-left { display: none; }
+  .hiw-right { position: static; width: 100%; transform: none; }
+
+  .step-layer, .step-layer.active, .step-layer.past,
+  .step-desc-layer, .step-desc-layer.active, .step-desc-layer.past {
+    position: static !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto !important;
+    gap: 20px;
+  }
+  /* display:contents lets each description become a sibling of the steps,
+     so order can pair them up instead of leaving all three at the end. */
+  .hiw-right { display: contents; }
+  .step-layer#layer-0 { order: 1; }
+  .step-desc-layer#desc-0 { order: 2; }
+  .step-layer#layer-1 { order: 3; }
+  .step-desc-layer#desc-1 { order: 4; }
+  .step-layer#layer-2 { order: 5; }
+  .step-desc-layer#desc-2 { order: 6; }
+  .step-desc-layer { margin-top: -28px; text-align: center; }
+  .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .step-heading { font-size: 26px; }
+  .step-mockup { padding: 18px 16px 22px; }
+
 }

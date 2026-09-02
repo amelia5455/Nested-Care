@@ -470,7 +470,7 @@ export default function Home() {
         // The inset-and-round-in effect only makes sense when there is room
         // for it. On a narrow window it just leaves a sliver of the page
         // showing down each side of the panel, so run it full bleed.
-        if (window.innerWidth <= 900) {
+        if (window.innerWidth <= 1024) {
           wrapper.style.padding = '0px';
           section.style.borderRadius = '0px';
           return;
