@@ -1109,15 +1109,15 @@ export default function Home() {
             {/* Left: label + heading + subtext */}
             <div style={{position:'sticky',top:'120px'}}>
               <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'12px',fontWeight:600,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(245,243,238,0.5)',marginBottom:'20px'}}>FAQ</p>
-              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'66px',fontWeight:500,color:'#F5F3EE',lineHeight:1.06,letterSpacing:'-0.03em',marginBottom:'28px'}}>Questions<br />families<br /><em>actually ask</em></h2>
-              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'18px',color:'rgba(245,243,238,0.62)',lineHeight:1.7,maxWidth:'340px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
+              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'76px',fontWeight:500,color:'#F5F3EE',lineHeight:1.04,letterSpacing:'-0.032em',marginBottom:'30px'}}>Questions<br />families<br /><em>actually ask</em></h2>
+              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'19px',color:'rgba(245,243,238,0.68)',lineHeight:1.7,maxWidth:'360px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
             </div>
 
             {/* Right: accordion */}
             <div style={{display:'flex',flexDirection:'column'}}>
               {/* pushed to the right of its column so the accordion sits clear
                   of the heading instead of floating in the middle */}
-              <div style={{display:'flex',flexDirection:'column',maxWidth:'640px',width:'100%',marginLeft:'auto'}}>
+              <div style={{display:'flex',flexDirection:'column',maxWidth:'760px',width:'100%',marginLeft:'auto'}}>
 
                 <div className="faq-item">
                   <button className="faq-q" aria-expanded="false" onClick={(e) => window.toggleFaq && window.toggleFaq(e.currentTarget)}>

@@ -855,11 +855,11 @@ em .mw.lit {
 /* FAQ */
 .faq-item { border-top: 1px solid rgba(245,243,238,0.2); }
 .faq-item--last { border-bottom: 1px solid rgba(245,243,238,0.2); }
-.faq-q { width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; cursor:pointer; padding:30px 0; font-family:'Figtree',sans-serif; font-size:19px; font-weight:600; color:#F5F3EE; text-align:left; gap:16px; transition:color 0.2s; }
+.faq-q { width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; cursor:pointer; padding:36px 0; font-family:'Figtree',sans-serif; font-size:23px; font-weight:600; color:#F5F3EE; text-align:left; gap:16px; transition:color 0.2s; }
 .faq-q:hover { color:rgba(245,243,238,0.75); }
-.faq-icon { font-size:26px; font-weight:300; color:#B0CFCF; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
-.faq-a { font-family:'Figtree',sans-serif; font-size:16.5px; line-height:1.75; color:rgba(245,243,238,0.65); max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding-bottom 0.35s ease; padding-bottom:0; }
-.faq-item.open .faq-a { max-height:280px; padding-bottom:28px; }
+.faq-icon { font-size:30px; font-weight:300; color:#B0CFCF; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
+.faq-a { font-family:'Figtree',sans-serif; font-size:18px; line-height:1.7; color:rgba(245,243,238,0.65); max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding-bottom 0.35s ease; padding-bottom:0; }
+.faq-item.open .faq-a { max-height:340px; padding-bottom:32px; }
 .faq-item.open .faq-icon { transform:rotate(45deg); }
 
 /* CTA ANIMATIONS */
@@ -1447,7 +1447,7 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
     padding: 72px 32px !important;
   }
   .faq-grid > div:first-child { position: static !important; }
-  .faq-grid h2 { font-size: 40px !important; }
+  .faq-grid h2 { font-size: 56px !important; }
 
   .cta-panel { padding: 80px 32px !important; }
   #cta-el-1 { font-size: 40px !important; }
@@ -1485,9 +1485,9 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
 
   .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
-  .faq-grid h2 { font-size: 30px !important; }
-  .faq-q { font-size: 16px; gap: 14px; padding: 22px 0; }
-  .faq-a { font-size: 15px; }
+  .faq-grid h2 { font-size: 42px !important; }
+  .faq-q { font-size: 18px; gap: 14px; padding: 26px 0; }
+  .faq-a { font-size: 16px; }
 
   .cta-panel { padding: 56px 20px !important; border-radius: 20px; }
   #cta-el-1 { font-size: 30px !important; }
@@ -1508,7 +1508,7 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 @media (max-width: 400px) {
   .hero-heading { font-size: 30px; }
   .why-card { min-width: 244px; max-width: 244px; }
-  .faq-grid h2 { font-size: 26px !important; }
+  .faq-grid h2 { font-size: 34px !important; }
   .footer-nav-b { grid-template-columns: 1fr; }
 }
 
