@@ -864,21 +864,21 @@ export default function Home() {
                 <div style={{display:'flex',flexDirection:'column',gap:'7px'}}>
                   <div className="mock-result-card hi">
                     <div className="mock-result-left">
-                      <div className="mock-result-icon">🏡</div>
+                      <div className="mock-result-icon"><svg className="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.6V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.6"/><path d="M12 17.3s-2.7-1.7-2.7-3.4a1.5 1.5 0 0 1 2.7-.95 1.5 1.5 0 0 1 2.7.95c0 1.7-2.7 3.4-2.7 3.4Z"/></svg></div>
                       <div><div className="mock-result-name">In-Home Care <span className="mock-badge">Lowest</span></div><div className="mock-result-sub">20 hrs/week · part-time</div></div>
                     </div>
                     <div><div className="mock-amount">$3,633</div><div className="mock-period">/ month</div></div>
                   </div>
                   <div className="mock-result-card">
                     <div className="mock-result-left">
-                      <div className="mock-result-icon">🏢</div>
+                      <div className="mock-result-icon"><svg className="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V21"/><path d="M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M3 21h18"/><path d="M7.5 8h4M7.5 12h4M7.5 16h4M17.5 14.5v2.5"/></svg></div>
                       <div><div className="mock-result-name">Assisted Living</div><div className="mock-result-sub">Residential community</div></div>
                     </div>
                     <div><div className="mock-amount" style={{color:'#1A1A1A'}}>$5,513</div><div className="mock-period">/ month</div></div>
                   </div>
                   <div className="mock-result-card">
                     <div className="mock-result-left">
-                      <div className="mock-result-icon">🌿</div>
+                      <div className="mock-result-icon"><svg className="nico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 21v-6.8"/><path d="M12.2 14.2c-.3-4.4 2.5-8.2 6.4-8.5.3 4.4-2.5 8.2-6.4 8.5Z"/><path d="M11.6 17.2c-3.3.2-6.1-2.2-6.4-5.5 3.3-.2 6.1 2.2 6.4 5.5Z"/></svg></div>
                       <div><div className="mock-result-name">Memory Care</div><div className="mock-result-sub">Specialized cognitive care</div></div>
                     </div>
                     <div><div className="mock-amount" style={{color:'#1A1A1A'}}>$7,200</div><div className="mock-period">/ month</div></div>
@@ -1104,13 +1104,13 @@ export default function Home() {
           <div style={{position:'absolute',inset:0,background:'rgba(8,28,22,0.88)'}}></div>
 
           {/* 2-col content */}
-          <div className="faq-grid" style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'440px 1fr',gap:'120px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
+          <div className="faq-grid" style={{position:'relative',zIndex:2,display:'grid',gridTemplateColumns:'520px 1fr',gap:'100px',alignItems:'start',padding:'100px 80px',maxWidth:'none',margin:0}}>
 
             {/* Left: label + heading + subtext */}
             <div style={{position:'sticky',top:'120px'}}>
-              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'12px',fontWeight:600,letterSpacing:'0.12em',textTransform:'uppercase',color:'rgba(245,243,238,0.5)',marginBottom:'20px'}}>FAQ</p>
-              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'76px',fontWeight:500,color:'#F5F3EE',lineHeight:1.04,letterSpacing:'-0.032em',marginBottom:'30px'}}>Questions<br />families<br /><em>actually ask</em></h2>
-              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'19px',color:'rgba(245,243,238,0.68)',lineHeight:1.7,maxWidth:'360px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
+              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'14px',fontWeight:600,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(245,243,238,0.6)',marginBottom:'22px'}}>FAQ</p>
+              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'94px',fontWeight:500,color:'#F5F3EE',lineHeight:1.02,letterSpacing:'-0.035em',marginBottom:'34px'}}>Questions<br />families<br /><em>actually ask</em></h2>
+              <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'21px',color:'rgba(245,243,238,0.72)',lineHeight:1.65,maxWidth:'400px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
             </div>
 
             {/* Right: accordion */}
