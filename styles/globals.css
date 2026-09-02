@@ -855,11 +855,11 @@ em .mw.lit {
 /* FAQ */
 .faq-item { border-top: 1px solid rgba(245,243,238,0.2); }
 .faq-item--last { border-bottom: 1px solid rgba(245,243,238,0.2); }
-.faq-q { width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; cursor:pointer; padding:24px 0; font-family:'Figtree',sans-serif; font-size:16px; font-weight:600; color:#F5F3EE; text-align:left; gap:16px; transition:color 0.2s; }
+.faq-q { width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; cursor:pointer; padding:30px 0; font-family:'Figtree',sans-serif; font-size:19px; font-weight:600; color:#F5F3EE; text-align:left; gap:16px; transition:color 0.2s; }
 .faq-q:hover { color:rgba(245,243,238,0.75); }
-.faq-icon { font-size:22px; font-weight:300; color:#B0CFCF; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
-.faq-a { font-family:'Figtree',sans-serif; font-size:15px; line-height:1.75; color:rgba(245,243,238,0.65); max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding-bottom 0.35s ease; padding-bottom:0; }
-.faq-item.open .faq-a { max-height:200px; padding-bottom:24px; }
+.faq-icon { font-size:26px; font-weight:300; color:#B0CFCF; flex-shrink:0; transition:transform 0.25s ease; line-height:1; }
+.faq-a { font-family:'Figtree',sans-serif; font-size:16.5px; line-height:1.75; color:rgba(245,243,238,0.65); max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding-bottom 0.35s ease; padding-bottom:0; }
+.faq-item.open .faq-a { max-height:280px; padding-bottom:28px; }
 .faq-item.open .faq-icon { transform:rotate(45deg); }
 
 /* CTA ANIMATIONS */
@@ -918,6 +918,8 @@ em .mw.lit {
    failsafe never fires; when it doesn't, the site still opens.
    ============================================================ */
 @keyframes nested-failsafe-show  { to { opacity: 1; filter: none; transform: none; } }
+/* opacity only, for anything whose transform is doing layout work */
+@keyframes nested-failsafe-fade  { to { opacity: 1; filter: none; } }
 @keyframes nested-failsafe-intro { to { transform: translateY(-100%); visibility: hidden; } }
 @keyframes nested-failsafe-nav   { to { width: calc(100vw - 80px); } }
 
@@ -927,8 +929,10 @@ html:not(.js-ready) .intro-overlay {
 html:not(.js-ready) .navbar {
   animation: nested-failsafe-nav 0.9s cubic-bezier(0.16,1,0.3,1) 1.9s forwards;
 }
+html:not(.js-ready) .nav-center {
+  animation: nested-failsafe-fade 0.7s ease 2.4s forwards;
+}
 html:not(.js-ready) .nav-left,
-html:not(.js-ready) .nav-center,
 html:not(.js-ready) .btn-nav-ghost,
 html:not(.js-ready) .btn-nav-primary,
 html:not(.js-ready) .blur-word,
@@ -1076,10 +1080,8 @@ html[data-contrast="high"] .why-card,
 html[data-contrast="high"] .faq-item {
   border-width: 2px;
 }
-html[data-contrast="high"] a:not(.btn-primary):not(.btn-outline):not(.nav-logo) {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+/* Underlining is its own toggle; higher contrast should only change
+   colour and weight, not start decorating links on the user's behalf. */
 
 /* ---- 9. Reduced motion --------------------------------------------
    Everything on this page starts at opacity:0 and is revealed by JS.
@@ -1108,7 +1110,6 @@ html[data-motion="reduced"] .blur-word,
 html[data-motion="reduced"] .hiw-blur-word,
 html[data-motion="reduced"] .blur-ctas,
 html[data-motion="reduced"] .nav-left,
-html[data-motion="reduced"] .nav-center,
 html[data-motion="reduced"] .btn-nav-ghost,
 html[data-motion="reduced"] .btn-nav-primary,
 html[data-motion="reduced"] .care-card,
@@ -1126,6 +1127,12 @@ html[data-motion="reduced"] #cta-el-3 {
   opacity: 1 !important;
   filter: none !important;
   transform: none !important;
+}
+/* .nav-center is centred by its own transform, so it gets opacity only:
+   clearing the transform would shove the links off centre. */
+html[data-motion="reduced"] .nav-center {
+  opacity: 1 !important;
+  filter: none !important;
 }
 html[data-motion="reduced"] .mw { color: #1A1A1A !important; }
 html[data-motion="reduced"] .hero-bg video { display: none; }
@@ -1275,7 +1282,34 @@ html[data-motion="reduced"] .hero-bg {
 .a11y-reset:hover { background: rgba(245,243,238,0.12); }
 
 @media (max-width: 900px) {
-  .a11y-panel { position: fixed; top: 96px; right: 16px; left: 16px; width: auto; }
+  /* Fixed to the viewport rather than hung off the trigger, and capped so a
+     tall panel can scroll instead of running off a short screen. */
+  .a11y-panel {
+    position: fixed;
+    top: 88px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: calc(100vh - 104px);
+    max-height: calc(100dvh - 104px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 18px;
+  }
+  .a11y-panel h2 { font-size: 18px; }
+  .a11y-panel .a11y-intro { font-size: 14px; margin-bottom: 16px; }
+  /* Comfortable targets for a thumb. */
+  .a11y-size { min-height: 52px; }
+  .a11y-toggle { min-height: 52px; }
+  .a11y-reset { min-height: 52px; }
+  .btn-a11y { width: 46px; height: 46px; }
+}
+
+@media (max-width: 420px) {
+  .a11y-panel { top: 80px; right: 8px; left: 8px; padding: 18px 14px; }
+  .a11y-sizes { gap: 6px; }
+  .a11y-size.s4 { font-size: 20px; }
+  .a11y-hint { font-size: 12.5px; }
 }
 
 /* ============================================================
@@ -1452,8 +1486,8 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
 
   .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
   .faq-grid h2 { font-size: 30px !important; }
-  .faq-q { font-size: 15px; gap: 14px; padding: 18px 0; }
-  .faq-a { font-size: 14px; }
+  .faq-q { font-size: 16px; gap: 14px; padding: 22px 0; }
+  .faq-a { font-size: 15px; }
 
   .cta-panel { padding: 56px 20px !important; border-radius: 20px; }
   #cta-el-1 { font-size: 30px !important; }
@@ -1623,41 +1657,58 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .hiw-left { display: none; }
   .hiw-right { display: block; position: static; width: auto; transform: none; }
 
-  /* One step at a time, centred, full width. */
-  .step-layer, .step-layer.active, .step-layer.past {
+  /* One step at a time. The active step and its description are the only
+     two elements in flow, so the flex container centres them as a single
+     group. Inactive ones go absolute, which takes them out of flow while
+     still allowing the crossfade. Pinning the description to the bottom
+     instead left ~190px of dead space above the step. */
+  .hiw-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    /* Bias the group above centre. Centred in the full pinned viewport it
+       sits ~190px below the intro heading during the hand-off, which reads
+       as a hole in the page. */
+    padding-bottom: 24vh;
+  }
+  .hiw-right { display: contents; }
+
+  .step-layer,
+  .step-desc-layer {
     position: absolute;
-    top: 46%;
+    top: 50%;
     left: 0;
     right: 0;
     width: auto !important;
     transform: translateY(-50%);
-    padding: 0 18px;
     margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .step-layer.active,
+  .step-desc-layer.active {
+    position: static;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .step-layer.past,
+  .step-desc-layer.past { opacity: 0; }
+
+  .step-layer {
+    padding: 0 18px;
     gap: 18px;
     align-items: center;
+    order: 1;
   }
-  .step-layer { opacity: 0; filter: blur(10px); pointer-events: none; }
-  .step-layer.active { opacity: 1; filter: blur(0px); pointer-events: auto; }
-  .step-layer.past { opacity: 0; filter: blur(10px); }
-
-  /* The description rides at the bottom of the pinned viewport rather
-     than in a column beside the step. */
-  .step-desc-layer, .step-desc-layer.active, .step-desc-layer.past {
-    position: absolute;
-    top: auto;
-    bottom: 6vh;
-    left: 0;
-    right: 0;
-    width: auto !important;
-    transform: none;
-    margin: 0;
+  .step-desc-layer {
     padding: 0 24px;
     text-align: center;
     max-width: none;
+    order: 2;
   }
-  .step-desc-layer { opacity: 0; }
-  .step-desc-layer.active { opacity: 1; }
-  .step-desc-layer.past { opacity: 0; }
   .step-desc-layer .word { opacity: 1 !important; filter: none !important; transform: none !important; }
 
   .step-heading { font-size: 30px; }
@@ -1668,5 +1719,5 @@ em { font-family: inherit; font-style: normal; font-weight: inherit; }
   .hiw-scroll-container { height: 280vh; }
   .step-heading { font-size: 25px; }
   .step-layer { padding: 0 14px; }
-  .step-desc-layer { bottom: 4vh; padding: 0 18px; font-size: 14px; }
+  .step-desc-layer { padding: 0 18px; font-size: 14px; }
 }

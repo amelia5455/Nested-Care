@@ -15,16 +15,28 @@ export default function Home() {
   // reading sizes properly and leave display type nearly alone. Each element's
   // original size is captured once, before anything has been touched.
   const DISPLAY_FLOOR = 34;   // px: at or above this, treat it as display type
+  const A11Y_SCALE_SCOPE = '#main-content *, .navbar *, .footer-wrap *';
+
   const applyTextScale = (factor) => {
-    const nodes = document.querySelectorAll('#main-content *, .navbar *, .footer-wrap *');
+    const nodes = document.querySelectorAll(A11Y_SCALE_SCOPE);
+    // Clear first, then measure. Caching a base size breaks as soon as the
+    // window is resized across a breakpoint: the cached desktop size stays
+    // pinned inline and overrides the responsive rule, so the hero heading
+    // keeps its 80px on a phone. Reading fresh means the base is always
+    // whatever CSS says at the current width.
     nodes.forEach((el) => {
       if (el.closest('#a11y-panel') || el.closest('.btn-a11y')) return;
-      if (el.dataset.baseFs === undefined) {
-        el.dataset.baseFs = String(parseFloat(getComputedStyle(el).fontSize) || 0);
-      }
-      const px = parseFloat(el.dataset.baseFs);
+      el.style.fontSize = '';
+    });
+    if (factor === 1) return;
+    void document.body.offsetHeight;            // flush the clear before reading
+    const sizes = [];
+    nodes.forEach((el) => {
+      if (el.closest('#a11y-panel') || el.closest('.btn-a11y')) return;
+      sizes.push([el, parseFloat(getComputedStyle(el).fontSize) || 0]);
+    });
+    sizes.forEach(([el, px]) => {
       if (!px) return;
-      if (factor === 1) { el.style.fontSize = ''; return; }
       const f = px >= DISPLAY_FLOOR ? 1 + (factor - 1) * 0.15 : factor;
       el.style.fontSize = (px * f).toFixed(2) + 'px';
     });
@@ -57,6 +69,24 @@ export default function Home() {
     const os = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (os) writePrefs({ ...DEFAULT_PREFS, motion: true });
   }, []);
+
+  // A scale chosen at one width has to be recomputed at another, or the
+  // sizes captured then stay pinned inline and fight the responsive rules.
+  useEffect(() => {
+    if (!prefs.textScale || prefs.textScale === 1) return undefined;
+    let t;
+    const onResize = () => {
+      clearTimeout(t);
+      t = setTimeout(() => applyTextScale(prefs.textScale), 150);
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, [prefs.textScale]);
 
   // Close the panel on Escape, or on a click anywhere outside it.
   useEffect(() => {
@@ -362,6 +392,26 @@ export default function Home() {
     })();
 
 
+    // ── In-page links scroll without writing a hash into the URL ──
+    // A plain href="#section" leaves nested.care/#how-it-works in the address
+    // bar, which looks like a stray artefact. Scroll to the section instead
+    // and leave the URL alone; scroll-margin-top keeps it clear of the navbar.
+    const onAnchorClick = (e) => {
+      const link = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!link) return;
+      const id = link.getAttribute('href').slice(1);
+      if (!id) return;                                  // bare "#" placeholders
+      const target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      const reduced = document.documentElement.getAttribute('data-motion') === 'reduced';
+      target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      // Keep keyboard focus with the section without tripping the hash.
+      target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    };
+    document.addEventListener('click', onAnchorClick);
+
     // ── Navbar ground once it leaves the hero ──
     // Translucent over the video, solid over the cream sections, so the
     // light wordmark and links never sit on a near-white bar.
@@ -544,6 +594,7 @@ export default function Home() {
     // Cleanup
     return () => {
       window.removeEventListener('scroll', hiwScrollHandler);
+      document.removeEventListener('click', onAnchorClick);
     };
   }, []);
 
