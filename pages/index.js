@@ -116,20 +116,20 @@ export default function Home() {
     });
 
     // ── Dropdown toggle ──
-    window.toggleDropdown = function(btn) {
-      const m = document.getElementById('resources-dropdown');
-      const open = !btn.classList.contains('open');
-      btn.classList.toggle('open', open);
-      m.classList.toggle('open', open);
-      btn.setAttribute('aria-expanded', String(open));
-    };
-
-    function closeDropdown() {
+    function setDropdown(open) {
       const t = document.querySelector('.nav-dropdown-trigger');
-      t?.classList.remove('open');
-      t?.setAttribute('aria-expanded', 'false');
-      document.getElementById('resources-dropdown')?.classList.remove('open');
+      const m = document.getElementById('resources-dropdown');
+      if (!t || !m) return;
+      t.classList.toggle('open', open);
+      m.classList.toggle('open', open);
+      t.setAttribute('aria-expanded', String(open));
     }
+    const openDropdown = () => setDropdown(true);
+    const closeDropdown = () => setDropdown(false);
+
+    window.toggleDropdown = function(btn) {
+      setDropdown(!btn.classList.contains('open'));
+    };
 
     document.addEventListener('click', function(e) {
       const w = document.querySelector('.nav-dropdown-wrap');
@@ -142,6 +142,34 @@ export default function Home() {
       const t = document.querySelector('.nav-dropdown-trigger');
       if (t && t.classList.contains('open')) { closeDropdown(); t.focus(); }
     });
+
+    // ── Resources opens on hover as well as click ──
+    // Only where hovering is meaningful: on touch there is no hover state,
+    // and tap would otherwise open and immediately close the menu. Click and
+    // keyboard keep working everywhere.
+    (function() {
+      const wrap = document.querySelector('.nav-dropdown-wrap');
+      const trigger = document.querySelector('.nav-dropdown-trigger');
+      if (!wrap || !trigger) return;
+      const canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (!canHover) return;
+
+      let closeTimer;
+      const cancelClose = () => clearTimeout(closeTimer);
+      // A small grace period so crossing the gap between the trigger and the
+      // panel doesn't snap it shut.
+      const scheduleClose = () => {
+        cancelClose();
+        closeTimer = setTimeout(closeDropdown, 220);
+      };
+
+      wrap.addEventListener('mouseenter', () => { cancelClose(); openDropdown(); });
+      wrap.addEventListener('mouseleave', scheduleClose);
+      trigger.addEventListener('focus', () => { cancelClose(); openDropdown(); });
+      wrap.addEventListener('focusout', (e) => {
+        if (!wrap.contains(e.relatedTarget)) scheduleClose();
+      });
+    })();
 
     // ── Hero blur-word reveal ──
     (function() {
