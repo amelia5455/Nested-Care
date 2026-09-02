@@ -412,6 +412,24 @@ export default function Home() {
     };
     document.addEventListener('click', onAnchorClick);
 
+    // A hash can still reach the address bar: a bookmark, a shared link, or
+    // someone typing one. Honour it by scrolling to the section, then strip
+    // it without adding a history entry. This has to run on hashchange as
+    // well as on mount - changing only the fragment never remounts, so a
+    // mount-only version silently does nothing in exactly that case.
+    const stripHash = (scroll) => {
+      if (!window.location.hash || window.location.hash.length <= 1) return;
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      const target = document.getElementById(id);
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      if (target && scroll) {
+        requestAnimationFrame(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }));
+      }
+    };
+    stripHash(true);
+    const onHashChange = () => stripHash(true);
+    window.addEventListener('hashchange', onHashChange);
+
     // ── Navbar ground once it leaves the hero ──
     // Translucent over the video, solid over the cream sections, so the
     // light wordmark and links never sit on a near-white bar.
@@ -595,6 +613,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('scroll', hiwScrollHandler);
       document.removeEventListener('click', onAnchorClick);
+      window.removeEventListener('hashchange', onHashChange);
     };
   }, []);
 
