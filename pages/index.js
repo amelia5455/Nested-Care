@@ -1109,7 +1109,7 @@ export default function Home() {
             {/* Left: label + heading + subtext */}
             <div style={{position:'sticky',top:'120px'}}>
               <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'14px',fontWeight:600,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(245,243,238,0.6)',marginBottom:'22px'}}>FAQ</p>
-              <h2 style={{fontFamily:"'Clash Display',sans-serif",fontSize:'94px',fontWeight:500,color:'#F5F3EE',lineHeight:1.02,letterSpacing:'-0.035em',marginBottom:'34px'}}>Questions<br />families<br /><em>actually ask</em></h2>
+              <h2 className="faq-heading" style={{fontFamily:"'Clash Display',sans-serif",fontWeight:500,color:'#F5F3EE'}}>Questions<br />families<br /><em>actually ask</em></h2>
               <p style={{fontFamily:"'Figtree',sans-serif",fontSize:'21px',color:'rgba(245,243,238,0.72)',lineHeight:1.65,maxWidth:'400px'}}>Clear, honest answers. No jargon, no pressure, no agenda.</p>
             </div>
 
