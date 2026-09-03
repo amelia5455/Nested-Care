@@ -1165,7 +1165,7 @@ html[data-motion="reduced"] .hero-bg {
   flex-shrink: 0;
   opacity: 0;
   transform: translateX(20px);
-  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1), background 0.15s;
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1), background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .navbar.nav-expanded .btn-a11y {
   opacity: 1;
@@ -1173,7 +1173,16 @@ html[data-motion="reduced"] .hero-bg {
   transition-delay: 0.8s;
 }
 .btn-a11y:hover { background: rgba(255,255,255,0.24); }
-.btn-a11y[aria-expanded="true"] { background: #F5F3EE; color: #033D3F; border-color: #F5F3EE; }
+/* Open state brightens the fill and ring but keeps the icon light. The
+   previous version inverted to a cream fill with a dark icon: on close the
+   background eased back over 0.15s while the colour snapped instantly, so
+   for that moment it was a white icon on a cream button - a blank white
+   circle. Never crossing the two colours removes the flash entirely. */
+.btn-a11y[aria-expanded="true"] {
+  background: rgba(245, 243, 238, 0.26);
+  border-color: rgba(245, 243, 238, 0.85);
+  color: #FFFFFF;
+}
 .btn-a11y svg { width: 22px; height: 22px; }
 
 .a11y-panel {
@@ -1385,6 +1394,11 @@ em { font: inherit; }
   border-color: rgba(245, 243, 238, 0.45);
   color: #F5F3EE;
 }
+.navbar.scrolled .btn-a11y[aria-expanded="true"] {
+  background: rgba(245, 243, 238, 0.26);
+  border-color: rgba(245, 243, 238, 0.85);
+  color: #FFFFFF;
+}
 
 /* ============================================================
    WHY NESTED: HORIZONTAL SCROLLER
@@ -1461,8 +1475,6 @@ em { font: inherit; }
   .cta-panel { padding: 80px 32px !important; }
   #cta-el-1 { font-size: 40px !important; }
 
-  .footer-top { grid-template-columns: 1fr; gap: 40px; padding: 40px 32px 32px; }
-  .footer-tagline { font-size: 34px; }
 }
 
 /* ---- Phone ------------------------------------------------------- */
@@ -1501,11 +1513,6 @@ em { font: inherit; }
   #cta-el-1 { font-size: 30px !important; }
   #cta-el-3 { flex-wrap: wrap; justify-content: center; }
 
-  .footer-top { padding: 32px 18px 24px; gap: 28px; }
-  .footer-tagline { font-size: 28px; }
-  .footer-nav-b { grid-template-columns: 1fr 1fr; gap: 24px; }
-  .footer-bottom-b { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px; }
-  .footer-disclaimer-b { padding: 0 18px; }
 
   /* the drifting CTA orbs are decorative and overflow on a narrow screen */
   #cta-content ~ div[style*="radial-gradient"],
@@ -1516,7 +1523,6 @@ em { font: inherit; }
 @media (max-width: 400px) {
   .hero-heading { font-size: 30px; }
   .why-card { min-width: 244px; max-width: 244px; }
-  .footer-nav-b { grid-template-columns: 1fr; }
 }
 
 /* ============================================================
@@ -1600,28 +1606,8 @@ em { font: inherit; }
 @media (max-width: 900px) {
   /* The footer was running its three groups together with no room to
      breathe once the columns collapsed. */
-  .footer-top {
-    grid-template-columns: 1fr;
-    gap: 44px;
-    padding: 52px 28px 40px;
-  }
-  .footer-left { gap: 24px; }
-  .footer-nav-b { grid-template-columns: 1fr 1fr; gap: 32px 24px; }
-  .footer-nav-b h4 { margin-bottom: 14px; }
-  .footer-nav-b li + li { margin-top: 12px; }
-  .footer-disclaimer-b { padding: 0 28px; margin-top: 8px; }
-  .footer-bottom-b {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 24px 28px 28px;
-  }
-  .footer-legal-b { flex-wrap: wrap; gap: 18px; }
 }
 @media (max-width: 480px) {
-  .footer-top { padding: 44px 20px 32px; gap: 36px; }
-  .footer-disclaimer-b { padding: 0 20px; }
-  .footer-bottom-b { padding: 20px 20px 24px; }
 }
 
 /* ============================================================
@@ -1748,4 +1734,59 @@ em { font: inherit; }
 .faq-heading em {
   font: inherit;
   color: inherit;
+}
+
+/* ============================================================
+   FOOTER ON NARROW SCREENS
+   Previously spread across five overlapping media queries that each set
+   different padding and gaps, which is why the spacing looked arbitrary.
+   One block, centred, with a single rhythm.
+   ============================================================ */
+@media (max-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 40px;
+    padding: 48px 24px 36px;
+  }
+  .footer-left { align-items: center; gap: 18px; }
+  .footer-tagline { font-size: 34px; }
+  .footer-link-b { justify-content: center; }
+
+  .footer-nav-b {
+    grid-template-columns: repeat(2, minmax(0, 150px));
+    justify-content: center;
+    gap: 36px;
+    padding-top: 0;
+    text-align: center;
+  }
+  .footer-nav-b h4 { margin-bottom: 10px; }
+  .footer-nav-b ul { display: flex; flex-direction: column; gap: 2px; }
+  .footer-nav-b li { margin: 0; }
+  /* the 44px tap target was stacking on top of list spacing, which is what
+     pushed the links so far apart */
+  .footer-nav-b a { min-height: 38px; justify-content: center; }
+
+  .footer-disclaimer-b {
+    padding: 0 24px 18px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .footer-bottom-b {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px 26px;
+    text-align: center;
+  }
+  .footer-legal-b { flex-wrap: wrap; justify-content: center; gap: 16px; }
+}
+
+@media (max-width: 420px) {
+  .footer-top { padding: 40px 18px 30px; gap: 32px; }
+  .footer-tagline { font-size: 29px; }
+  .footer-nav-b { gap: 24px; }
+  .footer-disclaimer-b { padding: 0 18px 16px; }
+  .footer-bottom-b { padding: 16px 18px 22px; }
 }
