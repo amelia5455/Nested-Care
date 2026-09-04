@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 
+// The house mark, shared by the navbar and the footer so the paths are
+// defined once. The original clipPath was a full-bounds rect, i.e. a
+// no-op, and repeating its id per instance would be invalid markup.
+const NestedMark = ({ className }) => (
+  <svg className={className} width="89" height="97" viewBox="0 0 89 97" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M17.4499 28.6123C20.2362 28.4318 21.8646 30.1097 21.7174 32.8721C21.707 33.0653 21.7185 33.2817 21.7761 33.4672C22.7446 33.3005 23.8628 32.2404 24.7727 31.8285C28.7858 30.0291 32.9641 29.218 37.3365 28.9293C39.7215 28.7719 41.9515 28.5382 44.3577 28.5848C53.8881 28.7695 65.6594 29.4896 71.6034 38.132C74.5171 42.3681 74.2892 47.4853 74.2786 52.2873L74.2729 63.1182L74.275 76.0669C74.276 78.2629 74.3238 80.4586 74.25 82.6527C74.3557 83.0404 73.6034 84.1506 73.9711 84.376C75.6243 85.3901 78.7787 85.6184 79.9235 87.2244C80.5534 92.064 74.0797 87.8598 72.0251 87.4008L71.9434 87.3835C65.9021 85.4737 60.9652 84.1098 54.6605 83.3028C46.3999 82.1702 38.0114 82.3668 29.813 83.8852C28.687 84.0839 27.4565 84.4637 26.326 84.7223C25.4588 84.9207 24.5682 85.0691 23.7144 85.2806C22.8892 85.485 21.9781 85.8737 21.1556 86.1014C19.5344 86.5159 17.95 87.0375 16.3585 87.5529C15.7336 87.7555 15.0923 88.071 14.4737 88.3117C13.48 88.682 12.5081 89.0949 11.4818 89.3782C10.2761 89.7128 9.41825 89.818 8.81993 88.5273C8.66731 88.1979 8.61639 87.7763 8.77535 87.4399C9.4518 86.0087 11.2806 85.7765 12.5959 85.2428C13.4415 84.9053 14.2136 84.5842 15.0215 84.2454C14.4737 82.9714 14.6627 79.5568 14.6639 78.0282L14.6658 67.6101L14.6686 43.8581C14.668 39.9652 14.6527 36.059 14.6595 32.1655C14.6605 31.6116 14.7324 30.7612 15.0144 30.2978C15.5676 29.3887 16.4568 28.8805 17.4499 28.6123ZM21.7283 82.2517C25.7431 81.0379 30.0336 80.2851 34.2041 79.7275C35.3272 79.5774 36.5184 79.5623 37.6481 79.4457C39.906 79.2126 42.2519 79.3609 44.4984 79.1872C48.1003 79.4029 51.3454 79.3299 55.0276 79.7931C59.4269 80.3464 62.842 81.1746 67.0999 82.2166C67.2658 80.4281 67.1767 77.2914 67.1768 75.3914L67.1766 63.0547L67.1816 52.6088C67.1837 49.2018 67.5432 43.7865 65.0394 41.171C60.3297 36.2513 50.8055 35.5494 44.3926 35.5921C37.5307 35.6728 23.8447 36.1721 21.906 44.9536C21.6275 46.2149 21.7074 48.6112 21.7082 49.9771L21.7133 56.8216L21.7283 82.2517Z" fill="currentColor"/>
+    <path d="M44.0044 0.374109C45.6768 0.241395 47.6412 1.48489 49.1571 2.22678C51.4144 3.31047 53.656 4.42641 55.8814 5.57427C56.7471 6.01006 57.6452 6.35525 58.5013 6.77476L67.7803 11.3416C73.8931 14.3185 80.0497 17.2189 86.1423 20.2402C90.322 22.3127 87.5859 27.9175 83.5042 26.2002C81.5152 25.3633 79.6207 24.3095 77.6751 23.3821L62.3328 15.9196L51.162 10.4786L47.2233 8.59617C46.5094 8.25562 45.4471 7.78665 44.8141 7.39314C44.6117 7.309 44.3874 7.23904 44.1815 7.32926C42.8713 7.90323 41.5446 8.55662 40.2702 9.19676L33.9152 12.349L19.7464 19.1727C16.1206 20.9274 12.5455 22.8113 8.8615 24.4491C6.83345 25.3507 4.28354 27.4986 2.03241 26.0179C1.31264 25.5423 0.814126 24.7975 0.648877 23.9508C0.34326 22.4399 0.915621 21.2522 2.1971 20.4907C3.47958 19.7286 4.77237 19.2109 6.10615 18.5693L13.9507 14.7755L28.4856 7.71087L39.4071 2.39344C40.7134 1.77209 42.6998 0.562295 44.0044 0.374109Z" fill="currentColor"/>
+    <path d="M42.3313 88.0075C42.5163 88.0014 42.7014 87.9953 42.8864 87.991C52.5117 87.7424 62.3129 89.5529 71.1994 93.2582C72.3009 93.7745 73.8438 94.1022 74.8024 94.821C75.5973 95.3877 74.7294 96.9357 73.9971 96.721C70.554 95.7101 67.325 94.1917 63.8398 93.2008C62.3841 92.7871 61.3797 92.502 59.9125 92.1717C57.7051 91.6737 55.711 91.0183 53.4083 90.9227C50.8595 90.5698 48.7899 90.3708 46.2166 90.3013C39.4908 90.1335 32.7769 90.954 26.2895 92.7367C24.8101 93.1435 23.2635 93.7754 21.7167 94.1978C19.4419 94.8201 17.1427 96.3855 14.7318 96.6697C13.6618 96.7957 13.3243 95.6241 13.9102 94.8723C14.5855 94.2256 16.0585 93.8866 16.9438 93.5155C24.9768 90.0753 33.5946 88.2048 42.3313 88.0075Z" fill="currentColor"/>
+  </svg>
+);
+
 export default function Home() {
   // ── Accessibility preferences ───────────────────────────────────
   // Stored on <html> as data-* attributes; _document.js replays them
@@ -17,16 +28,29 @@ export default function Home() {
   const DISPLAY_FLOOR = 34;   // px: at or above this, treat it as display type
   const A11Y_SCALE_SCOPE = '#main-content *, .navbar *, .footer-wrap *';
 
+  // Some sizes are authored inline in the markup (the 72px CTA heading, for
+  // one). Those live on the same element.style that scaling writes to, so
+  // blanking fontSize to reset would delete them and drop the element to its
+  // stylesheet size. Remember each element's authored value the first time we
+  // touch it and put that back instead of clearing.
+  const authoredSize = useRef(new WeakMap());
+
+  const resetSize = (el) => {
+    const map = authoredSize.current;
+    if (!map.has(el)) map.set(el, el.style.fontSize);   // captured pre-mutation
+    el.style.fontSize = map.get(el);
+  };
+
   const applyTextScale = (factor) => {
     const nodes = document.querySelectorAll(A11Y_SCALE_SCOPE);
-    // Clear first, then measure. Caching a base size breaks as soon as the
+    // Reset first, then measure. Caching a base size breaks as soon as the
     // window is resized across a breakpoint: the cached desktop size stays
     // pinned inline and overrides the responsive rule, so the hero heading
     // keeps its 80px on a phone. Reading fresh means the base is always
-    // whatever CSS says at the current width.
+    // whatever applies at the current width.
     nodes.forEach((el) => {
       if (el.closest('#a11y-panel') || el.closest('.btn-a11y')) return;
-      el.style.fontSize = '';
+      resetSize(el);
     });
     if (factor === 1) return;
     void document.body.offsetHeight;            // flush the clear before reading
@@ -405,7 +429,9 @@ export default function Home() {
       const link = e.target.closest && e.target.closest('a[href^="#"]');
       if (!link) return;
       const id = link.getAttribute('href').slice(1);
-      if (!id) return;                                  // bare "#" placeholders
+      // A bare "#" is a placeholder for a page that does not exist yet. Let the
+      // browser follow it and it appends "#" to the address bar; swallow it.
+      if (!id) { e.preventDefault(); return; }
       const target = document.getElementById(id);
       if (!target) return;
       e.preventDefault();
@@ -423,10 +449,16 @@ export default function Home() {
     // well as on mount - changing only the fragment never remounts, so a
     // mount-only version silently does nothing in exactly that case.
     const stripHash = (scroll) => {
-      if (!window.location.hash || window.location.hash.length <= 1) return;
-      const id = decodeURIComponent(window.location.hash.slice(1));
+      const raw = window.location.hash;
+      // "example.com/#" reports an EMPTY hash, so a length check alone never
+      // catches the lone "#" a placeholder link leaves behind.
+      const bareHash = !raw && window.location.href.endsWith('#');
+      if (!raw && !bareHash) return;
+      const clean = window.location.pathname + window.location.search;
+      if (bareHash) { window.history.replaceState(null, '', clean); return; }
+      const id = decodeURIComponent(raw.slice(1));
       const target = document.getElementById(id);
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.history.replaceState(null, '', clean);
       if (target && scroll) {
         requestAnimationFrame(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }));
       }
@@ -643,8 +675,8 @@ export default function Home() {
       {/* NAVBAR */}
       <nav className="navbar">
         <div className="nav-left" id="nav-left">
-          <a href="#" className="nav-logo">
-            <svg className="nav-logo-mark" width="89" height="97" viewBox="0 0 89 97" fill="none" xmlns="http://www.w3.org/2000/svg"><g clipPath="url(#cn)"><path d="M17.4499 28.6123C20.2362 28.4318 21.8646 30.1097 21.7174 32.8721C21.707 33.0653 21.7185 33.2817 21.7761 33.4672C22.7446 33.3005 23.8628 32.2404 24.7727 31.8285C28.7858 30.0291 32.9641 29.218 37.3365 28.9293C39.7215 28.7719 41.9515 28.5382 44.3577 28.5848C53.8881 28.7695 65.6594 29.4896 71.6034 38.132C74.5171 42.3681 74.2892 47.4853 74.2786 52.2873L74.2729 63.1182L74.275 76.0669C74.276 78.2629 74.3238 80.4586 74.25 82.6527C74.3557 83.0404 73.6034 84.1506 73.9711 84.376C75.6243 85.3901 78.7787 85.6184 79.9235 87.2244C80.5534 92.064 74.0797 87.8598 72.0251 87.4008L71.9434 87.3835C65.9021 85.4737 60.9652 84.1098 54.6605 83.3028C46.3999 82.1702 38.0114 82.3668 29.813 83.8852C28.687 84.0839 27.4565 84.4637 26.326 84.7223C25.4588 84.9207 24.5682 85.0691 23.7144 85.2806C22.8892 85.485 21.9781 85.8737 21.1556 86.1014C19.5344 86.5159 17.95 87.0375 16.3585 87.5529C15.7336 87.7555 15.0923 88.071 14.4737 88.3117C13.48 88.682 12.5081 89.0949 11.4818 89.3782C10.2761 89.7128 9.41825 89.818 8.81993 88.5273C8.66731 88.1979 8.61639 87.7763 8.77535 87.4399C9.4518 86.0087 11.2806 85.7765 12.5959 85.2428C13.4415 84.9053 14.2136 84.5842 15.0215 84.2454C14.4737 82.9714 14.6627 79.5568 14.6639 78.0282L14.6658 67.6101L14.6686 43.8581C14.668 39.9652 14.6527 36.059 14.6595 32.1655C14.6605 31.6116 14.7324 30.7612 15.0144 30.2978C15.5676 29.3887 16.4568 28.8805 17.4499 28.6123ZM21.7283 82.2517C25.7431 81.0379 30.0336 80.2851 34.2041 79.7275C35.3272 79.5774 36.5184 79.5623 37.6481 79.4457C39.906 79.2126 42.2519 79.3609 44.4984 79.1872C48.1003 79.4029 51.3454 79.3299 55.0276 79.7931C59.4269 80.3464 62.842 81.1746 67.0999 82.2166C67.2658 80.4281 67.1767 77.2914 67.1768 75.3914L67.1766 63.0547L67.1816 52.6088C67.1837 49.2018 67.5432 43.7865 65.0394 41.171C60.3297 36.2513 50.8055 35.5494 44.3926 35.5921C37.5307 35.6728 23.8447 36.1721 21.906 44.9536C21.6275 46.2149 21.7074 48.6112 21.7082 49.9771L21.7133 56.8216L21.7283 82.2517Z" fill="currentColor"/><path d="M44.0044 0.374109C45.6768 0.241395 47.6412 1.48489 49.1571 2.22678C51.4144 3.31047 53.656 4.42641 55.8814 5.57427C56.7471 6.01006 57.6452 6.35525 58.5013 6.77476L67.7803 11.3416C73.8931 14.3185 80.0497 17.2189 86.1423 20.2402C90.322 22.3127 87.5859 27.9175 83.5042 26.2002C81.5152 25.3633 79.6207 24.3095 77.6751 23.3821L62.3328 15.9196L51.162 10.4786L47.2233 8.59617C46.5094 8.25562 45.4471 7.78665 44.8141 7.39314C44.6117 7.309 44.3874 7.23904 44.1815 7.32926C42.8713 7.90323 41.5446 8.55662 40.2702 9.19676L33.9152 12.349L19.7464 19.1727C16.1206 20.9274 12.5455 22.8113 8.8615 24.4491C6.83345 25.3507 4.28354 27.4986 2.03241 26.0179C1.31264 25.5423 0.814126 24.7975 0.648877 23.9508C0.34326 22.4399 0.915621 21.2522 2.1971 20.4907C3.47958 19.7286 4.77237 19.2109 6.10615 18.5693L13.9507 14.7755L28.4856 7.71087L39.4071 2.39344C40.7134 1.77209 42.6998 0.562295 44.0044 0.374109Z" fill="currentColor"/><path d="M42.3313 88.0075C42.5163 88.0014 42.7014 87.9953 42.8864 87.991C52.5117 87.7424 62.3129 89.5529 71.1994 93.2582C72.3009 93.7745 73.8438 94.1022 74.8024 94.821C75.5973 95.3877 74.7294 96.9357 73.9971 96.721C70.554 95.7101 67.325 94.1917 63.8398 93.2008C62.3841 92.7871 61.3797 92.502 59.9125 92.1717C57.7051 91.6737 55.711 91.0183 53.4083 90.9227C50.8595 90.5698 48.7899 90.3708 46.2166 90.3013C39.4908 90.1335 32.7769 90.954 26.2895 92.7367C24.8101 93.1435 23.2635 93.7754 21.7167 94.1978C19.4419 94.8201 17.1427 96.3855 14.7318 96.6697C13.6618 96.7957 13.3243 95.6241 13.9102 94.8723C14.5855 94.2256 16.0585 93.8866 16.9438 93.5155C24.9768 90.0753 33.5946 88.2048 42.3313 88.0075Z" fill="currentColor"/></g><defs><clipPath id="cn"><rect width="89" height="97" fill="white"/></clipPath></defs></svg>
+          <a href="/" className="nav-logo">
+            <NestedMark className="nav-logo-mark" />
             <span className="nav-logo-text">nested</span>
           </a>
         </div>
@@ -788,7 +820,7 @@ export default function Home() {
           </h1>
           <div style={{display:'flex',gap:'12px',alignItems:'center'}}>
             <a href="/calculator" className="btn-primary" id="cta-left" style={{opacity:0,transform:'translateX(100%)',transition:'opacity 0.5s ease, transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)'}}>Start Comparison</a>
-            <a href="#" className="btn-outline" id="cta-right" style={{opacity:0,transform:'translateY(6px)',transition:'opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',fontSize:'14px',fontWeight:500,borderColor:'rgba(255,255,255,0.35)',color:'rgba(255,255,255,0.7)'}}>How it works</a>
+            <a href="#how-it-works" className="btn-outline" id="cta-right" style={{opacity:0,transform:'translateY(6px)',transition:'opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',fontSize:'14px',fontWeight:500,borderColor:'rgba(255,255,255,0.35)',color:'rgba(255,255,255,0.7)'}}>How it works</a>
           </div>
         </div>
       </section>
@@ -1209,14 +1241,14 @@ export default function Home() {
             <p id="cta-el-2" style={{fontFamily:"'Figtree',sans-serif",fontSize:'16px',color:'#6B6860',lineHeight:1.7,maxWidth:'420px',margin:0,opacity:0,filter:'blur(10px)',transform:'translateY(16px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>We built Nested so your family can stop guessing and start deciding, with real numbers, in about 3 minutes.</p>
             <div id="cta-el-3" style={{display:'flex',alignItems:'center',gap:'12px',marginTop:'8px',opacity:0,filter:'blur(8px)',transform:'translateY(12px)',transition:'opacity 0.8s cubic-bezier(0.16,1,0.3,1),filter 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)'}}>
               <a href="/calculator" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'none',background:'#033D3F',color:'#F5F3EE',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em'}}
-                onMouseOver={(e) => { e.currentTarget.style.background='#025355'; e.currentTarget.style.transform='translateY(-2px)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background='#033D3F'; e.currentTarget.style.transform='translateY(0)'; }}>
+                onMouseOver={(e) => { e.currentTarget.style.background='#025355'; }}
+                onMouseOut={(e) => { e.currentTarget.style.background='#033D3F'; }}>
                 Start for free
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
-              <a href="#" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'1.5px solid #C8C4BC',background:'transparent',color:'#1A1A1A',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,border-color 0.2s ease,transform 0.2s ease',letterSpacing:'-0.01em',boxSizing:'border-box'}}
-                onMouseOver={(e) => { e.currentTarget.style.background='#E8E4DC'; e.currentTarget.style.transform='translateY(-2px)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background='transparent'; e.currentTarget.style.transform='translateY(0)'; }}>
+              <a href="#how-it-works" style={{height:'56px',padding:'0 36px',borderRadius:'100px',border:'1.5px solid #C8C4BC',background:'transparent',color:'#1A1A1A',fontFamily:"'Figtree',sans-serif",fontSize:'15px',fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:'10px',textDecoration:'none',transition:'background 0.2s ease,border-color 0.2s ease',letterSpacing:'-0.01em',boxSizing:'border-box'}}
+                onMouseOver={(e) => { e.currentTarget.style.background='#E8E4DC'; }}
+                onMouseOut={(e) => { e.currentTarget.style.background='transparent'; }}>
                 How it works
               </a>
             </div>
@@ -1230,40 +1262,52 @@ export default function Home() {
 
       <div className="footer-wrap">
         <footer className="footer-card-b">
+          <a href="/" className="footer-brand">
+            <NestedMark className="footer-brand-mark" />
+            <span>nested</span>
+          </a>
+
           <div className="footer-top">
             <div className="footer-left">
               <h2 className="footer-tagline">Find care.<br /><em>Get clarity.</em></h2>
+              <p className="footer-blurb">Compare in-home care, assisted living and memory care side by side, with real numbers, in about three minutes.</p>
               <a href="/calculator" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
+
             <nav className="footer-nav-b">
-              <div className="footer-nav-col-b">
-                <h4>Product</h4>
+              {/* Two stacked groups rather than one row of labelled columns:
+                  primary navigation first, then the quieter account and legal
+                  set, the way the reference stacks them. */}
+              <div className="footer-nav-group">
                 <ul>
                   <li><a href="#how-it-works">How it works</a></li>
                   <li><a href="#care-types">Care types</a></li>
                   <li><a href="/calculator">Cost calculator</a></li>
                   <li><a href="#compare">Compare options</a></li>
                 </ul>
-              </div>
-              <div className="footer-nav-col-b">
-                <h4>Company</h4>
                 <ul>
                   <li><a href="#">About</a></li>
                   <li><a href="#">Blog</a></li>
                   <li><a href="#">For providers</a></li>
+                  <li><a href="#faqs">FAQs</a></li>
+                </ul>
+              </div>
+              <div className="footer-nav-group footer-nav-group--minor">
+                <ul>
                   <li><a href="#">Contact</a></li>
+                  <li><a href="#">Privacy Policy</a></li>
+                </ul>
+                <ul>
+                  <li><a href="#">Terms of Service</a></li>
+                  <li><a href="#">Cookie Settings</a></li>
                 </ul>
               </div>
             </nav>
           </div>
-          <p className="footer-disclaimer-b">Nested is not a licensed healthcare provider or financial advisor. Cost estimates are for informational purposes only and may vary by location and provider.</p>
+
           <div className="footer-bottom-b">
-            <p className="footer-copy-b">© 2025 Nested. All rights reserved.</p>
-            <div className="footer-legal-b">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Cookie Settings</a>
-            </div>
+            <p className="footer-copy-b">&copy; 2025 Nested. All rights reserved.</p>
+            <p className="footer-disclaimer-b">Nested is not a licensed healthcare provider or financial advisor. Cost estimates are for informational purposes only and may vary by location and provider.</p>
           </div>
         </footer>
       </div>

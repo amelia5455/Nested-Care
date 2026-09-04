@@ -884,26 +884,56 @@ em .mw.lit {
 
 /* FOOTER */
 .footer-wrap { padding: 0; }
-.footer-card-b { background:#033D3F; border-radius:0; overflow:hidden; }
-.footer-top { display:grid; grid-template-columns:1fr auto; gap:80px; padding:56px 56px 48px; align-items:start; }
-.footer-left { display:flex; flex-direction:column; gap:20px; }
-.footer-tagline { font-family:'Clash Display',sans-serif; font-size:48px; font-weight:500; letter-spacing:-0.03em; line-height:1.05; color:#F5F3EE; }
-.footer-tagline em { color:#B0CFCF; }
-.footer-link-b { display:inline-flex; align-items:center; gap:8px; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:rgba(245,243,238,0.55); text-decoration:none; transition:gap 0.2s ease, color 0.2s; }
-.footer-link-b:hover { color:#F5F3EE; }
-.footer-link-b svg { width:14px; height:14px; transition:transform 0.2s ease; }
+.footer-card-b {
+  background:#033D3F; border-radius:0; overflow:hidden;
+  /* One horizontal inset for every row, so the left column and the right nav
+     both land hard against the page edges instead of a centred column. */
+  --footer-pad: clamp(24px, 4.5vw, 72px);
+}
 
-.footer-nav-b { display:grid; grid-template-columns:repeat(2,148px); gap:48px; padding-top:4px; }
-.footer-nav-col-b h4 { font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(245,243,238,0.3); margin-bottom:14px; }
-.footer-nav-col-b ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
-.footer-nav-col-b ul li a { font-family:'Figtree',sans-serif; font-size:14px; font-weight:500; color:rgba(245,243,238,0.65); text-decoration:none; transition:color 0.15s; }
-.footer-nav-col-b ul li a:hover { color:#F5F3EE; }
-.footer-disclaimer-b { font-family:'Figtree',sans-serif; font-size:11px; color:rgba(245,243,238,0.2); line-height:1.6; padding:0 56px 20px; max-width:600px; }
-.footer-bottom-b { display:flex; align-items:center; justify-content:space-between; padding:20px 56px; border-top:1px solid rgba(245,243,238,0.08); }
+.footer-brand {
+  display:flex; align-items:center; justify-content:center; gap:11px;
+  padding:52px var(--footer-pad) 4px; color:#F5F3EE; text-decoration:none;
+}
+.footer-brand-mark { width:26px; height:28px; }
+.footer-brand span { font-family:'Clash Display',sans-serif; font-size:31px; font-weight:600; letter-spacing:-0.02em; }
+
+.footer-top {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:80px;
+  padding:52px var(--footer-pad) 72px; align-items:start;
+}
+.footer-left { display:flex; flex-direction:column; gap:18px; max-width:38ch; }
+.footer-tagline { font-family:'Clash Display',sans-serif; font-size:clamp(38px,3.6vw,52px); font-weight:500; letter-spacing:-0.03em; line-height:1.05; color:#F5F3EE; }
+.footer-tagline em { color:#B0CFCF; }
+.footer-blurb { font-family:'Figtree',sans-serif; font-size:15px; line-height:1.6; color:rgba(245,243,238,0.6); }
+.footer-link-b { display:inline-flex; align-items:center; gap:8px; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:rgba(245,243,238,0.55); text-decoration:none; transition:color 0.2s; }
+.footer-link-b:hover { color:#F5F3EE; }
+.footer-link-b svg { width:14px; height:14px; }
+
+.footer-nav-b a { min-height: 26px; display: inline-flex; align-items: center; }
+@media (pointer: coarse) { .footer-nav-b a { min-height: 44px; } }
+.footer-nav-b { display:flex; flex-direction:column; gap:118px; padding-top:10px; }
+.footer-nav-group { display:grid; grid-template-columns:repeat(2,minmax(196px,auto)); gap:8px 78px; }
+.footer-nav-group ul { list-style:none; display:flex; flex-direction:column; gap:2px; }
+.footer-nav-group ul li a {
+  font-family:'Figtree',sans-serif; font-size:19px; font-weight:500; line-height:1.35;
+  color:rgba(245,243,238,0.82); text-decoration:none; transition:color 0.15s;
+}
+.footer-nav-group ul li a:hover { color:#F5F3EE; }
+/* the quieter set: same size, less weight in the hierarchy */
+.footer-nav-group--minor ul li a { color:rgba(245,243,238,0.5); }
+.footer-nav-group--minor ul li a:hover { color:#F5F3EE; }
+
+.footer-bottom-b {
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:28px;
+  padding:22px var(--footer-pad) 30px; border-top:1px solid rgba(245,243,238,0.08);
+}
 .footer-copy-b { font-family:'Figtree',sans-serif; font-size:12px; color:rgba(245,243,238,0.25); }
-.footer-legal-b { display:flex; align-items:center; gap:24px; }
-.footer-legal-b a { font-family:'Figtree',sans-serif; font-size:12px; color:rgba(245,243,238,0.25); text-decoration:none; transition:color 0.15s; }
-.footer-legal-b a:hover { color:rgba(245,243,238,0.7); }
+.footer-disclaimer-b {
+  justify-self:end; max-width:560px;
+  font-family:'Figtree',sans-serif; font-size:11px; line-height:1.55; color:rgba(245,243,238,0.35);
+  border:1px solid rgba(245,243,238,0.18); border-radius:7px; padding:11px 15px;
+}
 
 /* ============================================================
    JS FAILSAFE
@@ -1024,9 +1054,7 @@ footer :focus-visible,
 /* ---- 4. Comfortable hit targets ----------------------------------- */
 .nav-links a,
 .btn-nav-ghost,
-.btn-nav-primary,
-.footer-nav-b a,
-.footer-legal-b a {
+.btn-nav-primary {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -1036,7 +1064,7 @@ footer :focus-visible,
 /* ---- 5. Legibility floors ----------------------------------------
    Nothing on a site read by older eyes should sit at 10-13px. */
 .eyebrow, .why-card-badge + *,
-.footer-disclaimer-b, .footer-copy-b, .footer-legal-b a,
+.footer-disclaimer-b, .footer-copy-b,
 .mock-results-lbl, .step-desc, .why-subtext { font-size: 15px; }
 
 /* ---- 6. Contrast repairs (always on) ------------------------------
@@ -1044,7 +1072,6 @@ footer :focus-visible,
 .why-subtext            { color: rgba(245,243,238,0.88); }
 .footer-disclaimer-b    { color: rgba(245,243,238,0.75); }
 .footer-copy-b          { color: rgba(245,243,238,0.75); }
-.footer-legal-b a       { color: rgba(245,243,238,0.85); }
 .faq-a                  { color: rgba(245,243,238,0.88); }
 .mw                     { color: rgba(26,26,26,0.38); }
 
@@ -1064,8 +1091,7 @@ html[data-contrast="high"] .mw.lit { color: #101010; }
 html[data-contrast="high"] .why-subtext,
 html[data-contrast="high"] .faq-a,
 html[data-contrast="high"] .footer-disclaimer-b,
-html[data-contrast="high"] .footer-copy-b,
-html[data-contrast="high"] .footer-legal-b a { color: #FFFFFF; }
+html[data-contrast="high"] .footer-copy-b { color: #FFFFFF; }
 html[data-contrast="high"] .step-desc,
 html[data-contrast="high"] .hiw-sub,
 html[data-contrast="high"] .averages-sub { color: #2A2A2A; }
@@ -1732,50 +1758,42 @@ em { font: inherit; }
    One block, centred, with a single rhythm.
    ============================================================ */
 @media (max-width: 900px) {
+  .footer-brand { padding: 42px var(--footer-pad) 0; }
+  .footer-brand span { font-size: 23px; }
+
   .footer-top {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
     gap: 40px;
-    padding: 48px 24px 36px;
+    padding: 36px var(--footer-pad) 36px;
   }
-  .footer-left { align-items: center; gap: 18px; }
+  .footer-left { align-items: center; gap: 16px; max-width: 42ch; }
   .footer-tagline { font-size: 34px; }
+  .footer-blurb { font-size: 15px; }
   .footer-link-b { justify-content: center; }
 
-  .footer-nav-b {
-    grid-template-columns: repeat(2, minmax(0, 150px));
-    justify-content: center;
-    gap: 36px;
-    padding-top: 0;
-    text-align: center;
-  }
-  .footer-nav-b h4 { margin-bottom: 10px; }
-  .footer-nav-b ul { display: flex; flex-direction: column; gap: 2px; }
-  .footer-nav-b li { margin: 0; }
-  /* the 44px tap target was stacking on top of list spacing, which is what
-     pushed the links so far apart */
-  .footer-nav-b a { min-height: 38px; justify-content: center; }
+  .footer-nav-b { gap: 34px; padding-top: 0; width: 100%; text-align: center; }
+  .footer-nav-group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 20px; }
+  .footer-nav-group ul li a { font-size: 16px; }
+  .footer-nav-group ul li a { min-height: 40px; justify-content: center; }
 
-  .footer-disclaimer-b {
-    padding: 0 24px 18px;
-    margin: 0 auto;
-    text-align: center;
-  }
+  /* one centred column: copyright, mark, then the disclaimer box */
   .footer-bottom-b {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 24px 26px;
+    grid-template-columns: 1fr;
+    justify-items: center;
     text-align: center;
+    gap: 14px;
+    padding: 20px var(--footer-pad) 28px;
   }
-  .footer-legal-b { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .footer-disclaimer-b { justify-self: center; max-width: 46ch; }
 }
 
 @media (max-width: 420px) {
-  .footer-top { padding: 40px 18px 30px; gap: 32px; }
+  .footer-brand { padding-top: 34px; }
+  .footer-top { padding: 30px var(--footer-pad) 30px; gap: 32px; }
   .footer-tagline { font-size: 29px; }
   .footer-nav-b { gap: 24px; }
-  .footer-disclaimer-b { padding: 0 18px 16px; }
-  .footer-bottom-b { padding: 16px 18px 22px; }
+  .footer-nav-group { gap: 6px 14px; }
+  .footer-bottom-b { padding: 18px var(--footer-pad) 24px; }
 }
