@@ -39,6 +39,7 @@ export default function PageLayout({ title, description, lede, updated, children
         <div className="nav-center">
           <ul className="nav-links">
             <li><a href="/#how-it-works">How it works</a></li>
+            <li><a href="/#compare">Compare options</a></li>
             <li><a href="/#care-types">Care types</a></li>
             <li><a href="/#faqs">FAQs</a></li>
           </ul>

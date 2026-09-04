@@ -683,8 +683,10 @@ export default function Home() {
         </div>
 
         <div className="nav-center" id="nav-center">
+          {/* Every scroll section on the page, in the order they appear. */}
           <ul className="nav-links">
             <li><a href="#how-it-works">How it works</a></li>
+            <li><a href="#compare">Compare options</a></li>
             <li><a href="#care-types">Care types</a></li>
             <li><a href="#faqs">FAQs</a></li>
           </ul>
