@@ -920,9 +920,6 @@ em .mw.lit {
   color:rgba(245,243,238,0.82); text-decoration:none; transition:color 0.15s;
 }
 .footer-nav-group ul li a:hover { color:#F5F3EE; }
-/* the quieter set: same size, less weight in the hierarchy */
-.footer-nav-group--minor ul li a { color:rgba(245,243,238,0.5); }
-.footer-nav-group--minor ul li a:hover { color:#F5F3EE; }
 
 .footer-bottom-b {
   display:grid; grid-template-columns:1fr auto; align-items:center; gap:28px;

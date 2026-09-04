@@ -1275,31 +1275,18 @@ export default function Home() {
             </div>
 
             <nav className="footer-nav-b">
-              {/* Two stacked groups rather than one row of labelled columns:
-                  primary navigation first, then the quieter account and legal
-                  set, the way the reference stacks them. */}
+              {/* Only destinations that exist. About, Blog, For providers,
+                  Contact and the legal pages were href="#" placeholders, so
+                  they are out until there is something to link to. */}
               <div className="footer-nav-group">
                 <ul>
                   <li><a href="#how-it-works">How it works</a></li>
                   <li><a href="#care-types">Care types</a></li>
-                  <li><a href="/calculator">Cost calculator</a></li>
                   <li><a href="#compare">Compare options</a></li>
                 </ul>
                 <ul>
-                  <li><a href="#">About</a></li>
-                  <li><a href="#">Blog</a></li>
-                  <li><a href="#">For providers</a></li>
+                  <li><a href="/calculator">Cost calculator</a></li>
                   <li><a href="#faqs">FAQs</a></li>
-                </ul>
-              </div>
-              <div className="footer-nav-group footer-nav-group--minor">
-                <ul>
-                  <li><a href="#">Contact</a></li>
-                  <li><a href="#">Privacy Policy</a></li>
-                </ul>
-                <ul>
-                  <li><a href="#">Terms of Service</a></li>
-                  <li><a href="#">Cookie Settings</a></li>
                 </ul>
               </div>
             </nav>
