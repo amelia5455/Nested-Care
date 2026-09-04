@@ -954,11 +954,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* HIW CTA */}
-      <div className="hiw-cta">
-        <a href="/calculator" className="btn-primary">Start the calculator <span className="btn-arrow">→</span></a>
-      </div>
-
       {/* WHY NESTED */}
       <div id="compare" className="scroll-anchor" />
       <div id="why-scroll-outer">

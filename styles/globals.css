@@ -376,8 +376,8 @@ body {
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 48px;
+  justify-content: flex-start;
+  gap: 20px;
   transition: background 0.2s ease;
   cursor: default;
   min-height: 200px;
@@ -628,14 +628,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-/* CTA */
-.hiw-cta {
-  background: #F5F3EE;
-  display: flex;
-  justify-content: center;
-  padding: 80px 80px 100px;
 }
 
 .btn-arrow { font-size: 18px; transition: transform 0.2s; }
@@ -977,7 +969,6 @@ html[data-text-scale]:not([data-text-scale="1"]) .btn-primary,
 html[data-text-scale]:not([data-text-scale="1"]) .btn-outline,
 html[data-text-scale]:not([data-text-scale="1"]) .btn-nav-primary,
 html[data-text-scale]:not([data-text-scale="1"]) .btn-mission,
-html[data-text-scale]:not([data-text-scale="1"]) .hiw-cta-btn,
 html[data-text-scale]:not([data-text-scale="1"]) .faq-q {
   height: auto;
   min-height: 48px;
@@ -1461,7 +1452,6 @@ em { font: inherit; }
   .why-scroller { scroll-padding-left: 32px; }
 
   .section-heading { font-size: 32px; }
-  .hiw-cta { padding: 64px 32px 80px; }
 
   #faq-wrapper { padding: 0 !important; }
   #faq-section { border-radius: 0 !important; min-height: 0 !important; }
@@ -1498,11 +1488,10 @@ em { font: inherit; }
   .why-subtext { font-size: 15px; }
   #why-track { padding: 0 18px; }
   .why-scroller { scroll-padding-left: 18px; }
-  .why-card { min-width: 272px; max-width: 272px; padding: 22px 20px 24px; gap: 28px; }
+  .why-card { min-width: 272px; max-width: 272px; padding: 22px 20px 24px; gap: 16px; }
 
   .section-heading { font-size: 26px; }
   .care-cards-heading { padding: 0 18px; }
-  .hiw-cta { padding: 48px 18px 64px; }
 
 
   .faq-grid { padding: 48px 18px !important; gap: 28px !important; }
