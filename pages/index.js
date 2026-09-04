@@ -1262,11 +1262,6 @@ export default function Home() {
 
       <div className="footer-wrap">
         <footer className="footer-card-b">
-          <a href="/" className="footer-brand">
-            <NestedMark className="footer-brand-mark" />
-            <span>nested</span>
-          </a>
-
           <div className="footer-top">
             <div className="footer-left">
               <h2 className="footer-tagline">Find care.<br /><em>Get clarity.</em></h2>
@@ -1275,9 +1270,10 @@ export default function Home() {
             </div>
 
             <nav className="footer-nav-b">
-              {/* Only destinations that exist. About, Blog, For providers,
-                  Contact and the legal pages were href="#" placeholders, so
-                  they are out until there is something to link to. */}
+              {/* About, Blog and For providers were invented, so they are out.
+                  Contact and the legal set stay: they are expected in a footer
+                  and the pages are still to be built, so their hrefs are
+                  placeholders that the click handler swallows. */}
               <div className="footer-nav-group">
                 <ul>
                   <li><a href="#how-it-works">How it works</a></li>
@@ -1287,6 +1283,16 @@ export default function Home() {
                 <ul>
                   <li><a href="/calculator">Cost calculator</a></li>
                   <li><a href="#faqs">FAQs</a></li>
+                </ul>
+              </div>
+              <div className="footer-nav-group footer-nav-group--minor">
+                <ul>
+                  <li><a href="#">Contact</a></li>
+                  <li><a href="#">Privacy Policy</a></li>
+                </ul>
+                <ul>
+                  <li><a href="#">Terms of Service</a></li>
+                  <li><a href="#">Cookie Settings</a></li>
                 </ul>
               </div>
             </nav>
