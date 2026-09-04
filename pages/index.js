@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
+import SiteFooter from '../components/SiteFooter';
 
 // The house mark, shared by the navbar and the footer so the paths are
 // defined once. The original clipPath was a full-bounds rect, i.e. a
@@ -1261,48 +1262,7 @@ export default function Home() {
       </main>
 
       <div className="footer-wrap">
-        <footer className="footer-card-b">
-          <div className="footer-top">
-            <div className="footer-left">
-              <h2 className="footer-tagline">Find care.<br /><em>Get clarity.</em></h2>
-              <p className="footer-blurb">Compare in-home care, assisted living and memory care side by side, with real numbers, in about three minutes.</p>
-              <a href="/calculator" className="footer-link-b">Start for free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-            </div>
-
-            <nav className="footer-nav-b">
-              {/* About, Blog and For providers were invented, so they are out.
-                  Contact and the legal set stay: they are expected in a footer
-                  and the pages are still to be built, so their hrefs are
-                  placeholders that the click handler swallows. */}
-              <div className="footer-nav-group">
-                <ul>
-                  <li><a href="#how-it-works">How it works</a></li>
-                  <li><a href="#care-types">Care types</a></li>
-                  <li><a href="#compare">Compare options</a></li>
-                </ul>
-                <ul>
-                  <li><a href="/calculator">Cost calculator</a></li>
-                  <li><a href="#faqs">FAQs</a></li>
-                </ul>
-              </div>
-              <div className="footer-nav-group footer-nav-group--minor">
-                <ul>
-                  <li><a href="#">Contact</a></li>
-                  <li><a href="#">Privacy Policy</a></li>
-                </ul>
-                <ul>
-                  <li><a href="#">Terms of Service</a></li>
-                  <li><a href="#">Cookie Settings</a></li>
-                </ul>
-              </div>
-            </nav>
-          </div>
-
-          <div className="footer-bottom-b">
-            <p className="footer-copy-b">&copy; 2025 Nested. All rights reserved.</p>
-            <p className="footer-disclaimer-b">Nested is not a licensed healthcare provider or financial advisor. Cost estimates are for informational purposes only and may vary by location and provider.</p>
-          </div>
-        </footer>
+        <SiteFooter />
       </div>
 
     </>

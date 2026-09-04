@@ -1788,3 +1788,111 @@ em { font: inherit; }
   .footer-nav-group { gap: 6px 14px; }
   .footer-bottom-b { padding: 18px var(--footer-pad) 24px; }
 }
+
+
+/* ============================================================
+   DOCUMENT PAGES  (contact, privacy, terms, cookies)
+   Plain reading pages. Measure is capped for legibility, and every
+   size sits above the site's 14px floor because these are exactly
+   the pages an older reader is most likely to squint at.
+   ============================================================ */
+.navbar--solid {
+  /* no intro to animate in from, so skip the width transition entirely */
+  transition: none;
+}
+
+.doc-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 148px 24px 96px;
+  color: #1A1A1A;
+}
+.doc-back {
+  display: inline-block; margin-bottom: 26px;
+  font-family: 'Figtree', sans-serif; font-size: 15px; font-weight: 600;
+  color: #025355; text-decoration: none;
+}
+.doc-back:hover { text-decoration: underline; }
+.doc-back::before { content: '\2190'; margin-right: 8px; }
+
+.doc-head h1 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(38px, 5.5vw, 60px); font-weight: 500;
+  letter-spacing: -0.03em; line-height: 1.06; color: #1A1A1A; margin: 0;
+}
+.doc-lede {
+  font-family: 'Figtree', sans-serif; font-size: 19px; line-height: 1.62;
+  color: #4A4A4A; margin: 20px 0 0; max-width: 60ch;
+}
+.doc-updated {
+  font-family: 'Figtree', sans-serif; font-size: 15px; color: #6B6B6B;
+  margin: 18px 0 0;
+}
+
+.doc-body { margin-top: 52px; }
+.doc-body section { margin-bottom: 44px; }
+.doc-body h2 {
+  font-family: 'Clash Display', sans-serif; font-size: 26px; font-weight: 500;
+  letter-spacing: -0.02em; color: #1A1A1A; margin: 0 0 14px;
+}
+.doc-body p {
+  font-family: 'Figtree', sans-serif; font-size: 17px; line-height: 1.68;
+  color: #333; margin: 0 0 14px; max-width: 68ch;
+}
+.doc-body ul { margin: 0 0 14px; padding-left: 22px; max-width: 68ch; }
+.doc-body li {
+  font-family: 'Figtree', sans-serif; font-size: 17px; line-height: 1.68;
+  color: #333; margin-bottom: 10px;
+}
+.doc-body strong { font-weight: 600; color: #1A1A1A; }
+.doc-body a { color: #025355; text-underline-offset: 3px; }
+.doc-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px; background: #E8E4DC; border-radius: 4px; padding: 2px 6px;
+}
+
+.doc-note {
+  border-left: 3px solid #B0CFCF; background: #EBF4F4;
+  border-radius: 0 10px 10px 0; padding: 20px 22px; margin-top: 52px;
+}
+.doc-note p { margin: 0; font-size: 16px; color: #2A2A2A; }
+
+.doc-panel {
+  border: 1px solid #D8D3CA; border-radius: 12px;
+  padding: 22px; margin: 20px 0 6px; background: #FBFAF7;
+}
+.doc-panel-empty {
+  margin: 0 !important; font-family: 'Figtree', sans-serif;
+  font-size: 16px; color: #4A4A4A;
+}
+.doc-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+.doc-table th, .doc-table td {
+  font-family: 'Figtree', sans-serif; font-size: 16px;
+  text-align: left; padding: 11px 0; border-bottom: 1px solid #E6E1D8;
+}
+.doc-table thead th { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B6B; }
+.doc-table tbody th { font-weight: 500; color: #1A1A1A; }
+.doc-table tbody td { color: #4A4A4A; }
+.doc-btn {
+  min-height: 48px; padding: 0 24px; border-radius: 100px;
+  border: 1.5px solid #025355; background: transparent; color: #025355;
+  font-family: 'Figtree', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s ease, color 0.2s ease;
+}
+.doc-btn:hover { background: #025355; color: #F5F3EE; }
+.doc-lead-link a {
+  font-family: 'Figtree', sans-serif; font-size: 22px; font-weight: 600;
+  color: #025355;
+}
+
+@media (max-width: 900px) {
+  .doc-page { padding: 124px 20px 72px; }
+  .doc-body { margin-top: 40px; }
+  .doc-body section { margin-bottom: 36px; }
+}
+
+html[data-contrast="high"] .doc-body p,
+html[data-contrast="high"] .doc-body li,
+html[data-contrast="high"] .doc-lede,
+html[data-contrast="high"] .doc-updated { color: #101010; }
+html[data-contrast="high"] .doc-panel { background: #FFFFFF; border-color: #1A1A1A; }
