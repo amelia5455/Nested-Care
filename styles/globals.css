@@ -972,6 +972,14 @@ html:not(.js-ready) #hiw-sub {
   animation: nested-failsafe-show 0.7s ease 2.4s forwards;
 }
 
+/* The FAQ panel widens to full bleed as it scrolls into view, and that is
+   driven by a scroll handler. Until the script claims the page the panel
+   sits at its authored inset, which reads as a broken section rather than
+   an un-started animation, so show the widened state by default. React
+   defers hydration in a background tab, which is exactly when this shows. */
+html:not(.js-ready) #faq-wrapper { padding: 0 !important; }
+html:not(.js-ready) #faq-section { border-radius: 0 !important; }
+
 /* ============================================================
    ACCESSIBILITY
    Nested's audience is largely older adults and their families,
